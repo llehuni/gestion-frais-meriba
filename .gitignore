@@ -1,0 +1,49 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+*.egg-info/
+*.egg
+*.whl
+dist/
+build/
+.eggs/
+*.log
+
+# Django
+db.sqlite3
+db.sqlite3-journal
+media/*
+!media/.gitkeep
+staticfiles/
+static_root/
+
+# Environnement
+.env
+.venv/
+venv/
+env/
+ENV/
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+Desktop.ini
+
+# Secrets & dumps
+*.pem
+*.key
+dumps/
+backups/
+
+# Tests & coverage
+.coverage
+htmlcov/
+.pytest_cache/
+.tox/

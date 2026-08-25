@@ -1,0 +1,5 @@
+Django==6.1
+# MySQL (production - AGENT.md §5) - décommenter si besoin
+# mysqlclient==2.2.*
+# Jinja2 (stack de référence)
+# Jinja2==3.1.*
