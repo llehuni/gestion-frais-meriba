@@ -1,0 +1,60 @@
+<tr id="user-row-{{ u.pk }}">
+    <td>
+        <div class="cell-main">
+            <div class="avatar"
+                style="{% if u.role == 'administrateur' %}background:#8250df{% elif u.role == 'directeur' %}background:var(--warning){% elif u.role == 'caissier' %}background:var(--success){% elif u.role == 'secretaire' %}background:var(--accent){% endif %}">
+                {{ u.prenom|slice:":1"|upper }}{{ u.nom|slice:":1"|upper }}</div>
+            <div>
+                <div class="cell-title">{{ u.get_full_name }}</div>
+                <div class="cell-sub">{{ u.prenom }} {{ u.nom }}</div>
+            </div>
+        </div>
+    </td>
+    <td class="mono">{{ u.login }}</td>
+    <td>
+        {% if u.role == 'administrateur' %}<span class="label label-purple"><i class="fas fa-crown"></i>
+            Administrateur</span>
+        {% elif u.role == 'directeur' %}<span class="label label-warning"><i class="fas fa-user-tie"></i>
+            Direction</span>
+        {% elif u.role == 'secretaire' %}<span class="label label-accent"><i class="fas fa-pen-to-square"></i>
+            Secrétaire</span>
+        {% elif u.role == 'caissier' %}<span class="label label-success"><i class="fas fa-money-bill"></i>
+            Caissier</span>
+        {% else %}<span class="label label-default">{{ u.get_role_display }}</span>{% endif %}
+    </td>
+    <td class="text-muted" style="font-size:12px;">{{ u.email|default:"—" }}</td>
+    <td>
+        {% if u.actif %}
+        <span class="label label-success"><i class="fas fa-check"></i> Actif</span>
+        {% else %}
+        <span class="label label-danger"><i class="fas fa-ban"></i> Bloqué</span>
+        {% endif %}
+    </td>
+    <td>
+        <div class="dropdown">
+            <button class="dropdown-toggle" onclick="toggleDropdown(event, this)"><i
+                    class="fas fa-ellipsis-vertical"></i></button>
+            <div class="dropdown-menu">
+                <a class="dropdown-item" href="{% url 'accounts:user_edit' u.pk %}"><span class="ico"><i
+                            class="fas fa-pen"></i></span> Modifier</a>
+                <a class="dropdown-item" href="{% url 'accounts:user_reset_password' u.pk %}"><span class="ico"><i
+                            class="fas fa-key"></i></span> Réinitialiser le mot de passe</a>
+                <div class="dropdown-divider"></div>
+                {% if u.actif %}
+                {% if u.pk == request.user.pk %}
+                <button class="dropdown-item" disabled><span class="ico"><i class="fas fa-ban"></i></span> Bloquer le
+                    compte</button>
+                {% else %}
+                <button class="dropdown-item danger" hx-post="{% url 'accounts:user_toggle_active' u.pk %}"
+                    hx-target="#user-row-{{ u.pk }}" hx-swap="outerHTML" hx-indicator="closest tr"><span class="ico"><i
+                            class="fas fa-ban"></i></span> Bloquer le compte</button>
+                {% endif %}
+                {% else %}
+                <button class="dropdown-item success" hx-post="{% url 'accounts:user_toggle_active' u.pk %}"
+                    hx-target="#user-row-{{ u.pk }}" hx-swap="outerHTML" hx-indicator="closest tr"><span class="ico"><i
+                            class="fas fa-check"></i></span> Réactiver le compte</button>
+                {% endif %}
+            </div>
+        </div>
+    </td>
+</tr>

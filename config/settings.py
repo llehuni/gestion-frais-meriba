@@ -25,7 +25,7 @@ SECRET_KEY = 'django-insecure-j(k8%1__whg%8myj00$e08iu)n+&*^0uwa@yrqiryk#6@cpm__
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ["127.0.0.1", "localhost", "testserver"] if DEBUG else []
 
 
 # Application definition
@@ -37,8 +37,8 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    # Apps métier (squelette vide pour l'instant - cf. AGENT.md §7)
-    # 'apps.accounts',
+    # Apps métier (AGENT.md §7)
+    'apps.accounts',
     # 'apps.students',
     # 'apps.classes',
     # 'apps.fees',
@@ -46,6 +46,12 @@ INSTALLED_APPS = [
     # 'apps.reports',
     # 'apps.audit',
 ]
+
+AUTH_USER_MODEL = 'accounts.User'
+
+LOGIN_URL = 'accounts:login'
+LOGIN_REDIRECT_URL = 'accounts:dashboard'
+LOGOUT_REDIRECT_URL = 'accounts:login'
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',

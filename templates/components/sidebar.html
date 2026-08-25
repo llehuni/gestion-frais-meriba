@@ -1,0 +1,56 @@
+<aside class="sidebar" id="sidebar">
+            <div class="sidebar-brand">
+                <div class="logo"><i class="fas fa-graduation-cap"></i></div>
+                <div class="name">Meriba<small>Gestion des frais</small></div>
+            </div>
+
+            <nav class="sidebar-nav">
+                <div class="nav-section">Principal</div>
+                <a class="nav-item {% if request.resolver_match.url_name == 'dashboard' %}active{% endif %}" href="{% url 'accounts:dashboard' %}" data-page="dashboard">
+                    <span class="ico"><i class="fas fa-house"></i></span> Tableau de bord
+                </a>
+
+                {% if user.is_administrateur or user.is_secretaire %}
+                <div class="nav-section">Scolarité</div>
+                <a class="nav-item" data-page="students" onclick="toast('Module Élèves — réservé Secrétariat/Admin','warning')">
+                    <span class="ico"><i class="fas fa-user-graduate"></i></span> Élèves <span class="count">247</span>
+                </a>
+                <a class="nav-item" data-page="classes" onclick="toast('Module Classes — réservé Secrétariat/Admin','warning')">
+                    <span class="ico"><i class="fas fa-chalkboard"></i></span> Classes
+                </a>
+                <a class="nav-item" data-page="years" onclick="toast('Années scolaires — réservé Secrétariat/Admin','warning')">
+                    <span class="ico"><i class="fas fa-calendar"></i></span> Années scolaires
+                </a>
+                {% endif %}
+
+                {% if user.is_administrateur or user.is_caissier %}
+                <div class="nav-section">Finances</div>
+                {% if user.is_administrateur %}
+                <a class="nav-item" data-page="fees" onclick="toast('Module Frais — réservé Administrateur','warning')">
+                    <span class="ico"><i class="fas fa-file-invoice-dollar"></i></span> Frais scolaires
+                </a>
+                {% endif %}
+                <a class="nav-item" data-page="payments" onclick="toast('Module Paiements — réservé Caisse/Admin','warning')">
+                    <span class="ico"><i class="fas fa-money-bill"></i></span> Paiements <span class="count">142</span>
+                </a>
+                <a class="nav-item" data-page="receipts" onclick="toast('Module Reçus — réservé Caisse/Admin','warning')">
+                    <span class="ico"><i class="fas fa-receipt"></i></span> Reçus
+                </a>
+                {% endif %}
+
+                {% if user.is_administrateur or user.is_directeur %}
+                <div class="nav-section">Administration</div>
+                <a class="nav-item" data-page="reports" onclick="toast('Module Rapports — réservé Direction/Admin','warning')">
+                    <span class="ico"><i class="fas fa-chart-column"></i></span> Rapports
+                </a>
+                {% endif %}
+                {% if user.is_administrateur %}
+                <a class="nav-item {% if 'user_' in request.resolver_match.url_name %}active{% endif %}" href="{% url 'accounts:user_list' %}" data-page="users">
+                    <span class="ico"><i class="fas fa-users"></i></span> Utilisateurs
+                </a>
+                <a class="nav-item" data-page="audit" onclick="toast('Journal d\'audit — réservé Administrateur','warning')">
+                    <span class="ico"><i class="fas fa-shield-halved"></i></span> Journal d'audit
+                </a>
+                {% endif %}
+            </nav>
+        </aside>

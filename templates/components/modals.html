@@ -1,0 +1,266 @@
+<!-- ===== MODALS ===== -->
+
+    <div class="modal-bg" id="m-student">
+        <div class="modal">
+            <div class="modal-head">
+                <h3>Nouvel élève</h3>
+                <button class="icon-btn" onclick="closeModal('m-student')"><i class="fas fa-xmark"></i></button>
+            </div>
+            <div class="modal-body">
+                <form onsubmit="event.preventDefault();submitStudent();">
+                    <div class="form-row">
+                        <div class="field"><label>Matricule</label><input class="input" value="MER-2024-248" readonly
+                                style="background:var(--bg-muted);"></div>
+                        <div class="field"><label>Date de naissance *</label><input class="input" type="date" required>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="field"><label>Nom *</label><input class="input" required></div>
+                        <div class="field"><label>Post-nom</label><input class="input"></div>
+                    </div>
+                    <div class="form-row">
+                        <div class="field"><label>Prénom *</label><input class="input" required></div>
+                        <div class="field"><label>Sexe *</label><select required>
+                                <option value="">Sélectionner</option>
+                                <option>Masculin</option>
+                                <option>Féminin</option>
+                            </select></div>
+                    </div>
+                    <div class="form-row">
+                        <div class="field"><label>Classe *</label><select required>
+                                <option value="">Sélectionner</option>
+                                <option>1ère A</option>
+                                <option>1ère B</option>
+                                <option>2ème A</option>
+                                <option>2ème B</option>
+                                <option>3ème A</option>
+                                <option>4ème A</option>
+                                <option>5ème A</option>
+                                <option>5ème B</option>
+                                <option>6ème A</option>
+                            </select></div>
+                        <div class="field"><label>Année scolaire</label><select>
+                                <option>2024-2025</option>
+                            </select></div>
+                    </div>
+                    <div class="field"><label>Adresse</label><input class="input"></div>
+                    <hr style="border:none;border-top:1px solid var(--border);margin:16px 0;">
+                    <div style="font-weight:600;margin-bottom:12px;">Tuteur</div>
+                    <div class="form-row">
+                        <div class="field"><label>Nom du tuteur *</label><input class="input" required></div>
+                        <div class="field"><label>Lien de parenté</label><select>
+                                <option>Père</option>
+                                <option>Mère</option>
+                                <option>Oncle</option>
+                                <option>Tante</option>
+                                <option>Autre</option>
+                            </select></div>
+                    </div>
+                    <div class="field"><label>Téléphone</label><input class="input" placeholder="+243 ..."></div>
+                </form>
+            </div>
+            <div class="modal-foot">
+                <button class="btn" onclick="closeModal('m-student')">Annuler</button>
+                <button class="btn btn-primary" onclick="submitStudent()">Enregistrer</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal-bg" id="m-payment">
+        <div class="modal">
+            <div class="modal-head">
+                <h3>Nouveau paiement</h3>
+                <button class="icon-btn" onclick="closeModal('m-payment')"><i class="fas fa-xmark"></i></button>
+            </div>
+            <div class="modal-body">
+                <form onsubmit="event.preventDefault();submitPayment();">
+                    <div class="field">
+                        <label>Élève *</label>
+                        <div class="search" style="max-width:none;">
+                            <i class="fas fa-search"></i>
+                            <input class="input" placeholder="Nom, matricule ou classe..." required>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="field"><label>Type de frais *</label><select required>
+                                <option value="">Sélectionner</option>
+                                <option>Inscription — 85 000 CDF</option>
+                                <option>Scolarité — 175 000 CDF</option>
+                                <option>Examens — 60 000 CDF</option>
+                                <option>Bulletin — 25 000 CDF</option>
+                            </select></div>
+                        <div class="field"><label>Année scolaire</label><select>
+                                <option>2024-2025</option>
+                            </select></div>
+                    </div>
+                    <div class="form-row">
+                        <div class="field"><label>Montant (CDF) *</label><input class="input" type="number" min="1"
+                                required></div>
+                        <div class="field"><label>Date *</label><input class="input" type="date" required></div>
+                    </div>
+                    <div class="field"><label>Mode de paiement</label><select>
+                            <option>Espèces</option>
+                        </select></div>
+                    <div class="field"><label>Observation</label><textarea rows="2"></textarea></div>
+                </form>
+            </div>
+            <div class="modal-foot">
+                <button class="btn" onclick="closeModal('m-payment')">Annuler</button>
+                <button class="btn btn-primary" onclick="submitPayment()">Enregistrer</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal-bg" id="m-receipt">
+        <div class="modal" style="max-width:460px;">
+            <div class="modal-head">
+                <h3>Reçu <span id="receipt-title">REC-2025-0142</span></h3>
+                <button class="icon-btn" onclick="closeModal('m-receipt')"><i class="fas fa-xmark"></i></button>
+            </div>
+            <div class="modal-body">
+                <div class="receipt" style="border:1px solid var(--border);">
+                    <div class="receipt-head">
+                        <h2>COMPLEXE SCOLAIRE MERIBA</h2>
+                        <p>REÇU N° <span id="receipt-num">REC-2025-0142</span></p>
+                    </div>
+                    <div class="receipt-row"><span class="k">Élève</span><span class="v">Mbuyi Kalala Jean</span></div>
+                    <div class="receipt-row"><span class="k">Matricule</span><span class="v mono">MER-2024-001</span>
+                    </div>
+                    <div class="receipt-row"><span class="k">Classe</span><span class="v">3ème Primaire A</span></div>
+                    <div class="receipt-row"><span class="k">Motif</span><span class="v">Scolarité</span></div>
+                    <div class="receipt-row"><span class="k">Date</span><span class="v">15/01/2025</span></div>
+                    <div class="receipt-row"><span class="k">Agent</span><span class="v">Tshibangu</span></div>
+                    <div class="receipt-total"><span>TOTAL</span><span>150 000 CDF</span></div>
+                </div>
+            </div>
+            <div class="modal-foot">
+                <button class="btn" onclick="closeModal('m-receipt')">Fermer</button>
+                <button class="btn" onclick="toast('Impression lancée')"><i class="fas fa-print"></i> Imprimer</button>
+                <button class="btn btn-primary" onclick="toast('Export PDF en cours...')"><i
+                        class="fas fa-file-pdf"></i> PDF</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal-bg" id="m-class">
+        <div class="modal" style="max-width:440px;">
+            <div class="modal-head">
+                <h3>Nouvelle classe</h3>
+                <button class="icon-btn" onclick="closeModal('m-class')"><i class="fas fa-xmark"></i></button>
+            </div>
+            <div class="modal-body">
+                <div class="field"><label>Nom *</label><input class="input" placeholder="Ex: 1ère A" required></div>
+                <div class="form-row">
+                    <div class="field"><label>Niveau *</label><select required>
+                            <option value="">Sélectionner</option>
+                            <option>1ère Primaire</option>
+                            <option>2ème Primaire</option>
+                            <option>3ème Primaire</option>
+                            <option>4ème Primaire</option>
+                            <option>5ème Primaire</option>
+                            <option>6ème Primaire</option>
+                        </select></div>
+                    <div class="field"><label>Section *</label><select required>
+                            <option>A</option>
+                            <option>B</option>
+                            <option>C</option>
+                        </select></div>
+                </div>
+                <div class="field"><label>Capacité maximale</label><input class="input" type="number" min="1"
+                        placeholder="50"></div>
+            </div>
+            <div class="modal-foot">
+                <button class="btn" onclick="closeModal('m-class')">Annuler</button>
+                <button class="btn btn-primary" onclick="closeModal('m-class');toast('Classe créée')">Créer</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal-bg" id="m-year">
+        <div class="modal" style="max-width:440px;">
+            <div class="modal-head">
+                <h3>Nouvelle année scolaire</h3>
+                <button class="icon-btn" onclick="closeModal('m-year')"><i class="fas fa-xmark"></i></button>
+            </div>
+            <div class="modal-body">
+                <div class="field"><label>Libellé *</label><input class="input" placeholder="Ex: 2025-2026" required>
+                </div>
+                <div class="form-row">
+                    <div class="field"><label>Date de début *</label><input class="input" type="date" required></div>
+                    <div class="field"><label>Date de fin *</label><input class="input" type="date" required></div>
+                </div>
+            </div>
+            <div class="modal-foot">
+                <button class="btn" onclick="closeModal('m-year')">Annuler</button>
+                <button class="btn btn-primary" onclick="closeModal('m-year');toast('Année créée')">Créer</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal-bg" id="m-feetype">
+        <div class="modal" style="max-width:440px;">
+            <div class="modal-head">
+                <h3>Nouveau type de frais</h3>
+                <button class="icon-btn" onclick="closeModal('m-feetype')"><i class="fas fa-xmark"></i></button>
+            </div>
+            <div class="modal-body">
+                <div class="field"><label>Libellé *</label><input class="input" required></div>
+                <div class="field"><label>Description</label><textarea rows="3"></textarea></div>
+            </div>
+            <div class="modal-foot">
+                <button class="btn" onclick="closeModal('m-feetype')">Annuler</button>
+                <button class="btn btn-primary"
+                    onclick="closeModal('m-feetype');toast('Type de frais créé')">Créer</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal-bg" id="m-user">
+        <div class="modal">
+            <div class="modal-head">
+                <h3>Nouvel utilisateur</h3>
+                <button class="icon-btn" onclick="closeModal('m-user')"><i class="fas fa-xmark"></i></button>
+            </div>
+            <div class="modal-body">
+                <div class="form-row">
+                    <div class="field"><label>Prénom *</label><input class="input" required></div>
+                    <div class="field"><label>Nom *</label><input class="input" required></div>
+                </div>
+                <div class="form-row">
+                    <div class="field"><label>Login *</label><input class="input" required></div>
+                    <div class="field"><label>Email</label><input class="input" type="email"></div>
+                </div>
+                <div class="form-row">
+                    <div class="field"><label>Rôle *</label><select required>
+                            <option value="">Sélectionner</option>
+                            <option>Administrateur</option>
+                            <option>Secrétaire</option>
+                            <option>Caissier</option>
+                            <option>Direction</option>
+                        </select></div>
+                    <div class="field"><label>Mot de passe *</label><input class="input" type="password" required></div>
+                </div>
+            </div>
+            <div class="modal-foot">
+                <button class="btn" onclick="closeModal('m-user')">Annuler</button>
+                <button class="btn btn-primary" onclick="closeModal('m-user');toast('Utilisateur créé')">Créer</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Confirm modal -->
+    <div class="modal-bg" id="m-confirm">
+        <div class="modal" style="max-width:400px;">
+            <div class="modal-head">
+                <h3 id="confirm-title">Confirmer</h3>
+                <button class="icon-btn" onclick="closeModal('m-confirm')"><i class="fas fa-xmark"></i></button>
+            </div>
+            <div class="modal-body">
+                <p id="confirm-message" style="font-size:14px;color:var(--fg-muted);"></p>
+            </div>
+            <div class="modal-foot">
+                <button class="btn" onclick="closeModal('m-confirm')">Annuler</button>
+                <button class="btn btn-danger" id="confirm-btn" onclick="confirmAction()">Confirmer</button>
+            </div>
+        </div>
+    </div>

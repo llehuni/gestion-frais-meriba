@@ -1,0 +1,91 @@
+{% extends "base.html" %}
+{% block title %}{% if object %}Modifier {{ object.login }}{% else %}Nouvel utilisateur{% endif %} — Meriba{% endblock %}
+{% block content %}
+<section class="page active">
+    <div class="page-header">
+        <div>
+            <h1 class="page-title">{% if object %}Modifier l'utilisateur{% else %}Nouvel utilisateur{% endif %}</h1>
+            <p class="page-desc">{% if object %}Mise à jour du compte {{ object.login }} — {{ object.get_role_display }}{% else %}Création d'un compte — champs obligatoires, login unique{% endif %}</p>
+        </div>
+        <div class="page-actions">
+            <a class="btn" href="{% url 'accounts:user_list' %}"><i class="fas fa-arrow-left"></i> Retour</a>
+        </div>
+    </div>
+
+    <div class="card" style="max-width:720px;">
+        <div class="card-header">
+            <div class="card-title">{% if object %}<i class="fas fa-user-pen"></i> {{ object.login }}{% else %}<i class="fas fa-user-plus"></i> Nouvel utilisateur{% endif %}</div>
+        </div>
+        <div class="card-body">
+            <form method="post" novalidate>
+                {% csrf_token %}
+                {% if form.non_field_errors %}
+                <div style="background:var(--danger-subtle); border:1px solid #ff818266; color:var(--danger); padding:8px 12px; border-radius:6px; font-size:13px; margin-bottom:12px;">{{ form.non_field_errors }}</div>
+                {% endif %}
+
+                <div class="form-row">
+                    <div class="field">
+                        <label for="{{ form.prenom.id_for_label }}">Prénom *</label>
+                        {{ form.prenom }}
+                        {% if form.prenom.errors %}<p style="color:var(--danger); font-size:12px; margin-top:4px;">{{ form.prenom.errors.0 }}</p>{% endif %}
+                    </div>
+                    <div class="field">
+                        <label for="{{ form.nom.id_for_label }}">Nom *</label>
+                        {{ form.nom }}
+                        {% if form.nom.errors %}<p style="color:var(--danger); font-size:12px; margin-top:4px;">{{ form.nom.errors.0 }}</p>{% endif %}
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="field">
+                        <label for="{{ form.login.id_for_label }}">Login *</label>
+                        {{ form.login }}
+                        {% if form.login.errors %}<p style="color:var(--danger); font-size:12px; margin-top:4px;">{{ form.login.errors.0 }}</p>{% endif %}
+                        {% if form.login.help_text %}<p class="text-sm text-muted">{{ form.login.help_text }}</p>{% endif %}
+                    </div>
+                    <div class="field">
+                        <label for="{{ form.email.id_for_label }}">Email</label>
+                        {{ form.email }}
+                        {% if form.email.errors %}<p style="color:var(--danger); font-size:12px; margin-top:4px;">{{ form.email.errors.0 }}</p>{% endif %}
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="field">
+                        <label for="{{ form.role.id_for_label }}">Rôle *</label>
+                        {{ form.role }}
+                        {% if form.role.errors %}<p style="color:var(--danger); font-size:12px; margin-top:4px;">{{ form.role.errors.0 }}</p>{% endif %}
+                    </div>
+                    <div class="field">
+                        <label for="{{ form.actif.id_for_label }}">Statut</label>
+                        <div style="display:flex; align-items:center; gap:8px; padding:6px 0;">
+                            {{ form.actif }}
+                            <span class="text-sm">{% if object and not object.actif %}Bloqué{% else %}Actif{% endif %} — sans suppression</span>
+                        </div>
+                    </div>
+                </div>
+
+                {% if not object %}
+                <div class="form-row">
+                    <div class="field">
+                        <label for="{{ form.password1.id_for_label }}">Mot de passe *</label>
+                        {{ form.password1 }}
+                        {% if form.password1.errors %}<p style="color:var(--danger); font-size:12px; margin-top:4px;">{{ form.password1.errors.0 }}</p>{% endif %}
+                    </div>
+                    <div class="field">
+                        <label for="{{ form.password2.id_for_label }}">Confirmation *</label>
+                        {{ form.password2 }}
+                        {% if form.password2.errors %}<p style="color:var(--danger); font-size:12px; margin-top:4px;">{{ form.password2.errors.0 }}</p>{% endif %}
+                    </div>
+                </div>
+                {% endif %}
+
+                <div style="display:flex; gap:8px; justify-content:flex-end; margin-top:20px; padding-top:16px; border-top:1px solid var(--border);">
+                    <a class="btn" href="{% url 'accounts:user_list' %}">Annuler</a>
+                    <button class="btn btn-primary" type="submit"><i class="fas fa-check"></i> Enregistrer</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</section>
+{% endblock %}

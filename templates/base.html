@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+{% load static %}
+<html lang="fr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Meriba — Gestion des frais scolaires</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/fontsource-inter@4.5.0/index.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@1.0.4/css/bulma.min.css">
+    <script src="https://unpkg.com/htmx.org@1.9.12"></script>
+    <link rel="stylesheet" href="{% static 'css/app.css' %}">
+</head>
+
+<body>
+
+    {% include "components/login.html" %}
+
+    {% if user.is_authenticated %}
+    <!-- ===== APP ===== -->
+    <div class="app active" id="app">
+        {% include "components/sidebar.html" %}
+
+        <div class="main">
+            {% include "components/topbar.html" %}
+
+            <div class="content">
+                {% block content %}{% endblock %}
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+{% include "components/modals.html" %}
+    {% include "components/toasts.html" %}
+
+    <script src="{% static 'js/app.js' %}"></script>
+    <script>
+        document.body.addEventListener('htmx:configRequest', function(event){
+            var token='{{ csrf_token }}';
+            if(!token || token==='NOTPROVIDED'){ var m=document.cookie.match(/csrftoken=([^;]+)/); if(m) token=m[1]; }
+            event.detail.headers['X-CSRFToken']=token;
+        });
+    </script>
+    {% if messages %}
+    <script>
+        document.addEventListener('DOMContentLoaded', function(){
+            {% for message in messages %}
+            if (typeof toast === 'function') toast("{{ message|escapejs }}", "{% if 'error' in message.tags or 'danger' in message.tags %}error{% elif 'warning' in message.tags %}warning{% else %}success{% endif %}");
+            {% endfor %}
+        });
+    </script>
+    {% endif %}
+
+</body>
+
+</html>

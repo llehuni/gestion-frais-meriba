@@ -1,0 +1,40 @@
+{% if not user.is_authenticated %}
+    <!-- ===== LOGIN ===== -->
+    <div class="login-wrap" id="loginPage">
+        <div class="login-card">
+            <div class="login-logo"><i class="fas fa-graduation-cap"></i></div>
+            <h1 class="login-title">Complexe Scolaire Meriba</h1>
+            <p class="login-sub">Gestion des frais scolaires — Cycle primaire</p>
+
+            <form method="post" action="{% url 'accounts:login' %}">
+                {% csrf_token %}
+                {% if form and form.non_field_errors %}
+                <div style="background:var(--danger-subtle); border:1px solid #ff818266; color:var(--danger); padding:8px 12px; border-radius:6px; font-size:13px; margin-bottom:12px;">{{ form.non_field_errors }}</div>
+                {% endif %}
+                {% if messages %}
+                  {% for message in messages %}
+                    {% if message.tags == 'error' or message.tags == 'danger' %}
+                    <div style="background:var(--danger-subtle); border:1px solid #ff818266; color:var(--danger); padding:8px 12px; border-radius:6px; font-size:13px; margin-bottom:12px;">{{ message }}</div>
+                    {% endif %}
+                  {% endfor %}
+                {% endif %}
+                <div class="field">
+                    <label for="id_login">Identifiant</label>
+                    <input class="input" id="id_login" name="login" type="text" value="{{ form.login.value|default:'' }}" required autofocus>
+                    {% if form.login.errors %}<p style="color:var(--danger); font-size:12px; margin-top:4px;">{{ form.login.errors.0 }}</p>{% endif %}
+                </div>
+                <div class="field">
+                    <label for="id_password">Mot de passe</label>
+                    <input class="input" id="id_password" name="password" type="password" required>
+                    {% if form.password.errors %}<p style="color:var(--danger); font-size:12px; margin-top:4px;">{{ form.password.errors.0 }}</p>{% endif %}
+                </div>
+                <button type="submit" class="btn btn-primary btn-block mt-3">Se connecter</button>
+            </form>
+
+            <div class="login-foot"><a href="#">Mot de passe oublié ?</a></div>
+            <div class="login-foot" style="font-size:11px; color:var(--fg-subtle); margin-top:8px; border-top:1px solid var(--border-muted); padding-top:8px;">
+                Démo : admin/Admin123! · secretaire/Secret123! · caissier/Caisse123! · direction/Direct123!
+            </div>
+        </div>
+    </div>
+    {% endif %}

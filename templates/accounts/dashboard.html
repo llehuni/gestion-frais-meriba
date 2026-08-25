@@ -1,0 +1,365 @@
+{% extends "base.html" %}
+{% block title %}Tableau de bord — Meriba{% endblock %}
+{% block content %}
+<!-- ===== DASHBOARD ===== -->
+                <section class="page active" id="page-dashboard">
+                    <div class="page-header">
+                        <div>
+                            <h1 class="page-title">Tableau de bord</h1>
+                            <p class="page-desc">Vue d'ensemble de l'année scolaire 2024-2025 — <span class="label {% if user.is_administrateur %}label-purple{% elif user.is_directeur %}label-warning{% elif user.is_secretaire %}label-accent{% else %}label-success{% endif %}">{{ user.get_role_display }}</span> <span class="text-sm text-muted">connecté en tant que {{ user.login }}</span></p>
+                        </div>
+                        <div class="page-actions">
+                            {% if user.is_administrateur or user.is_secretaire %}
+                            <button class="btn" onclick="toast('Création élève — réservée Secrétariat','warning')"><i class="fas fa-user-plus"></i> Nouvel élève</button>
+                            {% endif %}
+                            {% if user.is_administrateur or user.is_caissier %}
+                            <button class="btn btn-primary" onclick="toast('Encaissement — réservé Caisse','warning')"><i class="fas fa-money-bill"></i> Encaisser</button>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <div class="stats-grid">
+                        {% if user.is_administrateur or user.is_secretaire or user.is_directeur %}
+                        <div class="stat">
+                            <div class="stat-label"><i class="fas fa-user-graduate"></i> Élèves inscrits</div>
+                            <div class="stat-value">247</div>
+                            <div class="stat-meta"><span class="up"><i class="fas fa-arrow-up"></i> 12%</span> vs. année
+                                précédente</div>
+                        </div>
+                        {% endif %}
+                        <div class="stat">
+                            <div class="stat-label"><i class="fas fa-check-circle"></i> À jour</div>
+                            <div class="stat-value">189</div>
+                            <div class="stat-meta">76,5% des inscrits</div>
+                        </div>
+                        {% if user.is_administrateur or user.is_caissier or user.is_directeur %}
+                        <div class="stat">
+                            <div class="stat-label"><i class="fas fa-coins"></i> Recettes (CDF)</div>
+                            <div class="stat-value">12,4 M</div>
+                            <div class="stat-meta"><span class="up"><i class="fas fa-arrow-up"></i> 15%</span> vs.
+                                objectif</div>
+                        </div>
+                        <div class="stat">
+                            <div class="stat-label"><i class="fas fa-triangle-exclamation"></i> Débiteurs</div>
+                            <div class="stat-value">58</div>
+                            <div class="stat-meta"><span class="down"><i class="fas fa-arrow-down"></i> 5%</span> vs.
+                                mois dernier</div>
+                        </div>
+                        {% endif %}
+                    </div>
+
+                    {% if user.is_administrateur or user.is_caissier or user.is_directeur %}
+                    <div style="display:grid;grid-template-columns:2fr 1fr;gap:16px;margin-bottom:16px;"
+                        class="dash-row">
+                        <div class="card">
+                            <div class="card-header">
+                                <div class="card-title">Recettes mensuelles (milliers CDF)</div>
+                                <select class="input" style="width:auto;">
+                                    <option>2024-2025</option>
+                                </select>
+                            </div>
+                            <div class="card-body">
+                                <div class="bars">
+                                    <div class="bar-col">
+                                        <div class="bar-val">850</div>
+                                        <div class="bar" style="height:42%"></div>
+                                        <div class="bar-lbl">Sep</div>
+                                    </div>
+                                    <div class="bar-col">
+                                        <div class="bar-val">1 200</div>
+                                        <div class="bar" style="height:60%"></div>
+                                        <div class="bar-lbl">Oct</div>
+                                    </div>
+                                    <div class="bar-col">
+                                        <div class="bar-val">1 800</div>
+                                        <div class="bar" style="height:90%"></div>
+                                        <div class="bar-lbl">Nov</div>
+                                    </div>
+                                    <div class="bar-col">
+                                        <div class="bar-val">1 500</div>
+                                        <div class="bar" style="height:75%"></div>
+                                        <div class="bar-lbl">Déc</div>
+                                    </div>
+                                    <div class="bar-col">
+                                        <div class="bar-val">2 000</div>
+                                        <div class="bar" style="height:100%;background:var(--success)"></div>
+                                        <div class="bar-lbl">Jan</div>
+                                    </div>
+                                    <div class="bar-col">
+                                        <div class="bar-val">1 650</div>
+                                        <div class="bar" style="height:82%"></div>
+                                        <div class="bar-lbl">Fév</div>
+                                    </div>
+                                    <div class="bar-col">
+                                        <div class="bar-val">1 400</div>
+                                        <div class="bar" style="height:70%"></div>
+                                        <div class="bar-lbl">Mar</div>
+                                    </div>
+                                    <div class="bar-col">
+                                        <div class="bar-val">900</div>
+                                        <div class="bar" style="height:45%;background:var(--warning)"></div>
+                                        <div class="bar-lbl">Avr</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="card">
+                            <div class="card-header">
+                                <div class="card-title">Répartition des recettes</div>
+                            </div>
+                            <div class="card-body">
+                                <div style="display:flex;flex-direction:column;gap:14px;">
+                                    <div>
+                                        <div class="flex items-center"
+                                            style="justify-content:space-between;margin-bottom:4px;">
+                                            <span class="text-sm fw-500">Scolarité</span>
+                                            <span class="text-sm text-muted">45%</span>
+                                        </div>
+                                        <div class="progress"><span style="width:45%"></span></div>
+                                    </div>
+                                    <div>
+                                        <div class="flex items-center"
+                                            style="justify-content:space-between;margin-bottom:4px;">
+                                            <span class="text-sm fw-500">Inscription</span>
+                                            <span class="text-sm text-muted">25%</span>
+                                        </div>
+                                        <div class="progress success"><span style="width:25%"></span></div>
+                                    </div>
+                                    <div>
+                                        <div class="flex items-center"
+                                            style="justify-content:space-between;margin-bottom:4px;">
+                                            <span class="text-sm fw-500">Examens</span>
+                                            <span class="text-sm text-muted">18%</span>
+                                        </div>
+                                        <div class="progress warning"><span style="width:18%"></span></div>
+                                    </div>
+                                    <div>
+                                        <div class="flex items-center"
+                                            style="justify-content:space-between;margin-bottom:4px;">
+                                            <span class="text-sm fw-500">Bulletin</span>
+                                            <span class="text-sm text-muted">8%</span>
+                                        </div>
+                                        <div class="progress"><span style="width:8%;background:#8250df"></span></div>
+                                    </div>
+                                    <div>
+                                        <div class="flex items-center"
+                                            style="justify-content:space-between;margin-bottom:4px;">
+                                            <span class="text-sm fw-500">Autres</span>
+                                            <span class="text-sm text-muted">4%</span>
+                                        </div>
+                                        <div class="progress"><span style="width:4%;background:var(--fg-muted)"></span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% endif %}
+
+                    <div class="card">
+                        <div class="card-header">
+                            <div class="card-title">Derniers paiements</div>
+                            <button class="btn" onclick="go('payments')">Voir tout <i
+                                    class="fas fa-arrow-right"></i></button>
+                        </div>
+                        <div class="table-wrap">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>N° Reçu</th>
+                                        <th>Élève</th>
+                                        <th>Type</th>
+                                        <th>Montant</th>
+                                        <th>Date</th>
+                                        <th>Statut</th>
+                                        <th style="width:40px;"></th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td class="mono">REC-2025-0142</td>
+                                        <td>
+                                            <div class="cell-main">
+                                                <div class="avatar">MK</div>
+                                                <div>
+                                                    <div class="cell-title">Mbuyi Kalala</div>
+                                                    <div class="cell-sub">MER-2024-001</div>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td><span class="label label-accent">Scolarité</span></td>
+                                        <td class="fw-500">150 000 CDF</td>
+                                        <td class="text-muted">15/01/2025</td>
+                                        <td><span class="label label-success"><i class="fas fa-check"></i>
+                                                Complet</span></td>
+                                        <td>
+                                            <div class="dropdown">
+                                                <button class="dropdown-toggle" onclick="toggleDropdown(event, this)"><i
+                                                        class="fas fa-ellipsis-vertical"></i></button>
+                                                <div class="dropdown-menu">
+                                                    <button class="dropdown-item"
+                                                        onclick="actionView('paiement', 'REC-2025-0142')"><span
+                                                            class="ico"><i class="fas fa-eye"></i></span> Voir le
+                                                        détail</button>
+                                                    <button class="dropdown-item"
+                                                        onclick="actionReceipt('REC-2025-0142')"><span class="ico"><i
+                                                                class="fas fa-receipt"></i></span> Voir le reçu</button>
+                                                    <div class="dropdown-divider"></div>
+                                                    <button class="dropdown-item"
+                                                        onclick="actionPrint('REC-2025-0142')"><span class="ico"><i
+                                                                class="fas fa-print"></i></span> Imprimer</button>
+                                                </div>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td class="mono">REC-2025-0141</td>
+                                        <td>
+                                            <div class="cell-main">
+                                                <div class="avatar" style="background:var(--success)">TN</div>
+                                                <div>
+                                                    <div class="cell-title">Tshimanga Ngoy</div>
+                                                    <div class="cell-sub">MER-2024-015</div>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td><span class="label label-warning">Examens</span></td>
+                                        <td class="fw-500">50 000 CDF</td>
+                                        <td class="text-muted">15/01/2025</td>
+                                        <td><span class="label label-warning"><i class="fas fa-hourglass-half"></i>
+                                                Partiel</span></td>
+                                        <td>
+                                            <div class="dropdown">
+                                                <button class="dropdown-toggle" onclick="toggleDropdown(event, this)"><i
+                                                        class="fas fa-ellipsis-vertical"></i></button>
+                                                <div class="dropdown-menu">
+                                                    <button class="dropdown-item"
+                                                        onclick="actionView('paiement', 'REC-2025-0141')"><span
+                                                            class="ico"><i class="fas fa-eye"></i></span> Voir le
+                                                        détail</button>
+                                                    <button class="dropdown-item"
+                                                        onclick="actionReceipt('REC-2025-0141')"><span class="ico"><i
+                                                                class="fas fa-receipt"></i></span> Voir le reçu</button>
+                                                    <div class="dropdown-divider"></div>
+                                                    <button class="dropdown-item"
+                                                        onclick="actionPrint('REC-2025-0141')"><span class="ico"><i
+                                                                class="fas fa-print"></i></span> Imprimer</button>
+                                                </div>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td class="mono">REC-2025-0140</td>
+                                        <td>
+                                            <div class="cell-main">
+                                                <div class="avatar" style="background:var(--danger)">KM</div>
+                                                <div>
+                                                    <div class="cell-title">Kabongo Mukendi</div>
+                                                    <div class="cell-sub">MER-2024-023</div>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td><span class="label label-default">Inscription</span></td>
+                                        <td class="fw-500">75 000 CDF</td>
+                                        <td class="text-muted">14/01/2025</td>
+                                        <td><span class="label label-success"><i class="fas fa-check"></i>
+                                                Complet</span></td>
+                                        <td>
+                                            <div class="dropdown">
+                                                <button class="dropdown-toggle" onclick="toggleDropdown(event, this)"><i
+                                                        class="fas fa-ellipsis-vertical"></i></button>
+                                                <div class="dropdown-menu">
+                                                    <button class="dropdown-item"
+                                                        onclick="actionView('paiement', 'REC-2025-0140')"><span
+                                                            class="ico"><i class="fas fa-eye"></i></span> Voir le
+                                                        détail</button>
+                                                    <button class="dropdown-item"
+                                                        onclick="actionReceipt('REC-2025-0140')"><span class="ico"><i
+                                                                class="fas fa-receipt"></i></span> Voir le reçu</button>
+                                                    <div class="dropdown-divider"></div>
+                                                    <button class="dropdown-item"
+                                                        onclick="actionPrint('REC-2025-0140')"><span class="ico"><i
+                                                                class="fas fa-print"></i></span> Imprimer</button>
+                                                </div>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td class="mono">REC-2025-0139</td>
+                                        <td>
+                                            <div class="cell-main">
+                                                <div class="avatar" style="background:var(--warning)">LM</div>
+                                                <div>
+                                                    <div class="cell-title">Lunda Mwamba</div>
+                                                    <div class="cell-sub">MER-2024-042</div>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td><span class="label label-purple">Bulletin</span></td>
+                                        <td class="fw-500">25 000 CDF</td>
+                                        <td class="text-muted">14/01/2025</td>
+                                        <td><span class="label label-success"><i class="fas fa-check"></i>
+                                                Complet</span></td>
+                                        <td>
+                                            <div class="dropdown">
+                                                <button class="dropdown-toggle" onclick="toggleDropdown(event, this)"><i
+                                                        class="fas fa-ellipsis-vertical"></i></button>
+                                                <div class="dropdown-menu">
+                                                    <button class="dropdown-item"
+                                                        onclick="actionView('paiement', 'REC-2025-0139')"><span
+                                                            class="ico"><i class="fas fa-eye"></i></span> Voir le
+                                                        détail</button>
+                                                    <button class="dropdown-item"
+                                                        onclick="actionReceipt('REC-2025-0139')"><span class="ico"><i
+                                                                class="fas fa-receipt"></i></span> Voir le reçu</button>
+                                                    <div class="dropdown-divider"></div>
+                                                    <button class="dropdown-item"
+                                                        onclick="actionPrint('REC-2025-0139')"><span class="ico"><i
+                                                                class="fas fa-print"></i></span> Imprimer</button>
+                                                </div>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td class="mono">REC-2025-0138</td>
+                                        <td>
+                                            <div class="cell-main">
+                                                <div class="avatar" style="background:#8250df">NK</div>
+                                                <div>
+                                                    <div class="cell-title">Nkulu Kaseya</div>
+                                                    <div class="cell-sub">MER-2024-058</div>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td><span class="label label-accent">Scolarité</span></td>
+                                        <td class="fw-500">100 000 CDF</td>
+                                        <td class="text-muted">13/01/2025</td>
+                                        <td><span class="label label-danger"><i class="fas fa-xmark"></i> Impayé</span>
+                                        </td>
+                                        <td>
+                                            <div class="dropdown">
+                                                <button class="dropdown-toggle" onclick="toggleDropdown(event, this)"><i
+                                                        class="fas fa-ellipsis-vertical"></i></button>
+                                                <div class="dropdown-menu">
+                                                    <button class="dropdown-item"
+                                                        onclick="actionView('paiement', 'REC-2025-0138')"><span
+                                                            class="ico"><i class="fas fa-eye"></i></span> Voir le
+                                                        détail</button>
+                                                    <button class="dropdown-item"
+                                                        onclick="actionReceipt('REC-2025-0138')"><span class="ico"><i
+                                                                class="fas fa-receipt"></i></span> Voir le reçu</button>
+                                                    <div class="dropdown-divider"></div>
+                                                    <button class="dropdown-item"
+                                                        onclick="actionPrint('REC-2025-0138')"><span class="ico"><i
+                                                                class="fas fa-print"></i></span> Imprimer</button>
+                                                </div>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </section>
+{% endblock %}

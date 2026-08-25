@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+{% block title %}Utilisateurs — Meriba{% endblock %}
+{% block content %}
+<section class="page active" id="page-users">
+    <div class="page-header">
+        <div>
+            <h1 class="page-title">Utilisateurs</h1>
+            <p class="page-desc">Comptes, rôles et permissions — {{ users|length }} résultat(s)</p>
+        </div>
+        <div class="page-actions">
+            <a class="btn btn-primary" href="{% url 'accounts:user_create' %}"><i class="fas fa-user-plus"></i> Nouvel utilisateur</a>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-header" style="gap:12px;">
+            <form id="search-form" method="get" style="display:flex; gap:12px; flex:1; align-items:center; flex-wrap:wrap;" onsubmit="return false;">
+                <div class="search" style="flex:1; max-width:320px;">
+                    <i class="fas fa-search"></i>
+                    <input class="input" id="q" name="q" value="{{ request.GET.q }}" placeholder="Rechercher par login, nom..."
+                           hx-get="{% url 'accounts:user_list' %}"
+                           hx-trigger="keyup changed delay:300ms, search"
+                           hx-target="#user-table"
+                           hx-swap="outerHTML"
+                           hx-push-url="true"
+                           hx-include="#search-form"
+                           hx-indicator="#search-indicator">
+                </div>
+                <select class="input" id="role" name="role" style="width:auto; min-width:160px;"
+                        hx-get="{% url 'accounts:user_list' %}"
+                        hx-trigger="change"
+                        hx-target="#user-table"
+                        hx-swap="outerHTML"
+                        hx-push-url="true"
+                        hx-include="#search-form">
+                    <option value="">Tous les rôles</option>
+                    <option value="administrateur" {% if request.GET.role == 'administrateur' %}selected{% endif %}>Administrateur</option>
+                    <option value="directeur" {% if request.GET.role == 'directeur' %}selected{% endif %}>Direction</option>
+                    <option value="secretaire" {% if request.GET.role == 'secretaire' %}selected{% endif %}>Secrétaire</option>
+                    <option value="caissier" {% if request.GET.role == 'caissier' %}selected{% endif %}>Caissier</option>
+                </select>
+                <span id="search-indicator" class="htmx-indicator" style="color:var(--fg-muted); font-size:12px;"><i class="fas fa-spinner fa-spin"></i></span>
+                <a class="btn" href="{% url 'accounts:user_list' %}">Réinitialiser</a>
+            </form>
+        </div>
+        {% include "accounts/_user_table.html" %}
+    </div>
+</section>
+{% endblock %}
