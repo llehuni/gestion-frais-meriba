@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+{% block title %}{% if object %}Modifier {{ object.nom }}{% else %}Nouvelle classe{% endif %} — Meriba{% endblock %}
+{% block content %}
+<section class="page active">
+    <div class="page-header">
+        <div>
+            <h1 class="page-title">{% if object %}Modifier la classe{% else %}Nouvelle classe{% endif %}</h1>
+            <p class="page-desc">{% if object %}Mise à jour de {{ object.nom }}{% else %}Création d'une classe — 1ère à 6ème primaire{% endif %}</p>
+        </div>
+        <div class="page-actions">
+            <a class="btn" href="{% url 'classes:classe_list' %}"><i class="fas fa-arrow-left"></i> Retour</a>
+        </div>
+    </div>
+
+    <div class="card" style="max-width:50%;">
+        <div class="card-header"><div class="card-title"><i class="fas fa-chalkboard"></i> {% if object %}{{ object.nom }}{% else %}Nouvelle classe{% endif %}</div></div>
+        <div class="card-body">
+            <form method="post" novalidate>
+                {% csrf_token %}
+                {% if form.non_field_errors %}<div style="background:var(--danger-subtle); border:1px solid #ff818266; color:var(--danger); padding:8px 12px; border-radius:6px; font-size:13px; margin-bottom:12px;">{{ form.non_field_errors }}</div>{% endif %}
+                {% if object %}
+                <div class="field"><label>Nom (auto)</label><input class="input" value="{{ object.nom }}" disabled><p class="text-sm text-muted">Généré automatiquement : niveau + section</p></div>
+                {% else %}
+                <div class="field"><label>Nom (auto)</label><input class="input" value="Généré automatiquement : ex. 1ère B" disabled><p class="text-sm text-muted">Format : niveau + section</p></div>
+                {% endif %}
+                <div class="form-row">
+                    <div class="field"><label>Niveau *</label>{{ form.niveau }}{% if form.niveau.errors %}<p style="color:var(--danger); font-size:12px;">{{ form.niveau.errors.0 }}</p>{% endif %}</div>
+                    <div class="field"><label>Section *</label>{{ form.section }}{% if form.section.errors %}<p style="color:var(--danger); font-size:12px;">{{ form.section.errors.0 }}</p>{% endif %}</div>
+                </div>
+                <div style="display:flex; gap:8px; justify-content:flex-end; margin-top:20px; padding-top:16px; border-top:1px solid var(--border);">
+                    <a class="btn" href="{% url 'classes:classe_list' %}">Annuler</a>
+                    <button class="btn btn-primary" type="submit"><i class="fas fa-check"></i> Enregistrer</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</section>
+{% endblock %}

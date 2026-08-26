@@ -20,12 +20,12 @@
                 {% endif %}
                 <div class="field">
                     <label for="id_login">Identifiant</label>
-                    <input class="input" id="id_login" name="login" type="text" value="{{ form.login.value|default:'' }}" required autofocus>
+                    <input class="input" id="id_login" name="login" type="text" value="{{ form.login.value|default:'' }}" autofocus>
                     {% if form.login.errors %}<p style="color:var(--danger); font-size:12px; margin-top:4px;">{{ form.login.errors.0 }}</p>{% endif %}
                 </div>
                 <div class="field">
                     <label for="id_password">Mot de passe</label>
-                    <input class="input" id="id_password" name="password" type="password" required>
+                    <input class="input" id="id_password" name="password" type="password">
                     {% if form.password.errors %}<p style="color:var(--danger); font-size:12px; margin-top:4px;">{{ form.password.errors.0 }}</p>{% endif %}
                 </div>
                 <button type="submit" class="btn btn-primary btn-block mt-3">Se connecter</button>

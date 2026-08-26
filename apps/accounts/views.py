@@ -54,9 +54,25 @@ def logout_view(request: HttpRequest) -> HttpResponse:
 
 @login_required
 def dashboard_view(request: HttpRequest) -> HttpResponse:
+    from apps.classes.models import Classe
+    from apps.students.models import Eleve
     role = request.user.role
-    # Contexte minimal, les futurs tableaux de bord métier brancheront ici
-    return render(request, "accounts/dashboard.html", {"role": role, "roles": Role.choices})
+    # Données réelles pour vider les statiques
+    ctx = {
+        "role": role,
+        "roles": Role.choices,
+        "total_eleves": Eleve.objects.count(),
+        "total_classes": Classe.objects.count(),
+        "eleves_par_classe": Classe.objects.all().order_by("niveau", "section")[:6],
+    }
+    # Calcul simple des à jour / débiteurs si future app payments existe, sinon 0
+    try:
+        ctx["a_jour"] = Eleve.objects.count()  # placeholder
+        ctx["debiteurs"] = 0
+    except Exception:
+        ctx["a_jour"] = 0
+        ctx["debiteurs"] = 0
+    return render(request, "accounts/dashboard.html", ctx)
 
 
 # --- Gestion utilisateurs (Administrateur) ---

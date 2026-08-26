@@ -12,26 +12,23 @@
 
                 {% if user.is_administrateur or user.is_secretaire %}
                 <div class="nav-section">Scolarité</div>
-                <a class="nav-item" data-page="students" onclick="toast('Module Élèves — réservé Secrétariat/Admin','warning')">
-                    <span class="ico"><i class="fas fa-user-graduate"></i></span> Élèves <span class="count">247</span>
+                <a class="nav-item {% if 'eleve' in request.resolver_match.url_name %}active{% endif %}" href="{% url 'students:eleve_list' %}" data-page="students">
+                    <span class="ico"><i class="fas fa-user-graduate"></i></span> Élèves
                 </a>
-                <a class="nav-item" data-page="classes" onclick="toast('Module Classes — réservé Secrétariat/Admin','warning')">
+                <a class="nav-item {% if 'classe_' in request.resolver_match.url_name %}active{% endif %}" href="{% url 'classes:classe_list' %}" data-page="classes">
                     <span class="ico"><i class="fas fa-chalkboard"></i></span> Classes
-                </a>
-                <a class="nav-item" data-page="years" onclick="toast('Années scolaires — réservé Secrétariat/Admin','warning')">
-                    <span class="ico"><i class="fas fa-calendar"></i></span> Années scolaires
                 </a>
                 {% endif %}
 
                 {% if user.is_administrateur or user.is_caissier %}
                 <div class="nav-section">Finances</div>
                 {% if user.is_administrateur %}
-                <a class="nav-item" data-page="fees" onclick="toast('Module Frais — réservé Administrateur','warning')">
+                <a class="nav-item {% if 'type_' in request.resolver_match.url_name or 'frais_' in request.resolver_match.url_name %}active{% endif %}" href="{% url 'fees:frais_list' %}" data-page="fees">
                     <span class="ico"><i class="fas fa-file-invoice-dollar"></i></span> Frais scolaires
                 </a>
                 {% endif %}
                 <a class="nav-item" data-page="payments" onclick="toast('Module Paiements — réservé Caisse/Admin','warning')">
-                    <span class="ico"><i class="fas fa-money-bill"></i></span> Paiements <span class="count">142</span>
+                    <span class="ico"><i class="fas fa-money-bill"></i></span> Paiements
                 </a>
                 <a class="nav-item" data-page="receipts" onclick="toast('Module Reçus — réservé Caisse/Admin','warning')">
                     <span class="ico"><i class="fas fa-receipt"></i></span> Reçus

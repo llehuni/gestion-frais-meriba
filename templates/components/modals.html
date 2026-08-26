@@ -11,23 +11,23 @@
                     <div class="form-row">
                         <div class="field"><label>Matricule</label><input class="input" value="MER-2024-248" readonly
                                 style="background:var(--bg-muted);"></div>
-                        <div class="field"><label>Date de naissance *</label><input class="input" type="date" required>
+                        <div class="field"><label>Date de naissance *</label><input class="input" type="date">
                         </div>
                     </div>
                     <div class="form-row">
-                        <div class="field"><label>Nom *</label><input class="input" required></div>
+                        <div class="field"><label>Nom *</label><input class="input"></div>
                         <div class="field"><label>Post-nom</label><input class="input"></div>
                     </div>
                     <div class="form-row">
-                        <div class="field"><label>Prénom *</label><input class="input" required></div>
-                        <div class="field"><label>Sexe *</label><select required>
+                        <div class="field"><label>Prénom *</label><input class="input"></div>
+                        <div class="field"><label>Sexe *</label><select>
                                 <option value="">Sélectionner</option>
                                 <option>Masculin</option>
                                 <option>Féminin</option>
                             </select></div>
                     </div>
                     <div class="form-row">
-                        <div class="field"><label>Classe *</label><select required>
+                        <div class="field"><label>Classe *</label><select>
                                 <option value="">Sélectionner</option>
                                 <option>1ère A</option>
                                 <option>1ère B</option>
@@ -47,7 +47,7 @@
                     <hr style="border:none;border-top:1px solid var(--border);margin:16px 0;">
                     <div style="font-weight:600;margin-bottom:12px;">Tuteur</div>
                     <div class="form-row">
-                        <div class="field"><label>Nom du tuteur *</label><input class="input" required></div>
+                        <div class="field"><label>Nom du tuteur *</label><input class="input"></div>
                         <div class="field"><label>Lien de parenté</label><select>
                                 <option>Père</option>
                                 <option>Mère</option>
@@ -78,11 +78,11 @@
                         <label>Élève *</label>
                         <div class="search" style="max-width:none;">
                             <i class="fas fa-search"></i>
-                            <input class="input" placeholder="Nom, matricule ou classe..." required>
+                            <input class="input" placeholder="Nom, matricule ou classe...">
                         </div>
                     </div>
                     <div class="form-row">
-                        <div class="field"><label>Type de frais *</label><select required>
+                        <div class="field"><label>Type de frais *</label><select>
                                 <option value="">Sélectionner</option>
                                 <option>Inscription — 85 000 CDF</option>
                                 <option>Scolarité — 175 000 CDF</option>
@@ -95,8 +95,8 @@
                     </div>
                     <div class="form-row">
                         <div class="field"><label>Montant (CDF) *</label><input class="input" type="number" min="1"
-                                required></div>
-                        <div class="field"><label>Date *</label><input class="input" type="date" required></div>
+                               ></div>
+                        <div class="field"><label>Date *</label><input class="input" type="date"></div>
                     </div>
                     <div class="field"><label>Mode de paiement</label><select>
                             <option>Espèces</option>
@@ -149,9 +149,9 @@
                 <button class="icon-btn" onclick="closeModal('m-class')"><i class="fas fa-xmark"></i></button>
             </div>
             <div class="modal-body">
-                <div class="field"><label>Nom *</label><input class="input" placeholder="Ex: 1ère A" required></div>
+                <div class="field"><label>Nom *</label><input class="input" placeholder="Ex: 1ère A"></div>
                 <div class="form-row">
-                    <div class="field"><label>Niveau *</label><select required>
+                    <div class="field"><label>Niveau *</label><select>
                             <option value="">Sélectionner</option>
                             <option>1ère Primaire</option>
                             <option>2ème Primaire</option>
@@ -160,7 +160,7 @@
                             <option>5ème Primaire</option>
                             <option>6ème Primaire</option>
                         </select></div>
-                    <div class="field"><label>Section *</label><select required>
+                    <div class="field"><label>Section *</label><select>
                             <option>A</option>
                             <option>B</option>
                             <option>C</option>
@@ -183,11 +183,11 @@
                 <button class="icon-btn" onclick="closeModal('m-year')"><i class="fas fa-xmark"></i></button>
             </div>
             <div class="modal-body">
-                <div class="field"><label>Libellé *</label><input class="input" placeholder="Ex: 2025-2026" required>
+                <div class="field"><label>Libellé *</label><input class="input" placeholder="Ex: 2025-2026">
                 </div>
                 <div class="form-row">
-                    <div class="field"><label>Date de début *</label><input class="input" type="date" required></div>
-                    <div class="field"><label>Date de fin *</label><input class="input" type="date" required></div>
+                    <div class="field"><label>Date de début *</label><input class="input" type="date"></div>
+                    <div class="field"><label>Date de fin *</label><input class="input" type="date"></div>
                 </div>
             </div>
             <div class="modal-foot">
@@ -204,7 +204,7 @@
                 <button class="icon-btn" onclick="closeModal('m-feetype')"><i class="fas fa-xmark"></i></button>
             </div>
             <div class="modal-body">
-                <div class="field"><label>Libellé *</label><input class="input" required></div>
+                <div class="field"><label>Libellé *</label><input class="input"></div>
                 <div class="field"><label>Description</label><textarea rows="3"></textarea></div>
             </div>
             <div class="modal-foot">
@@ -223,22 +223,22 @@
             </div>
             <div class="modal-body">
                 <div class="form-row">
-                    <div class="field"><label>Prénom *</label><input class="input" required></div>
-                    <div class="field"><label>Nom *</label><input class="input" required></div>
+                    <div class="field"><label>Prénom *</label><input class="input"></div>
+                    <div class="field"><label>Nom *</label><input class="input"></div>
                 </div>
                 <div class="form-row">
-                    <div class="field"><label>Login *</label><input class="input" required></div>
+                    <div class="field"><label>Login *</label><input class="input"></div>
                     <div class="field"><label>Email</label><input class="input" type="email"></div>
                 </div>
                 <div class="form-row">
-                    <div class="field"><label>Rôle *</label><select required>
+                    <div class="field"><label>Rôle *</label><select>
                             <option value="">Sélectionner</option>
                             <option>Administrateur</option>
                             <option>Secrétaire</option>
                             <option>Caissier</option>
                             <option>Direction</option>
                         </select></div>
-                    <div class="field"><label>Mot de passe *</label><input class="input" type="password" required></div>
+                    <div class="field"><label>Mot de passe *</label><input class="input" type="password"></div>
                 </div>
             </div>
             <div class="modal-foot">

@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+{% block title %}Types de frais — Meriba{% endblock %}
+{% block content %}
+<section class="page active" id="page-fees">
+    <div class="page-header">
+        <div>
+            <h1 class="page-title">Frais scolaires</h1>
+            <p class="page-desc">Types de frais et montants par classe</p>
+        </div>
+        <div class="page-actions">
+            <a class="btn" href="{% url 'fees:frais_list' %}">Montants par classe</a>
+            <a class="btn btn-primary" href="{% url 'fees:type_create' %}"><i class="fas fa-plus"></i> Nouveau type</a>
+        </div>
+    </div>
+
+    <div class="tabs">
+        <a class="tab active" href="{% url 'fees:type_list' %}">Types de frais <span class="count">{{ types|length }}</span></a>
+        <a class="tab" href="{% url 'fees:frais_list' %}">Montants par classe</a>
+    </div>
+
+    <div class="card">
+        <div class="card-header" style="gap:12px;">
+            <form id="search-form-type" method="get" style="display:flex; gap:12px; flex:1; align-items:center;" onsubmit="return false;">
+                <div class="search" style="flex:1; max-width:320px;">
+                    <i class="fas fa-search"></i>
+                    <input class="input" name="q" value="{{ request.GET.q }}" placeholder="Rechercher un type..."
+                           hx-get="{% url 'fees:type_list' %}"
+                           hx-trigger="keyup changed delay:300ms, search"
+                           hx-target="#type-table"
+                           hx-swap="outerHTML"
+                           hx-push-url="true"
+                           hx-include="#search-form-type">
+                </div>
+            </form>
+        </div>
+        {% include "fees/_type_table.html" %}
+    </div>
+</section>
+{% endblock %}

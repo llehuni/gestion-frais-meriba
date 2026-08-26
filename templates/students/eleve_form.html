@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+{% block title %}{% if object %}Modifier {{ object.matricule }}{% else %}Nouvel élève{% endif %} — Meriba{% endblock %}
+{% block content %}
+<section class="page active">
+    <div class="page-header">
+        <div>
+            <h1 class="page-title">{% if object %}Modifier l'élève{% else %}Nouvel élève{% endif %}</h1>
+            <p class="page-desc">{% if object %}{{ object.matricule }} — {{ object.nom_complet }}{% else %}Inscription d'un nouvel élève — matricule généré automatiquement{% endif %}</p>
+        </div>
+        <div class="page-actions"><a class="btn" href="{% url 'students:eleve_list' %}"><i class="fas fa-arrow-left"></i> Retour</a></div>
+    </div>
+
+    <div class="card" style="max-width:50%;">
+        <div class="card-header"><div class="card-title"><i class="fas fa-user-graduate"></i> {% if object %}Modifier{% else %}Nouvel élève{% endif %}</div></div>
+        <div class="card-body">
+            <form method="post" novalidate>
+                {% csrf_token %}
+                {% if form.non_field_errors %}<div style="background:var(--danger-subtle); border:1px solid #ff818266; color:var(--danger); padding:8px 12px; border-radius:6px; font-size:13px; margin-bottom:12px;">{{ form.non_field_errors }}</div>{% endif %}
+                {% if object %}
+                <div class="field"><label>Matricule</label><input class="input" value="{{ object.matricule }}" disabled><p class="text-sm text-muted">Généré automatiquement</p></div>
+                {% else %}
+                <div class="field"><label>Matricule</label><input class="input" value="Généré automatiquement à l'enregistrement" disabled><p class="text-sm text-muted">Format: MER-YYYY-NNN</p></div>
+                {% endif %}
+                <div class="form-row">
+                    <div class="field"><label>Nom *</label>{{ form.nom }}{% if form.nom.errors %}<p style="color:var(--danger); font-size:12px;">{{ form.nom.errors.0 }}</p>{% endif %}</div>
+                    <div class="field"><label>Post-nom</label>{{ form.post_nom }}{% if form.post_nom.errors %}<p style="color:var(--danger); font-size:12px;">{{ form.post_nom.errors.0 }}</p>{% endif %}</div>
+                </div>
+                <div class="form-row">
+                    <div class="field"><label>Prénom *</label>{{ form.prenom }}{% if form.prenom.errors %}<p style="color:var(--danger); font-size:12px;">{{ form.prenom.errors.0 }}</p>{% endif %}</div>
+                    <div class="field"><label>Sexe *</label>{{ form.sexe }}{% if form.sexe.errors %}<p style="color:var(--danger); font-size:12px;">{{ form.sexe.errors.0 }}</p>{% endif %}</div>
+                </div>
+                <div class="form-row">
+                    <div class="field"><label>Date de naissance *</label>{{ form.date_naissance }}{% if form.date_naissance.errors %}<p style="color:var(--danger); font-size:12px;">{{ form.date_naissance.errors.0 }}</p>{% endif %}</div>
+                    <div class="field"><label>Classe *</label>{{ form.classe }}{% if form.classe.errors %}<p style="color:var(--danger); font-size:12px;">{{ form.classe.errors.0 }}</p>{% endif %}</div>
+                </div>
+                <div class="field"><label>Adresse</label>{{ form.adresse }}{% if form.adresse.errors %}<p style="color:var(--danger); font-size:12px;">{{ form.adresse.errors.0 }}</p>{% endif %}</div>
+                <div class="field"><label>Année scolaire</label><input class="input" value="{% if object %}{{ object.annee_scolaire }}{% else %}Année courante (auto){% endif %}" disabled><p class="text-sm text-muted">Gérée automatiquement</p></div>
+                <hr style="border:none; border-top:1px solid var(--border); margin:16px 0;">
+                <div style="font-weight:600; margin-bottom:12px;">Tuteur</div>
+                <div class="form-row">
+                    <div class="field"><label>Nom du tuteur *</label>{{ form.tuteur_nom }}{% if form.tuteur_nom.errors %}<p style="color:var(--danger); font-size:12px;">{{ form.tuteur_nom.errors.0 }}</p>{% endif %}</div>
+                    <div class="field"><label>Lien de parenté</label>{{ form.tuteur_lien }}{% if form.tuteur_lien.errors %}<p style="color:var(--danger); font-size:12px;">{{ form.tuteur_lien.errors.0 }}</p>{% endif %}</div>
+                </div>
+                <div class="field"><label>Téléphone</label>{{ form.tuteur_telephone }}{% if form.tuteur_telephone.errors %}<p style="color:var(--danger); font-size:12px;">{{ form.tuteur_telephone.errors.0 }}</p>{% endif %}</div>
+
+                <div style="display:flex; gap:8px; justify-content:flex-end; margin-top:20px; padding-top:16px; border-top:1px solid var(--border);">
+                    <a class="btn" href="{% url 'students:eleve_list' %}">Annuler</a>
+                    <button class="btn btn-primary" type="submit"><i class="fas fa-check"></i> Enregistrer</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</section>
+{% endblock %}

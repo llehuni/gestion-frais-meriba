@@ -1,0 +1,62 @@
+<div id="frais-table">
+    <div class="table-wrap">
+        <table>
+            <thead>
+                <tr>
+                    <th>Type</th>
+                    <th>Montant</th>
+                    <th>Classes</th>
+                    <th>Date</th>
+                    <th style="width:40px;"></th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for f in frais_list %}
+                <tr id="frais-row-{{ f.pk }}">
+                    <td><span class="label label-accent">{{ f.type_frais.libelle }}</span></td>
+                    <td class="fw-500">{{ f.montant }} CDF</td>
+                    <td class="text-muted">{% for c in f.classes.all %}<span class="label label-default">{{ c.nom }}</span> {% empty %}—{% endfor %}</td>
+                    <td class="text-muted" style="font-size:12px;">{{ f.date_creation|date:"d/m/Y" }}</td>
+                    <td>
+                        <div class="dropdown">
+                            <button class="dropdown-toggle" onclick="toggleDropdown(event, this)"><i class="fas fa-ellipsis-vertical"></i></button>
+                            <div class="dropdown-menu">
+                                <a class="dropdown-item" href="{% url 'fees:frais_edit' f.pk %}"><span class="ico"><i class="fas fa-pen"></i></span> Modifier</a>
+                                <div class="dropdown-divider"></div>
+                                <button class="dropdown-item danger" hx-post="{% url 'fees:frais_delete' f.pk %}" hx-confirm="Supprimer ce frais ?" hx-target="closest tr" hx-swap="outerHTML"><span class="ico"><i class="fas fa-trash"></i></span> Supprimer</button>
+                            </div>
+                        </div>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr><td colspan="5" style="text-align:center; padding:32px; color:var(--fg-muted);">Aucun frais. <a href="{% url 'fees:frais_create' %}" style="color:var(--accent);">Créer</a></td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% if is_paginated %}
+    <div class="pagination" style="justify-content:center;">
+        <div style="display:flex; align-items:center; gap:8px;">
+            {% if page_obj.has_previous %}
+            <button class="page-btn" hx-get="{% url 'fees:frais_list' %}?page={{ page_obj.previous_page_number }}&q={{ request.GET.q }}&type={{ request.GET.type }}" hx-target="#frais-table" hx-swap="outerHTML" hx-push-url="true"><span>&lt; précédent</span></button>
+            {% else %}
+            <button class="page-btn" disabled><span>&lt; précédent</span></button>
+            {% endif %}
+            <span style="font-size:13px; color:var(--fg); font-weight:500;"> : {{ page_obj.number }} sur {{ page_obj.paginator.num_pages }} </span>
+            {% if page_obj.has_next %}
+            <button class="page-btn" hx-get="{% url 'fees:frais_list' %}?page={{ page_obj.next_page_number }}&q={{ request.GET.q }}&type={{ request.GET.type }}" hx-target="#frais-table" hx-swap="outerHTML" hx-push-url="true"><span>suivante &gt;</span></button>
+            {% else %}
+            <button class="page-btn" disabled><span>suivante &gt;</span></button>
+            {% endif %}
+        </div>
+    </div>
+    {% else %}
+    <div class="pagination" style="justify-content:center;">
+        <div style="display:flex; align-items:center; gap:8px;">
+            <button class="page-btn" disabled><span>&lt; précédent</span></button>
+            <span style="font-size:13px; color:var(--fg); font-weight:500;"> : 1 sur 1 </span>
+            <button class="page-btn" disabled><span>suivante &gt;</span></button>
+        </div>
+    </div>
+    {% endif %}
+</div>

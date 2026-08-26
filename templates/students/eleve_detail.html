@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+{% block title %}{{ eleve.matricule }} — Meriba{% endblock %}
+{% block content %}
+<section class="page active">
+    <div class="page-header">
+        <div>
+            <h1 class="page-title">{{ eleve.nom }} {{ eleve.post_nom }} {{ eleve.prenom }}</h1>
+            <p class="page-desc">{{ eleve.matricule }} — {{ eleve.classe.nom }} · {{ eleve.annee_scolaire }} · {{ eleve.get_sexe_display }}</p>
+        </div>
+        <div class="page-actions">
+            <a class="btn" href="{% url 'students:eleve_edit' eleve.pk %}"><i class="fas fa-pen"></i> Modifier</a>
+            <a class="btn" href="{% url 'students:eleve_list' %}"><i class="fas fa-arrow-left"></i> Retour</a>
+        </div>
+    </div>
+
+    <div style="display:grid; grid-template-columns: 1fr 1fr; gap:16px;">
+        <div class="card">
+            <div class="card-header"><div class="card-title"><i class="fas fa-id-card"></i> Identité</div></div>
+            <div class="card-body" style="font-size:14px; line-height:1.6;">
+                <p><strong>Matricule:</strong> <span class="mono">{{ eleve.matricule }}</span></p>
+                <p><strong>Nom complet:</strong> {{ eleve.nom_complet }}</p>
+                <p><strong>Sexe:</strong> {{ eleve.get_sexe_display }}</p>
+                <p><strong>Date de naissance:</strong> {{ eleve.date_naissance }}</p>
+                <p><strong>Adresse:</strong> {{ eleve.adresse|default:"—" }}</p>
+                <p><strong>Classe:</strong> <span class="label label-accent">{{ eleve.classe.nom }}</span></p>
+                <p><strong>Année:</strong> {{ eleve.annee_scolaire }}</p>
+            </div>
+        </div>
+        <div class="card">
+            <div class="card-header"><div class="card-title"><i class="fas fa-user-shield"></i> Tuteur</div></div>
+            <div class="card-body" style="font-size:14px; line-height:1.6;">
+                <p><strong>Nom:</strong> {{ eleve.tuteur_nom }}</p>
+                <p><strong>Lien:</strong> {{ eleve.tuteur_lien }}</p>
+                <p><strong>Téléphone:</strong> {{ eleve.tuteur_telephone|default:"—" }}</p>
+                <p class="text-muted" style="font-size:12px; margin-top:12px;">Inscrit le {{ eleve.date_inscription|date:"d/m/Y H:i" }}</p>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

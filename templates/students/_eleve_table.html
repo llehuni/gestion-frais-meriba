@@ -1,0 +1,75 @@
+<div id="eleve-table">
+    <div class="table-wrap">
+        <table>
+            <thead>
+                <tr>
+                    <th>Élève</th>
+                    <th>Sexe</th>
+                    <th>Classe</th>
+                    <th>Année</th>
+                    <th>Tuteur</th>
+                    <th>Statut</th>
+                    <th style="width:40px;"></th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for e in eleves %}
+                <tr id="eleve-row-{{ e.pk }}">
+                    <td>
+                        <div class="cell-main">
+                            <div class="avatar" style="{% if e.sexe == 'F' %}background:#8250df{% else %}background:var(--accent){% endif %}">{{ e.prenom|slice:":1"|upper }}{{ e.nom|slice:":1"|upper }}</div>
+                            <div>
+                                <div class="cell-title">{{ e.nom }} {{ e.post_nom }} {{ e.prenom }}</div>
+                                <div class="cell-sub mono">{{ e.matricule }}</div>
+                            </div>
+                        </div>
+                    </td>
+                    <td>{{ e.sexe }}</td>
+                    <td><span class="label label-accent">{{ e.classe.nom }}</span></td>
+                    <td><span class="label label-default">{{ e.annee_scolaire }}</span></td>
+                    <td class="text-muted">{{ e.tuteur_nom }}</td>
+                    <td><span class="label label-success"><i class="fas fa-check"></i> Inscrit</span></td>
+                    <td>
+                        <div class="dropdown">
+                            <button class="dropdown-toggle" onclick="toggleDropdown(event, this)"><i class="fas fa-ellipsis-vertical"></i></button>
+                            <div class="dropdown-menu">
+                                <a class="dropdown-item" href="{% url 'students:eleve_detail' e.pk %}"><span class="ico"><i class="fas fa-eye"></i></span> Voir la fiche</a>
+                                <a class="dropdown-item" href="{% url 'students:eleve_edit' e.pk %}"><span class="ico"><i class="fas fa-pen"></i></span> Modifier</a>
+                                <div class="dropdown-divider"></div>
+                                <button class="dropdown-item danger" hx-post="{% url 'students:eleve_delete' e.pk %}" hx-confirm="Supprimer {{ e.matricule }} ?" hx-target="closest tr" hx-swap="outerHTML"><span class="ico"><i class="fas fa-trash"></i></span> Supprimer</button>
+                            </div>
+                        </div>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr><td colspan="7" style="text-align:center; padding:32px; color:var(--fg-muted);">Aucun élève. <a href="{% url 'students:eleve_create' %}" style="color:var(--accent);">Créer</a></td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% if is_paginated %}
+    <div class="pagination" style="justify-content:center;">
+        <div style="display:flex; align-items:center; gap:8px;">
+            {% if page_obj.has_previous %}
+            <button class="page-btn" hx-get="{% url 'students:eleve_list' %}?page={{ page_obj.previous_page_number }}&q={{ request.GET.q }}&classe={{ request.GET.classe }}" hx-target="#eleve-table" hx-swap="outerHTML" hx-push-url="true"><span>&lt; précédent</span></button>
+            {% else %}
+            <button class="page-btn" disabled><span>&lt; précédent</span></button>
+            {% endif %}
+            <span style="font-size:13px; color:var(--fg); font-weight:500;"> : {{ page_obj.number }} sur {{ page_obj.paginator.num_pages }} </span>
+            {% if page_obj.has_next %}
+            <button class="page-btn" hx-get="{% url 'students:eleve_list' %}?page={{ page_obj.next_page_number }}&q={{ request.GET.q }}&classe={{ request.GET.classe }}" hx-target="#eleve-table" hx-swap="outerHTML" hx-push-url="true"><span>suivante &gt;</span></button>
+            {% else %}
+            <button class="page-btn" disabled><span>suivante &gt;</span></button>
+            {% endif %}
+        </div>
+    </div>
+    {% else %}
+    <div class="pagination" style="justify-content:center;">
+        <div style="display:flex; align-items:center; gap:8px;">
+            <button class="page-btn" disabled><span>&lt; précédent</span></button>
+            <span style="font-size:13px; color:var(--fg); font-weight:500;"> : 1 sur 1 </span>
+            <button class="page-btn" disabled><span>suivante &gt;</span></button>
+        </div>
+    </div>
+    {% endif %}
+</div>

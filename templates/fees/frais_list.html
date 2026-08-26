@@ -1,0 +1,83 @@
+{% extends "base.html" %}
+{% block title %}Frais — Meriba{% endblock %}
+{% block content %}
+<section class="page active" id="page-fees">
+    <div class="page-header">
+        <div>
+            <h1 class="page-title">Frais scolaires</h1>
+            <p class="page-desc">Montants par classe — définition des tarifs</p>
+        </div>
+        <div class="page-actions">
+            <a class="btn" href="{% url 'fees:type_list' %}">Types de frais</a>
+            <a class="btn btn-primary" href="{% url 'fees:frais_create' %}"><i class="fas fa-plus"></i> Nouveau frais</a>
+        </div>
+    </div>
+
+    <div class="tabs">
+        <a class="tab" href="{% url 'fees:type_list' %}">Types de frais</a>
+        <a class="tab active" href="{% url 'fees:frais_list' %}">Montants par classe</a>
+    </div>
+
+    <div class="card">
+        <div class="card-header" style="gap:12px;">
+            <form id="search-form-frais" method="get" style="display:flex; gap:12px; flex:1; align-items:center;" onsubmit="return false;">
+                <div class="search" style="flex:1; max-width:320px;">
+                    <i class="fas fa-search"></i>
+                    <input class="input" name="q" value="{{ request.GET.q }}" placeholder="Filtrer par type..."
+                           hx-get="{% url 'fees:frais_list' %}"
+                           hx-trigger="keyup changed delay:300ms, search"
+                           hx-target="#frais-table"
+                           hx-swap="outerHTML"
+                           hx-push-url="true"
+                           hx-include="#search-form-frais">
+                </div>
+                <select class="input" name="type" style="width:auto; min-width:160px;"
+                        hx-get="{% url 'fees:frais_list' %}"
+                        hx-trigger="change"
+                        hx-target="#frais-table"
+                        hx-swap="outerHTML"
+                        hx-push-url="true"
+                        hx-include="#search-form-frais">
+                    <option value="">Tous les types</option>
+                    {% for t in types %}
+                    <option value="{{ t.pk }}" {% if request.GET.type == t.pk|stringformat:"s" %}selected{% endif %}>{{ t.libelle }}</option>
+                    {% endfor %}
+                </select>
+            </form>
+        </div>
+        {% include "fees/_frais_table.html" %}
+    </div>
+
+    {% if classes %}
+    <div class="card" style="margin-top:16px;">
+        <div class="card-header"><div class="card-title">Matrice — Année 2024-2025 (aperçu)</div></div>
+        <div class="table-wrap">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Classe</th>
+                        {% for t in types %}<th>{{ t.libelle }}</th>{% endfor %}
+                        <th>Total</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for c in classes %}
+                    <tr>
+                        <td class="fw-500">{{ c.nom }}</td>
+                        {% for t in types %}
+                        <td class="text-muted">
+                            {% for f in frais_list %}
+                                {% if f.type_frais_id == t.pk and c in f.classes.all %}{{ f.montant }}{% endif %}
+                            {% endfor %}
+                        </td>
+                        {% endfor %}
+                        <td class="fw-600" style="color:var(--accent);">—</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    {% endif %}
+</section>
+{% endblock %}

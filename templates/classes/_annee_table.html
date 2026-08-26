@@ -1,0 +1,62 @@
+<div id="annee-table">
+    <div class="table-wrap">
+        <table>
+            <thead>
+                <tr>
+                    <th>Libellé</th>
+                    <th>Début</th>
+                    <th>Fin</th>
+                    <th>Statut</th>
+                    <th style="width:40px;"></th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for a in annees %}
+                <tr id="annee-row-{{ a.pk }}">
+                    <td class="fw-500">{{ a.libelle }}</td>
+                    <td class="text-muted">{{ a.date_debut }}</td>
+                    <td class="text-muted">{{ a.date_fin }}</td>
+                    <td>{% if a.is_en_cours %}<span class="label label-accent"><i class="fas fa-circle" style="font-size:6px;"></i> En cours</span>{% else %}<span class="label label-default">Clôturée</span>{% endif %}</td>
+                    <td>
+                        <div class="dropdown">
+                            <button class="dropdown-toggle" onclick="toggleDropdown(event, this)"><i class="fas fa-ellipsis-vertical"></i></button>
+                            <div class="dropdown-menu">
+                                <a class="dropdown-item" href="{% url 'classes:annee_edit' a.pk %}"><span class="ico"><i class="fas fa-pen"></i></span> Modifier</a>
+                                <div class="dropdown-divider"></div>
+                                <button class="dropdown-item danger" hx-post="{% url 'classes:annee_delete' a.pk %}" hx-confirm="Supprimer {{ a.libelle }} ?" hx-target="closest tr" hx-swap="outerHTML"><span class="ico"><i class="fas fa-trash"></i></span> Supprimer</button>
+                            </div>
+                        </div>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr><td colspan="5" style="text-align:center; padding:32px; color:var(--fg-muted);">Aucune année. <a href="{% url 'classes:annee_create' %}" style="color:var(--accent);">Créer</a></td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% if is_paginated %}
+    <div class="pagination" style="justify-content:center;">
+        <div style="display:flex; align-items:center; gap:8px;">
+            {% if page_obj.has_previous %}
+            <button class="page-btn" hx-get="{% url 'classes:annee_list' %}?page={{ page_obj.previous_page_number }}&q={{ request.GET.q }}" hx-target="#annee-table" hx-swap="outerHTML" hx-push-url="true"><span>&lt; précédent</span></button>
+            {% else %}
+            <button class="page-btn" disabled><span>&lt; précédent</span></button>
+            {% endif %}
+            <span style="font-size:13px; color:var(--fg); font-weight:500;"> : {{ page_obj.number }} sur {{ page_obj.paginator.num_pages }} </span>
+            {% if page_obj.has_next %}
+            <button class="page-btn" hx-get="{% url 'classes:annee_list' %}?page={{ page_obj.next_page_number }}&q={{ request.GET.q }}" hx-target="#annee-table" hx-swap="outerHTML" hx-push-url="true"><span>suivante &gt;</span></button>
+            {% else %}
+            <button class="page-btn" disabled><span>suivante &gt;</span></button>
+            {% endif %}
+        </div>
+    </div>
+    {% else %}
+    <div class="pagination" style="justify-content:center;">
+        <div style="display:flex; align-items:center; gap:8px;">
+            <button class="page-btn" disabled><span>&lt; précédent</span></button>
+            <span style="font-size:13px; color:var(--fg); font-weight:500;"> : 1 sur 1 </span>
+            <button class="page-btn" disabled><span>suivante &gt;</span></button>
+        </div>
+    </div>
+    {% endif %}
+</div>

@@ -7,6 +7,7 @@ from .models import Role, User
 
 
 class LoginForm(forms.Form):
+    use_required_attribute = False
     login = forms.CharField(label="Login", max_length=150, widget=forms.TextInput(attrs={"autofocus": True, "class": "input"}))
     password = forms.CharField(label="Mot de passe", widget=forms.PasswordInput(attrs={"class": "input"}))
 
@@ -30,6 +31,7 @@ class LoginForm(forms.Form):
 
 
 class UserCreateForm(UserCreationForm):
+    use_required_attribute = False
     class Meta:
         model = User
         fields = ("login", "prenom", "nom", "email", "role", "actif")
@@ -52,6 +54,7 @@ class UserCreateForm(UserCreationForm):
 
 
 class UserUpdateForm(UserChangeForm):
+    use_required_attribute = False
     # Retirer le champ password hashé en lecture seule par défaut, le gérer séparément
     password = None
 
@@ -68,6 +71,7 @@ class UserUpdateForm(UserChangeForm):
 
 
 class UserPasswordResetForm(forms.Form):
+    use_required_attribute = False
     new_password1 = forms.CharField(label="Nouveau mot de passe", widget=forms.PasswordInput(attrs={"class": "input"}))
     new_password2 = forms.CharField(label="Confirmation", widget=forms.PasswordInput(attrs={"class": "input"}))
 

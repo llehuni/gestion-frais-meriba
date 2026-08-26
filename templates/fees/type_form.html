@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+{% block title %}{% if object %}Modifier {{ object.libelle }}{% else %}Nouveau type{% endif %} — Meriba{% endblock %}
+{% block content %}
+<section class="page active">
+    <div class="page-header">
+        <div>
+            <h1 class="page-title">{% if object %}Modifier le type{% else %}Nouveau type de frais{% endif %}</h1>
+            <p class="page-desc">Définition des catégories de frais</p>
+        </div>
+        <div class="page-actions"><a class="btn" href="{% url 'fees:type_list' %}"><i class="fas fa-arrow-left"></i> Retour</a></div>
+    </div>
+    <div class="card" style="max-width:50%;">
+        <div class="card-header"><div class="card-title"><i class="fas fa-tag"></i> {% if object %}{{ object.libelle }}{% else %}Nouveau type{% endif %}</div></div>
+        <div class="card-body">
+            <form method="post" novalidate>
+                {% csrf_token %}
+                {% if form.non_field_errors %}<div style="background:var(--danger-subtle); border:1px solid #ff818266; color:var(--danger); padding:8px 12px; border-radius:6px; font-size:13px; margin-bottom:12px;">{{ form.non_field_errors }}</div>{% endif %}
+                <div class="field"><label>Libellé *</label>{{ form.libelle }}{% if form.libelle.errors %}<p style="color:var(--danger); font-size:12px;">{{ form.libelle.errors.0 }}</p>{% endif %}</div>
+                <div class="field"><label>Description</label>{{ form.description }}{% if form.description.errors %}<p style="color:var(--danger); font-size:12px;">{{ form.description.errors.0 }}</p>{% endif %}</div>
+                <div style="display:flex; gap:8px; justify-content:flex-end; margin-top:20px; padding-top:16px; border-top:1px solid var(--border);">
+                    <a class="btn" href="{% url 'fees:type_list' %}">Annuler</a>
+                    <button class="btn btn-primary" type="submit"><i class="fas fa-check"></i> Enregistrer</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</section>
+{% endblock %}

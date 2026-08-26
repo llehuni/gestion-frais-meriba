@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+{% block title %}{% if object %}Modifier frais{% else %}Nouveau frais{% endif %} — Meriba{% endblock %}
+{% block content %}
+<section class="page active">
+    <div class="page-header">
+        <div>
+            <h1 class="page-title">{% if object %}Modifier le frais{% else %}Nouveau frais{% endif %}</h1>
+            <p class="page-desc">Montant par type et par classe — 1ère à 6ème</p>
+        </div>
+        <div class="page-actions"><a class="btn" href="{% url 'fees:frais_list' %}"><i class="fas fa-arrow-left"></i> Retour</a></div>
+    </div>
+    <div class="card" style="max-width:50%;">
+        <div class="card-header"><div class="card-title"><i class="fas fa-file-invoice-dollar"></i> {% if object %}Modifier{% else %}Nouveau frais{% endif %}</div></div>
+        <div class="card-body">
+            <form method="post" novalidate>
+                {% csrf_token %}
+                {% if form.non_field_errors %}<div style="background:var(--danger-subtle); border:1px solid #ff818266; color:var(--danger); padding:8px 12px; border-radius:6px; font-size:13px; margin-bottom:12px;">{{ form.non_field_errors }}</div>{% endif %}
+                <div class="field"><label>Type de frais *</label>{{ form.type_frais }}{% if form.type_frais.errors %}<p style="color:var(--danger); font-size:12px;">{{ form.type_frais.errors.0 }}</p>{% endif %}</div>
+                <div class="field"><label>Montant (CDF) *</label>{{ form.montant }}{% if form.montant.errors %}<p style="color:var(--danger); font-size:12px;">{{ form.montant.errors.0 }}</p>{% endif %}</div>
+                <div class="field"><label>Classes concernées</label><div style="border:1px solid var(--border); border-radius:6px; padding:12px; max-height:200px; overflow-y:auto;">{{ form.classes }}{% if form.classes.errors %}<p style="color:var(--danger); font-size:12px;">{{ form.classes.errors.0 }}</p>{% endif %}</div></div>
+                <div style="display:flex; gap:8px; justify-content:flex-end; margin-top:20px; padding-top:16px; border-top:1px solid var(--border);">
+                    <a class="btn" href="{% url 'fees:frais_list' %}">Annuler</a>
+                    <button class="btn btn-primary" type="submit"><i class="fas fa-check"></i> Enregistrer</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</section>
+{% endblock %}

@@ -121,14 +121,13 @@ textarea {
     border: 1px solid var(--border);
     border-radius: 6px;
     outline: none;
-    transition: border-color 0.1s, box-shadow 0.1s;
+    transition: border-color 0.1s;
 }
 
 .input:focus,
 select:focus,
 textarea:focus {
     border-color: var(--accent);
-    box-shadow: 0 0 0 3px rgba(9, 105, 218, 0.15);
 }
 
 .btn {
@@ -879,7 +878,6 @@ tbody tr:hover {
     background: var(--bg);
     border: 1px solid var(--border);
     border-radius: 6px;
-    box-shadow: 0 8px 24px rgba(140, 149, 159, 0.2);
     z-index: 50;
     padding: 4px 0;
     animation: dropIn 0.1s ease;
@@ -1195,7 +1193,6 @@ tbody tr:hover {
     border-radius: 6px;
     padding: 10px 14px;
     min-width: 260px;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
     display: flex;
     align-items: center;
     gap: 10px;
