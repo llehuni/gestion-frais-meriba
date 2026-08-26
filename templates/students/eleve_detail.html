@@ -21,26 +21,33 @@
         </div>
     </div>
 
+    <style>
+    .detail-row{display:flex;justify-content:space-between;align-items:center;padding:8px 0;font-size:13px;border-bottom:1px solid var(--border-muted);}
+    .detail-row:last-child{border-bottom:none;}
+    .detail-row .k{color:var(--fg-muted);font-weight:500;font-size:12px;}
+    .detail-row .v{font-weight:500;color:var(--fg);text-align:right;max-width:62%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+    .detail-row .v.mono{font-family:ui-monospace,SFMono-Regular,monospace;font-size:12px;}
+    </style>
     <div style="display:grid; grid-template-columns: 1fr 1fr; gap:16px;">
         <div class="card">
             <div class="card-header"><div class="card-title"><i class="fas fa-id-card"></i> Identité</div></div>
-            <div class="card-body" style="font-size:14px; line-height:1.6;">
-                <p><strong>Matricule:</strong> <span class="mono">{{ eleve.matricule }}</span></p>
-                <p><strong>Nom complet:</strong> {{ eleve.nom_complet }}</p>
-                <p><strong>Sexe:</strong> {{ eleve.get_sexe_display }}</p>
-                <p><strong>Date de naissance:</strong> {{ eleve.date_naissance }}</p>
-                <p><strong>Adresse:</strong> {{ eleve.adresse|default:"—" }}</p>
-                <p><strong>Classe:</strong> <span class="label label-accent">{{ eleve.classe.nom }}</span></p>
-                <p><strong>Année:</strong> {{ eleve.annee_scolaire }}</p>
+            <div class="card-body" style="padding-top:6px;padding-bottom:6px;">
+                <div class="detail-row"><span class="k">Matricule</span><span class="v mono">{{ eleve.matricule }}</span></div>
+                <div class="detail-row"><span class="k">Nom complet</span><span class="v">{{ eleve.nom_complet }}</span></div>
+                <div class="detail-row"><span class="k">Sexe</span><span class="v">{{ eleve.get_sexe_display }}</span></div>
+                <div class="detail-row"><span class="k">Date de naissance</span><span class="v">{{ eleve.date_naissance|date:"d/m/Y" }}</span></div>
+                <div class="detail-row"><span class="k">Adresse</span><span class="v">{{ eleve.adresse|default:"—" }}</span></div>
+                <div class="detail-row"><span class="k">Classe</span><span class="v"><span class="label label-accent">{{ eleve.classe.nom }}</span></span></div>
+                <div class="detail-row"><span class="k">Année scolaire</span><span class="v">{{ eleve.annee_scolaire }}</span></div>
             </div>
         </div>
         <div class="card">
             <div class="card-header"><div class="card-title"><i class="fas fa-user-shield"></i> Tuteur</div></div>
-            <div class="card-body" style="font-size:14px; line-height:1.6;">
-                <p><strong>Nom:</strong> {{ eleve.tuteur_nom }}</p>
-                <p><strong>Lien:</strong> {{ eleve.tuteur_lien }}</p>
-                <p><strong>Téléphone:</strong> {{ eleve.tuteur_telephone|default:"—" }}</p>
-                <p class="text-muted" style="font-size:12px; margin-top:12px;">Inscrit le {{ eleve.date_inscription|date:"d/m/Y H:i" }}</p>
+            <div class="card-body" style="padding-top:6px;padding-bottom:6px;">
+                <div class="detail-row"><span class="k">Nom</span><span class="v">{{ eleve.tuteur_nom }}</span></div>
+                <div class="detail-row"><span class="k">Lien de parenté</span><span class="v">{{ eleve.tuteur_lien }}</span></div>
+                <div class="detail-row"><span class="k">Téléphone</span><span class="v">{{ eleve.tuteur_telephone|default:"—" }}</span></div>
+                <div class="detail-row" style="border-bottom:none;justify-content:center;padding-top:10px;"><span class="text-muted" style="font-size:11px;"><i class="fas fa-clock"></i> Inscrit le {{ eleve.date_inscription|date:"d/m/Y H:i" }}</span></div>
             </div>
         </div>
     </div>
