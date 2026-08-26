@@ -1,5 +1,5 @@
 {% if eleves %}
-<div class="google-results bounce" style="margin-top:6px; background:var(--bg); border:1px solid var(--border); border-radius:12px; box-shadow:0 8px 24px rgba(140,149,159,0.18); overflow:hidden;">
+<div class="google-results bounce" style="background:var(--bg); border:1px solid var(--border); border-top:none; border-radius:0 0 12px 12px; box-shadow:0 8px 24px rgba(140,149,159,0.18); overflow:hidden;">
 {% for e in eleves %}
 <div class="google-result" data-eleve-id="{{ e.pk }}" data-eleve-label="{{ e.nom_complet }} ({{ e.matricule }} — {{ e.classe.nom }})" data-eleve-nom="{{ e.nom_complet }}" data-eleve-mat="{{ e.matricule }}" data-eleve-classe="{{ e.classe.nom }}" data-eleve-initials="{{ e.prenom|slice:':1'|upper }}{{ e.nom|slice:':1'|upper }}"
      style="padding:10px 14px; display:flex; align-items:center; gap:12px; cursor:pointer; border-bottom:1px solid var(--border-muted); transition:background 0.12s;">
@@ -19,5 +19,5 @@
 .google-result:last-child{border-bottom:none;}
 </style>
 {% elif q %}
-<div style="margin-top:6px; padding:14px; text-align:center; color:var(--fg-muted); font-size:13px; background:var(--bg); border:1px solid var(--border); border-radius:12px;">Aucun élève trouvé pour « {{ q }} »</div>
+<div style="padding:14px; text-align:center; color:var(--fg-muted); font-size:13px; background:var(--bg); border:1px solid var(--border); border-top:none; border-radius:0 0 12px 12px; box-shadow:0 8px 24px rgba(140,149,159,0.18);">Aucun élève trouvé pour « {{ q }} »</div>
 {% endif %}

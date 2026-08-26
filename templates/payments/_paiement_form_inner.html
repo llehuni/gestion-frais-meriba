@@ -24,8 +24,7 @@
 <button type="button" id="eleve-search-clear" onclick="clearEleveSearch()" style="display:none; position:absolute; right:10px; top:50%; transform:translateY(-50%); width:24px; height:24px; border:none; background:var(--bg-inset); color:var(--fg-muted); border-radius:50%; cursor:pointer;"><i class="fas fa-xmark" style="font-size:11px;"></i></button>
 <span id="eleve-search-indicator" class="htmx-indicator" style="position:absolute; right:38px; top:50%; transform:translateY(-50%); color:var(--accent);"><i class="fas fa-spinner fa-spin"></i></span>
 </div>
-<p class="text-sm text-muted" style="margin-top:6px; padding-left:4px;">Astuce : recherche HTMX — tapez nom/matricule, puis cliquez sur le résultat.</p>
-<div id="eleve-search-results" style="position:absolute; left:0; right:0; top:calc(100% + 6px); z-index:20;"></div>
+<div id="eleve-search-results" style="position:absolute; left:0; right:0; top:100%; z-index:20; margin-top:-1px;"></div>
 </div>
 
 {# Bloc sélectionné — remplace l'input après choix (Google-like chip) #}
@@ -142,7 +141,41 @@
   // Fermer résultats si clic hors wrapper
   document.addEventListener('click', function(e){
     if(!e.target.closest('#eleve-search-wrapper') && !e.target.closest('[data-eleve-id]')){
-      if(results) results.innerHTML = '';
+      if(results) { results.innerHTML = ''; resetInputRadius(); }
+    }
+  });
+
+  // Coller le bloc à la barre (glued) : quand résultats visibles, arrondir input en haut seulement
+  function setGlued(isGlued){
+    if(!searchInput) return;
+    if(isGlued){
+      searchInput.style.borderRadius = '12px 12px 0 0';
+      searchInput.style.borderBottomColor = 'var(--border)';
+      searchInput.style.boxShadow = '0 2px 8px rgba(9,105,218,0.10)';
+    } else {
+      searchInput.style.borderRadius = '20px';
+      searchInput.style.boxShadow = '0 1px 3px rgba(0,0,0,0.06)';
+    }
+  }
+  function resetInputRadius(){ setGlued(false); }
+
+  // Observer les changements dans #eleve-search-results pour coller/décoller
+  const observer = new MutationObserver(function(){
+    const hasContent = results && results.innerHTML.trim() !== '';
+    setGlued(hasContent);
+  });
+  if(results) observer.observe(results, {childList:true, subtree:true});
+
+  // HTMX events pour s'assurer du collage après swap
+  document.body.addEventListener('htmx:afterSwap', function(e){
+    if(e.target && e.target.id === 'eleve-search-results'){
+      const hasContent = results && results.innerHTML.trim() !== '';
+      setGlued(hasContent);
+    }
+  });
+  document.body.addEventListener('htmx:beforeRequest', function(e){
+    if(e.target && e.target.id === 'id_eleve_search' && !e.target.value.trim()){
+      // pas de requête si vide (évite flash) – laisse vide
     }
   });
 })();
