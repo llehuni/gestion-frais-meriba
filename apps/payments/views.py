@@ -70,31 +70,32 @@ class PaiementCreateView(CashierOrAdminMixin, View):
     def get(self, request):
         eleve_id = request.GET.get("eleve")
         initial = {}
+        eleve_selected = None
         if eleve_id and str(eleve_id).isdigit():
             try:
-                eleve = Eleve.objects.get(pk=int(eleve_id))
-                initial["eleve"] = eleve
-                initial["annee_scolaire"] = eleve.annee_scolaire
+                eleve_selected = Eleve.objects.select_related("classe").get(pk=int(eleve_id))
+                initial["eleve"] = eleve_selected
             except Eleve.DoesNotExist:
                 pass
         form = PaiementForm(initial=initial)
-        # Pour HTMX search eleve
+        ctx = {"form": form, "eleve_selected": eleve_selected}
         if request.headers.get("HX-Request") == "true":
-            return render(request, "payments/_paiement_form_inner.html", {"form": form})
-        return render(request, self.template_name, {"form": form})
+            return render(request, "payments/_paiement_form_inner.html", ctx)
+        return render(request, self.template_name, ctx)
 
     def post(self, request):
         form = PaiementForm(request.POST)
         if form.is_valid():
             try:
+                eleve = form.cleaned_data["eleve"]
                 paiement, recu = enregistrer_paiement(
-                    eleve=form.cleaned_data["eleve"],
+                    eleve=eleve,
                     type_frais=form.cleaned_data["type_frais"],
                     montant_paye=form.cleaned_data["montant_paye"],
                     date_paiement=form.cleaned_data["date_paiement"],
                     mode_paiement="especes",
                     agent=request.user,
-                    annee_scolaire=form.cleaned_data.get("annee_scolaire"),
+                    annee_scolaire=eleve.annee_scolaire,
                     observation="",
                     request=request,
                 )

@@ -1301,3 +1301,8 @@
 .card{overflow:visible !important;}
 .table-wrap{overflow-x:visible !important; overflow:visible !important;}
 .dropdown-menu{box-shadow:0 8px 24px rgba(140,149,159,0.2);}
+
+/* Formulaires larges 6/12 responsive */
+@media (max-width: 900px){
+  .card[style*="width:50%"]{width:100% !important; max-width:100% !important;}
+}

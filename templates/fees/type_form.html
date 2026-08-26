@@ -9,7 +9,7 @@
         </div>
         <div class="page-actions"><a class="btn" href="{% url 'fees:type_list' %}"><i class="fas fa-arrow-left"></i> Retour</a></div>
     </div>
-    <div class="card" style="max-width:50%;">
+    <div class="card" style="width:50%; max-width:720px;">
         <div class="card-header"><div class="card-title"><i class="fas fa-tag"></i> {% if object %}{{ object.libelle }}{% else %}Nouveau type{% endif %}</div></div>
         <div class="card-body">
             <form method="post" novalidate>

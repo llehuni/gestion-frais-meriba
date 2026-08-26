@@ -36,11 +36,6 @@ class PaiementForm(forms.Form):
         initial=timezone.now().date,
         widget=forms.DateInput(attrs={"class": "input", "type": "date"}, format="%Y-%m-%d"),
     )
-    annee_scolaire = forms.CharField(
-        label="Année scolaire",
-        required=False,
-        widget=forms.TextInput(attrs={"class": "input", "placeholder": "Ex: 2024-2025"}),
-    )
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -63,9 +58,7 @@ class PaiementForm(forms.Form):
 
     def clean(self):
         cleaned = super().clean()
-        # Si annee_scolaire vide, on prend celle de l'élève
         eleve = cleaned.get("eleve")
-        annee = cleaned.get("annee_scolaire")
-        if eleve and not annee:
+        if eleve:
             cleaned["annee_scolaire"] = eleve.annee_scolaire
         return cleaned
