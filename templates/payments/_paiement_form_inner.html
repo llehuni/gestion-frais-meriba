@@ -1,15 +1,25 @@
-<form method="post" action="{% url 'payments:paiement_create' %}">
+<form method="post" action="{% url 'payments:paiement_create' %}" id="paiement-form">
 {% csrf_token %}
 {% if form.non_field_errors %}<div style="background:var(--danger-subtle); border:1px solid var(--danger); border-radius:6px; padding:10px; margin-bottom:12px; color:var(--danger);">{{ form.non_field_errors }}</div>{% endif %}
 
-<div class="field">
-<label for="id_eleve">Élève *</label>
+<!-- Hidden eleve id -->
 {{ form.eleve }}
+<div class="field">
+<label for="id_eleve_search">Élève *</label>
+<input type="text" id="id_eleve_search" name="eleve_search" value="{{ form.eleve_search.value|default:'' }}" class="input" placeholder="Tapez nom, post-nom ou matricule..." autocomplete="off"
+       hx-get="{% url 'payments:eleve_search' %}"
+       hx-trigger="keyup changed delay:300ms"
+       hx-target="#eleve-search-results"
+       hx-include="this">
 {% if form.eleve.errors %}<div style="color:var(--danger); font-size:12px; margin-top:4px;">{{ form.eleve.errors }}</div>{% endif %}
-<div style="margin-top:8px; font-size:12px; color:var(--fg-muted);">Astuce : recherche HTMX — tapez nom/matricule :
-<input class="input" type="text" placeholder="Rechercher élève (HTMX)..." hx-get="{% url 'payments:eleve_search' %}" hx-trigger="keyup changed delay:300ms" hx-target="#eleve-search-results" name="q" style="margin-top:6px;">
-<div id="eleve-search-results" style="margin-top:6px;"></div>
+<div id="eleve-selected" style="margin-top:6px; font-size:13px;">
+{% if form.eleve.value %}
+<span class="label label-accent"><i class="fas fa-user-check"></i> Élève sélectionné : {{ form.eleve_search.value }}</span>
+{% else %}
+<span class="text-sm text-muted">Astuce : recherche HTMX — tapez nom/matricule, puis cliquez sur le résultat.</span>
+{% endif %}
 </div>
+<div id="eleve-search-results" style="margin-top:6px;"></div>
 </div>
 
 <div class="form-row">
@@ -33,17 +43,8 @@
 <div class="field">
 <label for="id_date_paiement">Date *</label>
 {{ form.date_paiement }}
+{% if form.date_paiement.errors %}<div style="color:var(--danger); font-size:12px;">{{ form.date_paiement.errors }}</div>{% endif %}
 </div>
-</div>
-
-<div class="field">
-<label for="id_mode_paiement">Mode de paiement</label>
-{{ form.mode_paiement }}
-</div>
-
-<div class="field">
-<label for="id_observation">Observation</label>
-{{ form.observation }}
 </div>
 
 <div class="modal-foot" style="margin:16px -16px -16px; border-top:1px solid var(--border);">
@@ -51,3 +52,23 @@
 <a class="btn" href="{% url 'payments:paiement_list' %}">Annuler</a>
 </div>
 </form>
+
+<script>
+(function(){
+  // Met à jour le champ caché et l'affichage après sélection via HTMX
+  document.addEventListener('click', function(e){
+    const sel = e.target.closest('[data-eleve-id]');
+    if(!sel) return;
+    const id = sel.getAttribute('data-eleve-id');
+    const label = sel.getAttribute('data-eleve-label');
+    const hidden = document.getElementById('id_eleve');
+    const search = document.getElementById('id_eleve_search');
+    const disp = document.getElementById('eleve-selected');
+    const results = document.getElementById('eleve-search-results');
+    if(hidden) hidden.value = id;
+    if(search) search.value = label;
+    if(disp) disp.innerHTML = '<span class=\"label label-success\"><i class=\"fas fa-check\"></i> Élève sélectionné : ' + label + '</span>';
+    if(results) results.innerHTML = '';
+  });
+})();
+</script>

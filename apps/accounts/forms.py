@@ -8,8 +8,8 @@ from .models import Role, User
 
 class LoginForm(forms.Form):
     use_required_attribute = False
-    login = forms.CharField(label="Login", max_length=150, widget=forms.TextInput(attrs={"autofocus": True, "class": "input"}))
-    password = forms.CharField(label="Mot de passe", widget=forms.PasswordInput(attrs={"class": "input"}))
+    login = forms.CharField(label="Login", max_length=150, widget=forms.TextInput(attrs={"autofocus": True, "class": "input", "placeholder": "Ex: admin"}))
+    password = forms.CharField(label="Mot de passe", widget=forms.PasswordInput(attrs={"class": "input", "placeholder": "Votre mot de passe"}))
 
     def clean(self):
         cleaned = super().clean()
@@ -36,10 +36,10 @@ class UserCreateForm(UserCreationForm):
         model = User
         fields = ("login", "prenom", "nom", "email", "role", "actif")
         widgets = {
-            "login": forms.TextInput(attrs={"class": "input"}),
-            "prenom": forms.TextInput(attrs={"class": "input"}),
-            "nom": forms.TextInput(attrs={"class": "input"}),
-            "email": forms.EmailInput(attrs={"class": "input"}),
+            "login": forms.TextInput(attrs={"class": "input", "placeholder": "Ex: kabuya"}),
+            "prenom": forms.TextInput(attrs={"class": "input", "placeholder": "Ex: Marie"}),
+            "nom": forms.TextInput(attrs={"class": "input", "placeholder": "Ex: Kabuya"}),
+            "email": forms.EmailInput(attrs={"class": "input", "placeholder": "Ex: kabuya@meriba.cd"}),
             "role": forms.Select(attrs={"class": "select"}),
         }
 
@@ -49,8 +49,8 @@ class UserCreateForm(UserCreationForm):
         self.fields["nom"].required = True
         self.fields["login"].help_text = "Unique, sans espaces."
         # password1/password2 issus de UserCreationForm
-        self.fields["password1"].widget.attrs.update({"class": "input"})
-        self.fields["password2"].widget.attrs.update({"class": "input"})
+        self.fields["password1"].widget.attrs.update({"class": "input", "placeholder": "Min. 8 caractères"})
+        self.fields["password2"].widget.attrs.update({"class": "input", "placeholder": "Confirmez le mot de passe"})
 
 
 class UserUpdateForm(UserChangeForm):
@@ -62,18 +62,18 @@ class UserUpdateForm(UserChangeForm):
         model = User
         fields = ("login", "prenom", "nom", "email", "role", "actif")
         widgets = {
-            "login": forms.TextInput(attrs={"class": "input"}),
-            "prenom": forms.TextInput(attrs={"class": "input"}),
-            "nom": forms.TextInput(attrs={"class": "input"}),
-            "email": forms.EmailInput(attrs={"class": "input"}),
+            "login": forms.TextInput(attrs={"class": "input", "placeholder": "Ex: kabuya"}),
+            "prenom": forms.TextInput(attrs={"class": "input", "placeholder": "Ex: Marie"}),
+            "nom": forms.TextInput(attrs={"class": "input", "placeholder": "Ex: Kabuya"}),
+            "email": forms.EmailInput(attrs={"class": "input", "placeholder": "Ex: kabuya@meriba.cd"}),
             "role": forms.Select(attrs={"class": "select"}),
         }
 
 
 class UserPasswordResetForm(forms.Form):
     use_required_attribute = False
-    new_password1 = forms.CharField(label="Nouveau mot de passe", widget=forms.PasswordInput(attrs={"class": "input"}))
-    new_password2 = forms.CharField(label="Confirmation", widget=forms.PasswordInput(attrs={"class": "input"}))
+    new_password1 = forms.CharField(label="Nouveau mot de passe", widget=forms.PasswordInput(attrs={"class": "input", "placeholder": "Nouveau mot de passe"}))
+    new_password2 = forms.CharField(label="Confirmation", widget=forms.PasswordInput(attrs={"class": "input", "placeholder": "Confirmez le mot de passe"}))
 
     def clean(self):
         cleaned = super().clean()

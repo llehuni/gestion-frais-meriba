@@ -8,9 +8,15 @@
             <p class="page-desc">{{ eleve.matricule }} — {{ eleve.classe.nom }} · {{ eleve.annee_scolaire }} · {{ eleve.get_sexe_display }}</p>
         </div>
         <div class="page-actions">
+            {% if user.is_administrateur or user.is_caissier or user.is_directeur or user.is_secretaire %}
             <a class="btn btn-primary" href="{% url 'payments:situation' eleve.pk %}"><i class="fas fa-coins"></i> Situation financière</a>
+            {% endif %}
+            {% if user.is_administrateur or user.is_caissier %}
             <a class="btn btn-primary" href="{% url 'payments:paiement_create' %}?eleve={{ eleve.pk }}"><i class="fas fa-money-bill"></i> Encaisser</a>
+            {% endif %}
+            {% if user.is_administrateur or user.is_secretaire %}
             <a class="btn" href="{% url 'students:eleve_edit' eleve.pk %}"><i class="fas fa-pen"></i> Modifier</a>
+            {% endif %}
             <a class="btn" href="{% url 'students:eleve_list' %}"><i class="fas fa-arrow-left"></i> Retour</a>
         </div>
     </div>

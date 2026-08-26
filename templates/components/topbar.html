@@ -8,8 +8,6 @@
                     </div>
                 </div>
                 <div class="topbar-right">
-                    <button class="icon-btn" title="Rechercher"><i class="fas fa-search"></i></button>
-                    <button class="icon-btn" title="Notifications"><i class="fas fa-bell"></i><span class="dot"></span></button>
                     <div class="user-chip" title="{{ user.get_full_name|default:user.login }} — {{ user.get_role_display }}">
                         <div class="avatar">{{ user.login|slice:":2"|upper }}</div>
                         <span class="uname">{{ user.login }}</span>

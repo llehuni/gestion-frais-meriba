@@ -16,12 +16,27 @@
 {% endfor %}
 </div>
 {% if is_paginated %}
-<div class="pagination">
-<div>Affichage de {{ page_obj.start_index }}-{{ page_obj.end_index }} sur {{ page_obj.paginator.count }}</div>
-<div class="page-btns">
-{% if page_obj.has_previous %}<a class="page-btn" href="?page={{ page_obj.previous_page_number }}&q={{ request.GET.q }}&action={{ request.GET.action }}"><i class="fas fa-chevron-left"></i></a>{% endif %}
-<span class="page-btn active">{{ page_obj.number }}</span>
-{% if page_obj.has_next %}<a class="page-btn" href="?page={{ page_obj.next_page_number }}&q={{ request.GET.q }}&action={{ request.GET.action }}"><i class="fas fa-chevron-right"></i></a>{% endif %}
+<div class="pagination" style="justify-content:center;">
+<div style="display:flex; align-items:center; gap:8px;">
+{% if page_obj.has_previous %}
+<button class="page-btn" hx-get="{% url 'audit:log_list' %}?page={{ page_obj.previous_page_number }}&q={{ request.GET.q }}&action={{ request.GET.action }}" hx-target="#audit-table" hx-swap="outerHTML" hx-push-url="true"><span>&lt; précédent</span></button>
+{% else %}
+<button class="page-btn" disabled><span>&lt; précédent</span></button>
+{% endif %}
+<span style="font-size:13px; color:var(--fg); font-weight:500;"> : {{ page_obj.number }} sur {{ page_obj.paginator.num_pages }} </span>
+{% if page_obj.has_next %}
+<button class="page-btn" hx-get="{% url 'audit:log_list' %}?page={{ page_obj.next_page_number }}&q={{ request.GET.q }}&action={{ request.GET.action }}" hx-target="#audit-table" hx-swap="outerHTML" hx-push-url="true"><span>suivante &gt;</span></button>
+{% else %}
+<button class="page-btn" disabled><span>suivante &gt;</span></button>
+{% endif %}
+</div>
+</div>
+{% else %}
+<div class="pagination" style="justify-content:center;">
+<div style="display:flex; align-items:center; gap:8px;">
+<button class="page-btn" disabled><span>&lt; précédent</span></button>
+<span style="font-size:13px; color:var(--fg); font-weight:500;"> : 1 sur 1 </span>
+<button class="page-btn" disabled><span>suivante &gt;</span></button>
 </div>
 </div>
 {% endif %}

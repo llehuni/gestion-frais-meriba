@@ -87,6 +87,48 @@
             m.addEventListener('click', e => { if (e.target === m) m.classList.remove('active'); });
         });
 
+        // ===== CUSTOM CONFIRM (remplace hx-confirm natif) =====
+        let _pendingHtmxConfirm = null;
+        document.body.addEventListener('htmx:confirm', function(e){
+            const elt = e.detail.elt;
+            if(!elt || !elt.hasAttribute('hx-confirm')) return;
+            e.preventDefault();
+            e.stopPropagation();
+            const question = e.detail.question || elt.getAttribute('hx-confirm') || 'Confirmer cette action ?';
+            _pendingHtmxConfirm = e;
+            document.getElementById('confirm-title').textContent = 'Confirmer';
+            document.getElementById('confirm-message').textContent = question;
+            document.getElementById('confirm-btn').textContent = 'Confirmer';
+            document.getElementById('confirm-btn').classList.remove('btn-danger');
+            document.getElementById('confirm-btn').classList.add('btn-primary');
+            // stock callback pour ce confirm HTMX
+            document.getElementById('confirm-btn').onclick = function(){
+                closeModal('m-confirm');
+                if(_pendingHtmxConfirm){
+                    _pendingHtmxConfirm.detail.issueRequest(true);
+                    _pendingHtmxConfirm = null;
+                }
+            };
+            // annuler doit nettoyer
+            const cancelBtn = document.querySelector('#m-confirm .modal-foot .btn:not(#confirm-btn)');
+            if(cancelBtn) cancelBtn.onclick = function(){ closeModal('m-confirm'); _pendingHtmxConfirm = null; };
+            openModal('m-confirm');
+        });
+
+        // Helper global pour confirmations custom (non-HTMX)
+        window.showConfirm = function(title, message, onConfirm, confirmLabel='Confirmer', danger=true){
+            document.getElementById('confirm-title').textContent = title;
+            document.getElementById('confirm-message').textContent = message;
+            const btn = document.getElementById('confirm-btn');
+            btn.textContent = confirmLabel;
+            if(danger){ btn.classList.add('btn-danger'); btn.classList.remove('btn-primary'); }
+            else { btn.classList.add('btn-primary'); btn.classList.remove('btn-danger'); }
+            btn.onclick = function(){ closeModal('m-confirm'); if(typeof onConfirm==='function') onConfirm(); };
+            const cancelBtn = document.querySelector('#m-confirm .modal-foot .btn:not(#confirm-btn)');
+            if(cancelBtn) cancelBtn.onclick = function(){ closeModal('m-confirm'); };
+            openModal('m-confirm');
+        };
+
         // ===== TABS =====
         function switchTab(btn, targetId) {
             btn.parentElement.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
@@ -162,10 +204,11 @@
         function actionDelete(type, id) {
             closeAllDropdowns();
             pendingAction = { type: 'delete', entity: type, id: id };
-            document.getElementById('confirm-title').textContent = `Supprimer ce ${type} ?`;
-            document.getElementById('confirm-message').textContent = `Êtes-vous sûr de vouloir supprimer ${type} « ${id} » ? Cette action est irréversible.`;
-            document.getElementById('confirm-btn').textContent = 'Supprimer';
-            openModal('m-confirm');
+            showConfirm(`Supprimer ce ${type} ?`, `Êtes-vous sûr de vouloir supprimer ${type} « ${id} » ? Cette action est irréversible.`, function(){
+                if (!pendingAction) return;
+                toast(`${pendingAction.entity} « ${pendingAction.id} » supprimé`);
+                pendingAction = null;
+            }, 'Supprimer', true);
         }
 
         function actionPay(id) {
@@ -189,10 +232,11 @@
         function actionBlock(login) {
             closeAllDropdowns();
             pendingAction = { type: 'block', id: login };
-            document.getElementById('confirm-title').textContent = 'Bloquer le compte ?';
-            document.getElementById('confirm-message').textContent = `L'utilisateur « ${login} » ne pourra plus se connecter. Voulez-vous continuer ?`;
-            document.getElementById('confirm-btn').textContent = 'Bloquer';
-            openModal('m-confirm');
+            showConfirm('Bloquer le compte ?', `L'utilisateur « ${login} » ne pourra plus se connecter. Voulez-vous continuer ?`, function(){
+                if (!pendingAction) return;
+                toast(`Compte « ${pendingAction.id} » bloqué`);
+                pendingAction = null;
+            }, 'Bloquer', true);
         }
 
         function actionUnblock(login) {
@@ -202,6 +246,11 @@
 
         function confirmAction() {
             closeModal('m-confirm');
+            if(_pendingHtmxConfirm){
+                _pendingHtmxConfirm.detail.issueRequest(true);
+                _pendingHtmxConfirm = null;
+                return;
+            }
             if (!pendingAction) return;
             if (pendingAction.type === 'delete') {
                 toast(`${pendingAction.entity} « ${pendingAction.id} » supprimé`);
@@ -210,6 +259,16 @@
             }
             pendingAction = null;
         }
+
+        // ===== PASSWORD TOGGLE =====
+        window.togglePassword = function(inputId, btn){
+            const input = document.getElementById(inputId);
+            if(!input) return;
+            const isPwd = input.type === 'password';
+            input.type = isPwd ? 'text' : 'password';
+            const icon = btn.querySelector('i');
+            if(icon){ icon.classList.toggle('fa-eye'); icon.classList.toggle('fa-eye-slash'); }
+        };
 
         // ===== RESPONSIVE =====
         window.addEventListener('resize', () => {

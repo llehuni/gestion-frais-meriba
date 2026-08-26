@@ -69,12 +69,18 @@
                 <div class="form-row">
                     <div class="field">
                         <label for="{{ form.password1.id_for_label }}">Mot de passe *</label>
-                        {{ form.password1 }}
+                        <div style="position:relative;">
+                            {{ form.password1 }}
+                            <button type="button" onclick="togglePassword('{{ form.password1.id_for_label }}', this)" style="position:absolute; right:8px; top:50%; transform:translateY(-50%); background:none; border:none; color:var(--fg-muted); cursor:pointer;"><i class="fas fa-eye"></i></button>
+                        </div>
                         {% if form.password1.errors %}<p style="color:var(--danger); font-size:12px; margin-top:4px;">{{ form.password1.errors.0 }}</p>{% endif %}
                     </div>
                     <div class="field">
                         <label for="{{ form.password2.id_for_label }}">Confirmation *</label>
-                        {{ form.password2 }}
+                        <div style="position:relative;">
+                            {{ form.password2 }}
+                            <button type="button" onclick="togglePassword('{{ form.password2.id_for_label }}', this)" style="position:absolute; right:8px; top:50%; transform:translateY(-50%); background:none; border:none; color:var(--fg-muted); cursor:pointer;"><i class="fas fa-eye"></i></button>
+                        </div>
                         {% if form.password2.errors %}<p style="color:var(--danger); font-size:12px; margin-top:4px;">{{ form.password2.errors.0 }}</p>{% endif %}
                     </div>
                 </div>

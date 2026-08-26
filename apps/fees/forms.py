@@ -10,7 +10,7 @@ class TypeFraisForm(forms.ModelForm):
         fields = ["libelle", "description"]
         widgets = {
             "libelle": forms.TextInput(attrs={"class": "input", "placeholder": "Ex: Inscription"}),
-            "description": forms.Textarea(attrs={"class": "input", "rows": 3}),
+            "description": forms.Textarea(attrs={"class": "input", "rows": 3, "placeholder": "Ex: Frais d'inscription annuelle obligatoire"}),
         }
 
 
@@ -28,7 +28,7 @@ class FraisForm(forms.ModelForm):
         fields = ["type_frais", "montant", "classes"]
         widgets = {
             "type_frais": forms.Select(attrs={"class": "input"}),
-            "montant": forms.NumberInput(attrs={"class": "input", "min": "1", "step": "0.01"}),
+            "montant": forms.NumberInput(attrs={"class": "input", "min": "1", "step": "0.01", "placeholder": "Ex: 75000"}),
         }
 
     def __init__(self, *args, **kwargs):

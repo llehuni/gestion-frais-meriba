@@ -10,17 +10,21 @@
                     <span class="ico"><i class="fas fa-house"></i></span> Tableau de bord
                 </a>
 
-                {% if user.is_administrateur or user.is_secretaire %}
+                {# Scolarité : tous peuvent consulter élèves (caissier recherche, directeur suivi), mais seule secrétariat/admin gère ; Classes réservé secrétariat/admin #}
+                {% if user.is_authenticated %}
                 <div class="nav-section">Scolarité</div>
+                {% endif %}
+                {% if user.is_administrateur or user.is_secretaire or user.is_caissier or user.is_directeur %}
                 <a class="nav-item {% if 'eleve' in request.resolver_match.url_name %}active{% endif %}" href="{% url 'students:eleve_list' %}" data-page="students">
                     <span class="ico"><i class="fas fa-user-graduate"></i></span> Élèves
                 </a>
+                {% endif %}
+                {% if user.is_administrateur or user.is_secretaire %}
                 <a class="nav-item {% if 'classe_' in request.resolver_match.url_name %}active{% endif %}" href="{% url 'classes:classe_list' %}" data-page="classes">
                     <span class="ico"><i class="fas fa-chalkboard"></i></span> Classes
                 </a>
                 {% endif %}
 
-                {% if user.is_administrateur or user.is_caissier or user.is_secretaire or user.is_directeur %}
                 <div class="nav-section">Finances</div>
                 {% if user.is_administrateur %}
                 <a class="nav-item {% if 'type_' in request.resolver_match.url_name or 'frais_' in request.resolver_match.url_name %}active{% endif %}" href="{% url 'fees:frais_list' %}" data-page="fees">
@@ -33,10 +37,9 @@
                 </a>
                 {% endif %}
                 {% if user.is_administrateur or user.is_caissier or user.is_directeur or user.is_secretaire %}
-                <a class="nav-item {% if 'situation' in request.resolver_match.url_name %}active{% endif %}" href="{% if request.user.is_authenticated and eleves %}{% url 'payments:situation' eleves.0.pk %}{% else %}{% url 'payments:paiement_list' %}{% endif %}" data-page="receipts" onclick="if(this.getAttribute('href')=='{% url 'payments:paiement_list' %}') return true;">
-                    <span class="ico"><i class="fas fa-receipt"></i></span> Reçus / Situations
+                <a class="nav-item {% if 'situation' in request.resolver_match.url_name %}active{% endif %}" href="{% url 'payments:paiement_list' %}" data-page="receipts">
+                    <span class="ico"><i class="fas fa-receipt"></i></span> Situations / Reçus
                 </a>
-                {% endif %}
                 {% endif %}
 
                 {% if user.is_administrateur or user.is_directeur %}

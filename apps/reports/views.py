@@ -91,7 +91,7 @@ class ReportRecettesView(ReportMixin, View):
     def get(self, request):
         period = request.GET.get("period", "jour")  # jour, semaine, mois, annee
         today = timezone.now().date()
-        qs = Paiement.objects.select_related("eleve", "type_frais", "agent").order_by("-date_paiement")
+        qs = Paiement.objects.select_related("eleve", "type_frais", "agent", "recu_associe").order_by("-date_paiement")
         if period == "jour":
             qs = qs.filter(date_paiement=today)
         elif period == "semaine":
@@ -101,7 +101,10 @@ class ReportRecettesView(ReportMixin, View):
         elif period == "annee":
             qs = qs.filter(date_paiement__year=today.year)
         total = qs.aggregate(t=Sum("montant_paye"))["t"] or Decimal("0")
-        return render(request, "reports/recettes.html", {"paiements": qs[:100], "total": total, "period": period})
+        ctx = {"paiements": qs[:100], "total": total, "period": period}
+        if request.headers.get("HX-Request") == "true" or request.META.get("HTTP_HX_REQUEST") == "true":
+            return render(request, "reports/_recettes_card.html", ctx)
+        return render(request, "reports/recettes.html", ctx)
 
 
 class ReportDebiteursView(ReportMixin, View):

@@ -23,13 +23,17 @@
                         <div class="dropdown">
                             <button class="dropdown-toggle" onclick="toggleDropdown(event, this)"><i class="fas fa-ellipsis-vertical"></i></button>
                             <div class="dropdown-menu">
+                                {% if user.is_administrateur or user.is_secretaire %}
                                 <a class="dropdown-item" href="{% url 'classes:classe_edit' c.pk %}"><span class="ico"><i class="fas fa-pen"></i></span> Modifier</a>
                                 <div class="dropdown-divider"></div>
                                 <button class="dropdown-item danger"
                                         hx-post="{% url 'classes:classe_delete' c.pk %}"
-                                        hx-confirm="Supprimer la classe {{ c.nom }} ?"
+                                        hx-confirm="Supprimer la classe {{ c.nom }} ? Voulez-vous continuer ?"
                                         hx-target="closest tr"
                                         hx-swap="outerHTML"><span class="ico"><i class="fas fa-trash"></i></span> Supprimer</button>
+                                {% else %}
+                                <span class="dropdown-item text-muted" style="pointer-events:none;">Lecture seule</span>
+                                {% endif %}
                             </div>
                         </div>
                     </td>

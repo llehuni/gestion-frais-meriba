@@ -8,7 +8,9 @@
             <p class="page-desc">Organisation des classes du cycle primaire — 1ère à 6ème</p>
         </div>
         <div class="page-actions">
+            {% if user.is_administrateur or user.is_secretaire %}
             <a class="btn btn-primary" href="{% url 'classes:classe_create' %}"><i class="fas fa-plus"></i> Nouvelle classe</a>
+            {% endif %}
         </div>
     </div>
 

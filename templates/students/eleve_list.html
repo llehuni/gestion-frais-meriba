@@ -8,7 +8,9 @@
             <p class="page-desc">Gestion des inscriptions et suivi des situations — {{ eleves|length }} affiché(s)</p>
         </div>
         <div class="page-actions">
+            {% if user.is_administrateur or user.is_secretaire %}
             <a class="btn btn-primary" href="{% url 'students:eleve_create' %}"><i class="fas fa-user-plus"></i> Nouvel élève</a>
+            {% endif %}
         </div>
     </div>
 

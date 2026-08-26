@@ -27,7 +27,6 @@ class PaiementListView(CashierOrAdminMixin, ListView):
         qs = super().get_queryset().select_related("eleve", "eleve__classe", "type_frais", "agent", "recu_associe")
         q = self.request.GET.get("q", "").strip()
         type_id = self.request.GET.get("type", "").strip()
-        mode = self.request.GET.get("mode", "").strip()
         if q:
             qs = qs.filter(
                 Q(eleve__matricule__icontains=q) |
@@ -37,8 +36,6 @@ class PaiementListView(CashierOrAdminMixin, ListView):
             )
         if type_id.isdigit():
             qs = qs.filter(type_frais_id=int(type_id))
-        if mode:
-            qs = qs.filter(mode_paiement=mode)
         return qs
 
     def get_context_data(self, **kwargs):
@@ -95,10 +92,10 @@ class PaiementCreateView(CashierOrAdminMixin, View):
                     type_frais=form.cleaned_data["type_frais"],
                     montant_paye=form.cleaned_data["montant_paye"],
                     date_paiement=form.cleaned_data["date_paiement"],
-                    mode_paiement=form.cleaned_data["mode_paiement"],
+                    mode_paiement="especes",
                     agent=request.user,
                     annee_scolaire=form.cleaned_data.get("annee_scolaire"),
-                    observation=form.cleaned_data.get("observation", ""),
+                    observation="",
                     request=request,
                 )
                 messages.success(request, f"Paiement enregistré — Reçu {recu.numero}")

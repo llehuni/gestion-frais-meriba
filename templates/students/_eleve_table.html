@@ -34,11 +34,19 @@
                             <button class="dropdown-toggle" onclick="toggleDropdown(event, this)"><i class="fas fa-ellipsis-vertical"></i></button>
                             <div class="dropdown-menu">
                                 <a class="dropdown-item" href="{% url 'students:eleve_detail' e.pk %}"><span class="ico"><i class="fas fa-eye"></i></span> Voir la fiche</a>
+                                {% if user.is_administrateur or user.is_secretaire %}
                                 <a class="dropdown-item" href="{% url 'students:eleve_edit' e.pk %}"><span class="ico"><i class="fas fa-pen"></i></span> Modifier</a>
+                                {% endif %}
+                                {% if user.is_administrateur or user.is_caissier or user.is_directeur or user.is_secretaire %}
                                 <a class="dropdown-item success" href="{% url 'payments:situation' e.pk %}"><span class="ico"><i class="fas fa-coins"></i></span> Situation financière</a>
+                                {% endif %}
+                                {% if user.is_administrateur or user.is_caissier %}
                                 <a class="dropdown-item success" href="{% url 'payments:paiement_create' %}?eleve={{ e.pk }}"><span class="ico"><i class="fas fa-money-bill"></i></span> Encaisser</a>
+                                {% endif %}
+                                {% if user.is_administrateur or user.is_secretaire %}
                                 <div class="dropdown-divider"></div>
-                                <button class="dropdown-item danger" hx-post="{% url 'students:eleve_delete' e.pk %}" hx-confirm="Supprimer {{ e.matricule }} ?" hx-target="closest tr" hx-swap="outerHTML"><span class="ico"><i class="fas fa-trash"></i></span> Supprimer</button>
+                                <button class="dropdown-item danger" hx-post="{% url 'students:eleve_delete' e.pk %}" hx-confirm="Supprimer {{ e.matricule }} ? Voulez-vous continuer ?" hx-target="closest tr" hx-swap="outerHTML"><span class="ico"><i class="fas fa-trash"></i></span> Supprimer</button>
+                                {% endif %}
                             </div>
                         </div>
                     </td>
