@@ -64,9 +64,9 @@ INSTALLED_APPS = [
     "apps.classes",
     "apps.fees",
     "apps.students",
-    # 'apps.payments',
-    # 'apps.reports',
-    # 'apps.audit',
+    "apps.payments",
+    "apps.reports",
+    "apps.audit",
 ]
 
 AUTH_USER_MODEL = "accounts.User"
@@ -83,6 +83,7 @@ MIDDLEWARE = [
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
+    "apps.audit.middleware.AuditMiddleware",
 ]
 
 ROOT_URLCONF = "config.urls"
@@ -215,13 +216,9 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 
 # Email
-EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
-# Django 6.1+ utilise MAILERS, on garde la compatibilité
-try:
-    MAILERS = {
-        "default": {
-            "BACKEND": EMAIL_BACKEND,
-        },
-    }
-except Exception:
-    pass
+# EMAIL_BACKEND deprecated quand MAILERS est défini (Django 5.2+) — utiliser MAILERS uniquement
+MAILERS = {
+    "default": {
+        "BACKEND": "django.core.mail.backends.console.EmailBackend",
+    },
+}

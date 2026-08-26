@@ -4,15 +4,20 @@ from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse_lazy
 from django.views.generic import CreateView, DetailView, ListView, UpdateView, View
 
-from apps.accounts.permissions import SecretaryOrAdminMixin
+from apps.accounts.permissions import SecretaryOrAdminMixin, RoleRequiredMixin
+from apps.accounts.models import Role
 
 from .forms import EleveForm
 from .models import Eleve
 
 logger = logging.getLogger(__name__)
 
+# Lecture élèves : tous les rôles authentifiés peuvent rechercher/consulter (RG-06, besoin caissier)
+class EleveReadMixin(RoleRequiredMixin):
+    allowed_roles = [Role.ADMINISTRATEUR, Role.SECRETAIRE, Role.CAISSIER, Role.DIRECTEUR]
 
-class EleveListView(SecretaryOrAdminMixin, ListView):
+
+class EleveListView(EleveReadMixin, ListView):
     model = Eleve
     template_name = "students/eleve_list.html"
     context_object_name = "eleves"
@@ -41,10 +46,27 @@ class EleveListView(SecretaryOrAdminMixin, ListView):
         return super().render_to_response(context, **response_kwargs)
 
 
-class EleveDetailView(SecretaryOrAdminMixin, DetailView):
+class EleveDetailView(EleveReadMixin, DetailView):
     model = Eleve
     template_name = "students/eleve_detail.html"
     context_object_name = "eleve"
+
+
+def _audit(request, action, instance, changes=None):
+    try:
+        from apps.audit.models import AuditLog
+        AuditLog.objects.create(
+            user=request.user if request.user.is_authenticated else None,
+            action=action,
+            model_name=instance.__class__.__name__,
+            object_id=str(instance.pk),
+            object_repr=str(instance),
+            changes=changes,
+            ip_address=request.META.get("REMOTE_ADDR"),
+            user_agent=request.META.get("HTTP_USER_AGENT", "")[:500],
+        )
+    except Exception:
+        pass
 
 
 class EleveCreateView(SecretaryOrAdminMixin, CreateView):
@@ -56,6 +78,7 @@ class EleveCreateView(SecretaryOrAdminMixin, CreateView):
     def form_valid(self, form):
         resp = super().form_valid(form)
         logger.info("Élève créé %s par %s", self.object.matricule, self.request.user.login)
+        _audit(self.request, "CREATE", self.object, {"matricule": self.object.matricule})
         messages.success(self.request, f"Élève {self.object.matricule} créé.")
         return resp
 
@@ -69,6 +92,7 @@ class EleveUpdateView(SecretaryOrAdminMixin, UpdateView):
     def form_valid(self, form):
         resp = super().form_valid(form)
         logger.info("Élève modifié %s par %s", self.object.matricule, self.request.user.login)
+        _audit(self.request, "UPDATE", self.object)
         messages.success(self.request, f"Élève {self.object.matricule} mis à jour.")
         return resp
 
@@ -76,11 +100,19 @@ class EleveUpdateView(SecretaryOrAdminMixin, UpdateView):
 class EleveDeleteView(SecretaryOrAdminMixin, View):
     def post(self, request, pk):
         obj = get_object_or_404(Eleve, pk=pk)
-        # Vérifier s'il a des paiements ? Pour l'instant pas de payments, donc on autorise mais on log
+        # RG-08 : protéger si paiements existent
+        if obj.paiements.exists():
+            messages.error(request, f"Impossible de supprimer {obj.matricule} : des paiements y sont associés (RG-08).")
+            if request.headers.get("HX-Request") == "true":
+                from django.http import HttpResponse
+                return HttpResponse(status=204, headers={"HX-Refresh": "true"})
+            return redirect("students:eleve_list")
         try:
             matricule = obj.matricule
+            repr_obj = str(obj)
             obj.delete()
             logger.info("Élève supprimé %s par %s", matricule, request.user.login)
+            _audit(request, "DELETE", obj, {"matricule": matricule})
             messages.success(request, f"Élève {matricule} supprimé.")
         except Exception as e:
             messages.error(request, f"Erreur : {e}")

@@ -1,0 +1,53 @@
+<form method="post" action="{% url 'payments:paiement_create' %}">
+{% csrf_token %}
+{% if form.non_field_errors %}<div style="background:var(--danger-subtle); border:1px solid var(--danger); border-radius:6px; padding:10px; margin-bottom:12px; color:var(--danger);">{{ form.non_field_errors }}</div>{% endif %}
+
+<div class="field">
+<label for="id_eleve">Élève *</label>
+{{ form.eleve }}
+{% if form.eleve.errors %}<div style="color:var(--danger); font-size:12px; margin-top:4px;">{{ form.eleve.errors }}</div>{% endif %}
+<div style="margin-top:8px; font-size:12px; color:var(--fg-muted);">Astuce : recherche HTMX — tapez nom/matricule :
+<input class="input" type="text" placeholder="Rechercher élève (HTMX)..." hx-get="{% url 'payments:eleve_search' %}" hx-trigger="keyup changed delay:300ms" hx-target="#eleve-search-results" name="q" style="margin-top:6px;">
+<div id="eleve-search-results" style="margin-top:6px;"></div>
+</div>
+</div>
+
+<div class="form-row">
+<div class="field">
+<label for="id_type_frais">Type de frais *</label>
+{{ form.type_frais }}
+{% if form.type_frais.errors %}<div style="color:var(--danger); font-size:12px;">{{ form.type_frais.errors }}</div>{% endif %}
+</div>
+<div class="field">
+<label for="id_annee_scolaire">Année scolaire</label>
+{{ form.annee_scolaire }}
+</div>
+</div>
+
+<div class="form-row">
+<div class="field">
+<label for="id_montant_paye">Montant (CDF) *</label>
+{{ form.montant_paye }}
+{% if form.montant_paye.errors %}<div style="color:var(--danger); font-size:12px;">{{ form.montant_paye.errors }}</div>{% endif %}
+</div>
+<div class="field">
+<label for="id_date_paiement">Date *</label>
+{{ form.date_paiement }}
+</div>
+</div>
+
+<div class="field">
+<label for="id_mode_paiement">Mode de paiement</label>
+{{ form.mode_paiement }}
+</div>
+
+<div class="field">
+<label for="id_observation">Observation</label>
+{{ form.observation }}
+</div>
+
+<div class="modal-foot" style="margin:16px -16px -16px; border-top:1px solid var(--border);">
+<button type="submit" class="btn btn-primary"><i class="fas fa-check"></i> Enregistrer & générer reçu</button>
+<a class="btn" href="{% url 'payments:paiement_list' %}">Annuler</a>
+</div>
+</form>

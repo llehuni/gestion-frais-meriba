@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+{% block title %}Journal d'audit — Meriba{% endblock %}
+{% block content %}
+<section class="page active">
+<div class="page-header">
+<div><h1 class="page-title">Journal d'audit</h1><p class="page-desc">Traçabilité — Administrateur uniquement — RG-07/09</p></div>
+<div class="page-actions">
+<form id="search-form-audit" method="get" style="display:flex; gap:8px; align-items:center;" onsubmit="return false;">
+<select class="input" name="action" style="width:auto;"
+hx-get="{% url 'audit:log_list' %}" hx-trigger="change" hx-target="#audit-table" hx-swap="outerHTML" hx-include="#search-form-audit">
+<option value="">Toutes les actions</option>
+{% for val, label in action_choices %}<option value="{{ val }}" {% if request.GET.action == val %}selected{% endif %}>{{ label }}</option>{% endfor %}
+</select>
+</form>
+</div>
+</div>
+<div class="card">
+<div class="card-header">
+<form id="search-form-audit2" method="get" style="display:flex; gap:8px; flex:1;" onsubmit="return false;">
+<div class="search" style="flex:1; max-width:320px;">
+<i class="fas fa-search"></i>
+<input class="input" name="q" value="{{ request.GET.q }}" placeholder="Rechercher utilisateur, objet..."
+hx-get="{% url 'audit:log_list' %}" hx-trigger="keyup changed delay:300ms, search" hx-target="#audit-table" hx-swap="outerHTML" hx-include="#search-form-audit, #search-form-audit2">
+</div>
+</form>
+<span class="text-sm text-muted">{{ page_obj.paginator.count }} entrée(s)</span>
+</div>
+{% include "audit/_log_table.html" %}
+</div>
+</section>
+{% endblock %}

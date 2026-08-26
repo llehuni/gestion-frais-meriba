@@ -20,24 +20,28 @@
                 </a>
                 {% endif %}
 
-                {% if user.is_administrateur or user.is_caissier %}
+                {% if user.is_administrateur or user.is_caissier or user.is_secretaire or user.is_directeur %}
                 <div class="nav-section">Finances</div>
                 {% if user.is_administrateur %}
                 <a class="nav-item {% if 'type_' in request.resolver_match.url_name or 'frais_' in request.resolver_match.url_name %}active{% endif %}" href="{% url 'fees:frais_list' %}" data-page="fees">
                     <span class="ico"><i class="fas fa-file-invoice-dollar"></i></span> Frais scolaires
                 </a>
                 {% endif %}
-                <a class="nav-item" data-page="payments" onclick="toast('Module Paiements — réservé Caisse/Admin','warning')">
+                {% if user.is_administrateur or user.is_caissier %}
+                <a class="nav-item {% if 'paiement' in request.resolver_match.url_name or 'recu' in request.resolver_match.url_name %}active{% endif %}" href="{% url 'payments:paiement_list' %}" data-page="payments">
                     <span class="ico"><i class="fas fa-money-bill"></i></span> Paiements
                 </a>
-                <a class="nav-item" data-page="receipts" onclick="toast('Module Reçus — réservé Caisse/Admin','warning')">
-                    <span class="ico"><i class="fas fa-receipt"></i></span> Reçus
+                {% endif %}
+                {% if user.is_administrateur or user.is_caissier or user.is_directeur or user.is_secretaire %}
+                <a class="nav-item {% if 'situation' in request.resolver_match.url_name %}active{% endif %}" href="{% if request.user.is_authenticated and eleves %}{% url 'payments:situation' eleves.0.pk %}{% else %}{% url 'payments:paiement_list' %}{% endif %}" data-page="receipts" onclick="if(this.getAttribute('href')=='{% url 'payments:paiement_list' %}') return true;">
+                    <span class="ico"><i class="fas fa-receipt"></i></span> Reçus / Situations
                 </a>
+                {% endif %}
                 {% endif %}
 
                 {% if user.is_administrateur or user.is_directeur %}
                 <div class="nav-section">Administration</div>
-                <a class="nav-item" data-page="reports" onclick="toast('Module Rapports — réservé Direction/Admin','warning')">
+                <a class="nav-item {% if request.resolver_match.app_name == 'reports' %}active{% endif %}" href="{% url 'reports:dashboard' %}" data-page="reports">
                     <span class="ico"><i class="fas fa-chart-column"></i></span> Rapports
                 </a>
                 {% endif %}
@@ -45,7 +49,7 @@
                 <a class="nav-item {% if 'user_' in request.resolver_match.url_name %}active{% endif %}" href="{% url 'accounts:user_list' %}" data-page="users">
                     <span class="ico"><i class="fas fa-users"></i></span> Utilisateurs
                 </a>
-                <a class="nav-item" data-page="audit" onclick="toast('Journal d\'audit — réservé Administrateur','warning')">
+                <a class="nav-item {% if request.resolver_match.app_name == 'audit' %}active{% endif %}" href="{% url 'audit:log_list' %}" data-page="audit">
                     <span class="ico"><i class="fas fa-shield-halved"></i></span> Journal d'audit
                 </a>
                 {% endif %}

@@ -1,0 +1,68 @@
+{% extends "base.html" %}
+{% block title %}Paiements — Meriba{% endblock %}
+{% block content %}
+<section class="page active" id="page-payments">
+    <div class="page-header">
+        <div>
+            <h1 class="page-title">Paiements</h1>
+            <p class="page-desc">Historique et enregistrement des encaissements — {{ paiements|length }} affiché(s)</p>
+        </div>
+        <div class="page-actions">
+            <a class="btn btn-primary" href="{% url 'payments:paiement_create' %}"><i class="fas fa-plus"></i> Nouveau paiement</a>
+        </div>
+    </div>
+
+    <div class="stats-grid">
+        <div class="stat">
+            <div class="stat-label">Recettes du jour</div>
+            <div class="stat-value" style="color:var(--success);">{{ recettes_jour|floatformat:0 }}</div>
+            <div class="stat-meta">{{ count_jour }} paiement(s)</div>
+        </div>
+        <div class="stat">
+            <div class="stat-label">Recettes du mois</div>
+            <div class="stat-value" style="color:var(--accent);">{{ recettes_mois|floatformat:0 }}</div>
+            <div class="stat-meta">Mois en cours</div>
+        </div>
+        <div class="stat">
+            <div class="stat-label">Total encaissé</div>
+            <div class="stat-value">{{ total_encaisse|floatformat:0 }}</div>
+            <div class="stat-meta">Année en cours</div>
+        </div>
+        <div class="stat">
+            <div class="stat-label">Arriérés</div>
+            <div class="stat-value" style="color:var(--danger);">{{ arrieres_total|floatformat:0 }}</div>
+            <div class="stat-meta">Solde cumulé</div>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-header">
+            <form id="search-form-paiement" method="get" style="display:flex; gap:8px; flex:1; align-items:center; flex-wrap:wrap;" onsubmit="return false;">
+                <div class="search" style="flex:1; max-width:320px;">
+                    <i class="fas fa-search"></i>
+                    <input class="input" name="q" value="{{ request.GET.q }}" placeholder="Rechercher élève, matricule, reçu..."
+                           hx-get="{% url 'payments:paiement_list' %}"
+                           hx-trigger="keyup changed delay:300ms, search"
+                           hx-target="#paiement-table"
+                           hx-swap="outerHTML"
+                           hx-include="#search-form-paiement">
+                </div>
+                <select class="input" name="type" style="width:auto;"
+                        hx-get="{% url 'payments:paiement_list' %}" hx-trigger="change" hx-target="#paiement-table" hx-swap="outerHTML" hx-include="#search-form-paiement">
+                    <option value="">Tous les types</option>
+                    {% for t in types %}<option value="{{ t.pk }}" {% if request.GET.type == t.pk|stringformat:"s" %}selected{% endif %}>{{ t.libelle }}</option>{% endfor %}
+                </select>
+                <select class="input" name="mode" style="width:auto;"
+                        hx-get="{% url 'payments:paiement_list' %}" hx-trigger="change" hx-target="#paiement-table" hx-swap="outerHTML" hx-include="#search-form-paiement">
+                    <option value="">Tous les modes</option>
+                    <option value="especes" {% if request.GET.mode == 'especes' %}selected{% endif %}>Espèces</option>
+                    <option value="cheque" {% if request.GET.mode == 'cheque' %}selected{% endif %}>Chèque</option>
+                    <option value="virement" {% if request.GET.mode == 'virement' %}selected{% endif %}>Virement</option>
+                    <option value="autre" {% if request.GET.mode == 'autre' %}selected{% endif %}>Autre</option>
+                </select>
+            </form>
+        </div>
+        {% include "payments/_paiement_table.html" %}
+    </div>
+</section>
+{% endblock %}

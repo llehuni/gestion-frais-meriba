@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+{% block title %}Stats par classe — Meriba{% endblock %}
+{% block content %}
+<section class="page active">
+<div class="page-header">
+<div><h1 class="page-title">Statistiques par classe</h1><p class="page-desc">Répartition et taux de recouvrement</p></div>
+<div class="page-actions">
+<a class="btn" href="{% url 'reports:dashboard' %}">Rapports</a>
+<a class="btn" href="{% url 'reports:export_excel' %}?report=stats_classe"><i class="fas fa-file-excel"></i> Excel</a>
+<a class="btn btn-primary" href="{% url 'reports:export_pdf' %}?report=stats_classe"><i class="fas fa-file-pdf"></i> PDF</a>
+</div>
+</div>
+<div class="card">
+<div class="table-wrap">
+<table>
+<thead><tr><th>Classe</th><th>Effectif</th><th>Total dû</th><th>Total payé</th><th>À jour</th><th>Débiteurs</th><th>Taux</th></tr></thead>
+<tbody>
+{% for s in stats %}
+<tr>
+<td class="fw-500">{{ s.classe.nom }}</td>
+<td>{{ s.effectif }}</td>
+<td>{{ s.total_du }} CDF</td>
+<td style="color:var(--success);">{{ s.total_paye }} CDF</td>
+<td><span class="label label-success">{{ s.a_jour }}</span></td>
+<td><span class="label label-danger">{{ s.debiteurs }}</span></td>
+<td>
+<div class="flex items-center gap-2">
+<div class="progress {% if s.taux >= 75 %}success{% elif s.taux >= 50 %}warning{% else %}danger{% endif %}" style="flex:1; min-width:60px;"><span style="width:{{ s.taux }}%"></span></div>
+<span class="text-sm">{{ s.taux }}%</span>
+</div>
+</td>
+</tr>
+{% empty %}<tr><td colspan="7" style="text-align:center; padding:24px; color:var(--fg-muted);">Aucune classe</td></tr>{% endfor %}
+</tbody>
+</table>
+</div>
+</div>
+</section>
+{% endblock %}

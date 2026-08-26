@@ -1,0 +1,34 @@
+{% extends "base.html" %}
+{% block title %}Reçu {{ recu.numero }} — Meriba{% endblock %}
+{% block content %}
+<section class="page active">
+<div class="page-header">
+<div>
+<h1 class="page-title">Reçu {{ recu.numero }}</h1>
+<p class="page-desc">{{ recu.eleve.matricule }} — {{ recu.eleve.nom_complet }} · {{ recu.date_emission|date:"d/m/Y H:i" }}</p>
+</div>
+<div class="page-actions">
+<a class="btn" href="{% url 'payments:recu_print' recu.pk %}" target="_blank"><i class="fas fa-print"></i> Imprimer</a>
+<a class="btn btn-primary" href="{% url 'payments:recu_pdf' recu.pk %}"><i class="fas fa-file-pdf"></i> PDF</a>
+<a class="btn" href="{% url 'payments:paiement_list' %}">Retour paiements</a>
+</div>
+</div>
+<div class="receipt">
+<div class="receipt-head">
+<h2>COMPLEXE SCOLAIRE MERIBA</h2>
+<p>Gestion des frais scolaires — Cycle primaire</p>
+<p style="margin-top:8px;font-weight:600;color:var(--fg);">REÇU N° {{ recu.numero }}</p>
+</div>
+<div class="receipt-row"><span class="k">Élève</span><span class="v">{{ recu.eleve.nom_complet }}</span></div>
+<div class="receipt-row"><span class="k">Matricule</span><span class="v mono">{{ recu.eleve.matricule }}</span></div>
+<div class="receipt-row"><span class="k">Classe</span><span class="v">{{ recu.eleve.classe.nom }}</span></div>
+<div class="receipt-row"><span class="k">Année scolaire</span><span class="v">{{ recu.paiement.annee_scolaire }}</span></div>
+<div class="receipt-row"><span class="k">Motif</span><span class="v">{{ recu.paiement.type_frais.libelle }}</span></div>
+<div class="receipt-row"><span class="k">Mode</span><span class="v">{{ recu.paiement.get_mode_paiement_display }}</span></div>
+<div class="receipt-row"><span class="k">Date</span><span class="v">{{ recu.paiement.date_paiement|date:"d/m/Y" }}</span></div>
+<div class="receipt-row"><span class="k">Agent</span><span class="v">{{ recu.agent.login }}</span></div>
+<div class="receipt-total"><span>MONTANT PAYÉ</span><span>{{ recu.montant }} CDF</span></div>
+<p style="text-align:center;margin-top:16px;font-size:12px;color:var(--fg-muted);">Merci pour votre paiement — Statut : {{ recu.get_statut_display }}</p>
+</div>
+</section>
+{% endblock %}

@@ -24,5 +24,8 @@ urlpatterns = [
     path("classes/", include("apps.classes.urls")),
     path("fees/", include("apps.fees.urls")),
     path("students/", include("apps.students.urls")),
+    path("payments/", include("apps.payments.urls")),
+    path("reports/", include("apps.reports.urls")),
+    path("audit/", include("apps.audit.urls")),
     path("", RedirectView.as_view(pattern_name="accounts:dashboard", permanent=False)),
 ]

@@ -56,22 +56,59 @@ def logout_view(request: HttpRequest) -> HttpResponse:
 def dashboard_view(request: HttpRequest) -> HttpResponse:
     from apps.classes.models import Classe
     from apps.students.models import Eleve
+    from apps.payments.models import Paiement
+    from apps.payments.services import get_situation_financiere
+    from django.db.models import Sum
+    from django.utils import timezone
     role = request.user.role
-    # Données réelles pour vider les statiques
+    today = timezone.now().date()
+    total_eleves = Eleve.objects.count()
+    total_classes = Classe.objects.count()
+    # Recettes
+    try:
+        recettes_jour = Paiement.objects.filter(date_paiement=today).aggregate(t=Sum("montant_paye"))["t"] or 0
+        recettes_mois = Paiement.objects.filter(date_paiement__year=today.year, date_paiement__month=today.month).aggregate(t=Sum("montant_paye"))["t"] or 0
+        total_encaisse = Paiement.objects.aggregate(t=Sum("montant_paye"))["t"] or 0
+    except Exception:
+        recettes_jour = recettes_mois = total_encaisse = 0
+    # À jour / débiteurs via situation
+    a_jour = debiteurs = 0
+    try:
+        for e in Eleve.objects.select_related("classe").all():
+            sit = get_situation_financiere(e)
+            if sit["solde"] == 0 and sit["total_du"] > 0:
+                a_jour += 1
+            elif sit["solde"] > 0:
+                debiteurs += 1
+    except Exception:
+        pass
+    # Derniers paiements
+    try:
+        derniers = Paiement.objects.select_related("eleve", "eleve__classe", "type_frais", "recu_associe").order_by("-date_creation")[:5]
+    except Exception:
+        derniers = []
+    # Recettes par type pour graph
+    try:
+        recettes_par_type = Paiement.objects.values("type_frais__libelle").annotate(total=Sum("montant_paye")).order_by("-total")
+        total_recettes = sum((r["total"] for r in recettes_par_type), 0) or 1
+        for r in recettes_par_type:
+            r["pct"] = round(float(r["total"] / total_recettes * 100), 1)
+    except Exception:
+        recettes_par_type = []
     ctx = {
         "role": role,
         "roles": Role.choices,
-        "total_eleves": Eleve.objects.count(),
-        "total_classes": Classe.objects.count(),
+        "total_eleves": total_eleves,
+        "total_classes": total_classes,
         "eleves_par_classe": Classe.objects.all().order_by("niveau", "section")[:6],
+        "recettes_jour": recettes_jour,
+        "recettes_mois": recettes_mois,
+        "total_encaisse": total_encaisse,
+        "a_jour": a_jour,
+        "debiteurs": debiteurs,
+        "derniers_paiements": derniers,
+        "recettes_par_type": recettes_par_type,
     }
-    # Calcul simple des à jour / débiteurs si future app payments existe, sinon 0
-    try:
-        ctx["a_jour"] = Eleve.objects.count()  # placeholder
-        ctx["debiteurs"] = 0
-    except Exception:
-        ctx["a_jour"] = 0
-        ctx["debiteurs"] = 0
     return render(request, "accounts/dashboard.html", ctx)
 
 

@@ -30,14 +30,6 @@ class Paiement(models.Model):
     - Caissier 1 — 0..* Paiement (enregistrer)
     """
 
-    recu = models.OneToOneField(
-        "payments.Recu",
-        on_delete=models.SET_NULL,
-        null=True,
-        blank=True,
-        verbose_name=_("reçu"),
-        related_name="paiement",
-    )
     eleve = models.ForeignKey(
         "students.Eleve",
         on_delete=models.PROTECT,

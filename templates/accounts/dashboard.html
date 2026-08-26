@@ -1,83 +1,119 @@
 {% extends "base.html" %}
 {% block title %}Tableau de bord — Meriba{% endblock %}
 {% block content %}
-<!-- ===== DASHBOARD ===== -->
-                <section class="page active" id="page-dashboard">
-                    <div class="page-header">
-                        <div>
-                            <h1 class="page-title">Tableau de bord</h1>
-                            <p class="page-desc">Vue d'ensemble de l'année scolaire 2024-2025 — <span class="label {% if user.is_administrateur %}label-purple{% elif user.is_directeur %}label-warning{% elif user.is_secretaire %}label-accent{% else %}label-success{% endif %}">{{ user.get_role_display }}</span> <span class="text-sm text-muted">connecté en tant que {{ user.login }}</span></p>
-                        </div>
-                        <div class="page-actions">
-                            {% if user.is_administrateur or user.is_secretaire %}
-                            <button class="btn" onclick="toast('Création élève — réservée Secrétariat','warning')"><i class="fas fa-user-plus"></i> Nouvel élève</button>
-                            {% endif %}
-                            {% if user.is_administrateur or user.is_caissier %}
-                            <button class="btn btn-primary" onclick="toast('Encaissement — réservé Caisse','warning')"><i class="fas fa-money-bill"></i> Encaisser</button>
-                            {% endif %}
-                        </div>
-                    </div>
+<section class="page active" id="page-dashboard">
+<div class="page-header">
+<div>
+<h1 class="page-title">Tableau de bord</h1>
+<p class="page-desc">Vue d'ensemble — <span class="label {% if user.is_administrateur %}label-purple{% elif user.is_directeur %}label-warning{% elif user.is_secretaire %}label-accent{% else %}label-success{% endif %}">{{ user.get_role_display }}</span> <span class="text-sm text-muted">connecté en tant que {{ user.login }}</span></p>
+</div>
+<div class="page-actions">
+{% if user.is_administrateur or user.is_secretaire %}
+<a class="btn" href="{% url 'students:eleve_create' %}"><i class="fas fa-user-plus"></i> Nouvel élève</a>
+{% endif %}
+{% if user.is_administrateur or user.is_caissier %}
+<a class="btn btn-primary" href="{% url 'payments:paiement_create' %}"><i class="fas fa-money-bill"></i> Encaisser</a>
+{% endif %}
+</div>
+</div>
 
-                    <div class="stats-grid">
-                        {% if user.is_administrateur or user.is_secretaire or user.is_directeur %}
-                        <div class="stat">
-                            <div class="stat-label"><i class="fas fa-user-graduate"></i> Élèves inscrits</div>
-                            <div class="stat-value">{{ total_eleves }}</div>
-                            <div class="stat-meta">Total — {{ total_classes }} classes</div>
-                        </div>
-                        {% endif %}
-                        <div class="stat">
-                            <div class="stat-label"><i class="fas fa-check-circle"></i> À jour</div>
-                            <div class="stat-value">{{ a_jour }}</div>
-                            <div class="stat-meta">Données réelles</div>
-                        </div>
-                        {% if user.is_administrateur or user.is_caissier or user.is_directeur %}
-                        <div class="stat">
-                            <div class="stat-label"><i class="fas fa-coins"></i> Recettes (CDF)</div>
-                            <div class="stat-value">—</div>
-                            <div class="stat-meta">Module paiements à venir</div>
-                        </div>
-                        <div class="stat">
-                            <div class="stat-label"><i class="fas fa-triangle-exclamation"></i> Débiteurs</div>
-                            <div class="stat-value">{{ debiteurs }}</div>
-                            <div class="stat-meta">Suivi à venir</div>
-                        </div>
-                        {% endif %}
-                    </div>
+<div class="stats-grid">
+{% if user.is_administrateur or user.is_secretaire or user.is_directeur %}
+<div class="stat">
+<div class="stat-label"><i class="fas fa-user-graduate"></i> Élèves inscrits</div>
+<div class="stat-value">{{ total_eleves }}</div>
+<div class="stat-meta">Total — {{ total_classes }} classes</div>
+</div>
+{% endif %}
+<div class="stat">
+<div class="stat-label"><i class="fas fa-check-circle"></i> À jour</div>
+<div class="stat-value">{{ a_jour }}</div>
+<div class="stat-meta">{{ a_jour }} sur {{ total_eleves }} soldés</div>
+</div>
+{% if user.is_administrateur or user.is_caissier or user.is_directeur %}
+<div class="stat">
+<div class="stat-label"><i class="fas fa-coins"></i> Recettes (CDF)</div>
+<div class="stat-value">{{ total_encaisse|floatformat:0 }}</div>
+<div class="stat-meta">Total encaissé</div>
+</div>
+<div class="stat">
+<div class="stat-label"><i class="fas fa-triangle-exclamation"></i> Débiteurs</div>
+<div class="stat-value" style="color:{% if debiteurs %}var(--danger){% else %}var(--success){% endif %};">{{ debiteurs }}</div>
+<div class="stat-meta">Avec arriérés</div>
+</div>
+{% endif %}
+</div>
 
-                    {% if user.is_administrateur or user.is_caissier or user.is_directeur %}
-                    <div style="display:grid;grid-template-columns:2fr 1fr;gap:16px;margin-bottom:16px;"
-                        class="dash-row">
-                        <div class="card">
-                            <div class="card-header">
-                                <div class="card-title">Recettes mensuelles</div>
-                            </div>
-                            <div class="card-body" style="text-align:center; padding:32px; color:var(--fg-muted);">
-                                <p>Aucune donnée — module paiements à venir</p>
-                                <p class="text-sm">Les recettes s'afficheront ici une fois les paiements enregistrés.</p>
-                            </div>
-                        </div>
+{% if user.is_administrateur or user.is_caissier or user.is_directeur %}
+<div style="display:grid;grid-template-columns:2fr 1fr;gap:16px;margin-bottom:16px;" class="dash-row">
+<div class="card">
+<div class="card-header"><div class="card-title">Recettes — Jour: {{ recettes_jour|floatformat:0 }} CDF • Mois: {{ recettes_mois|floatformat:0 }} CDF</div></div>
+<div class="card-body">
+{% if recettes_par_type %}
+<div class="bars">
+{% for r in recettes_par_type %}
+<div class="bar-col"><div class="bar-val">{{ r.total|floatformat:0 }}</div><div class="bar" style="height:{% widthratio r.total total_encaisse 100 %}%"></div><div class="bar-lbl">{{ r.type_frais__libelle|slice:":3" }}</div></div>
+{% endfor %}
+</div>
+{% else %}
+<p style="text-align:center; padding:24px; color:var(--fg-muted);">Aucune recette — enregistrez un paiement.</p>
+{% endif %}
+</div>
+</div>
 
-                        <div class="card">
-                            <div class="card-header">
-                                <div class="card-title">Répartition des recettes</div>
-                            </div>
-                            <div class="card-body" style="text-align:center; padding:32px; color:var(--fg-muted);">
-                                <p>Aucune donnée</p>
-                            </div>
-                        </div>
-                    </div>
-                    {% endif %}
+<div class="card">
+<div class="card-header"><div class="card-title">Répartition des recettes</div></div>
+<div class="card-body">
+{% if recettes_par_type %}
+<div style="display:flex;flex-direction:column;gap:10px;">
+{% for r in recettes_par_type %}
+<div>
+<div class="flex items-center" style="justify-content:space-between;margin-bottom:4px;">
+<span class="text-sm fw-500">{{ r.type_frais__libelle }}</span>
+<span class="text-sm text-muted">{{ r.pct }}%</span>
+</div>
+<div class="progress"><span style="width:{{ r.pct }}%"></span></div>
+</div>
+{% endfor %}
+</div>
+{% else %}
+<p style="text-align:center; color:var(--fg-muted);">Aucune donnée</p>
+{% endif %}
+</div>
+</div>
+</div>
+{% endif %}
 
-                    <div class="card">
-                        <div class="card-header">
-                            <div class="card-title">Derniers paiements</div>
-                            <a class="btn" href="#">Voir tout <i class="fas fa-arrow-right"></i></a>
-                        </div>
-                        <div class="card-body" style="text-align:center; padding:32px; color:var(--fg-muted);">
-                            <p>Aucun paiement enregistré</p>
-                            <p class="text-sm">Les paiements s'afficheront ici une fois enregistrés.</p>
-                        </div>
-                    </div>
-                </section>
+<div class="card">
+<div class="card-header">
+<div class="card-title">Derniers paiements</div>
+<a class="btn" href="{% url 'payments:paiement_list' %}">Voir tout <i class="fas fa-arrow-right"></i></a>
+</div>
+{% if derniers_paiements %}
+<div class="table-wrap">
+<table>
+<thead><tr><th>N° Reçu</th><th>Élève</th><th>Type</th><th>Montant</th><th>Date</th><th>Statut</th><th></th></tr></thead>
+<tbody>
+{% for p in derniers_paiements %}
+<tr>
+<td class="mono">{% if p.recu_associe %}{{ p.recu_associe.numero }}{% else %}—{% endif %}</td>
+<td><div class="cell-main"><div class="avatar">{{ p.eleve.prenom|slice:":1"|upper }}</div><div><div class="cell-title">{{ p.eleve.nom }} {{ p.eleve.prenom }}</div><div class="cell-sub mono">{{ p.eleve.matricule }}</div></div></div></td>
+<td><span class="label label-accent">{{ p.type_frais.libelle }}</span></td>
+<td class="fw-500">{{ p.montant_paye }} CDF</td>
+<td class="text-muted">{{ p.date_paiement|date:"d/m/Y" }}</td>
+<td>{% if p.solde == 0 %}<span class="label label-success"><i class="fas fa-check"></i> Complet</span>{% elif p.solde < p.montant_total_du %}<span class="label label-warning"><i class="fas fa-hourglass-half"></i> Partiel</span>{% else %}<span class="label label-danger"><i class="fas fa-xmark"></i> Impayé</span>{% endif %}</td>
+<td><a class="btn" href="{% url 'payments:paiement_detail' p.pk %}"><i class="fas fa-eye"></i></a></td>
+</tr>
+{% endfor %}
+</tbody>
+</table>
+</div>
+{% else %}
+<div class="card-body" style="text-align:center; padding:32px; color:var(--fg-muted);">
+<p>Aucun paiement enregistré</p>
+<p class="text-sm">Les paiements s'afficheront ici une fois enregistrés.</p>
+</div>
+{% endif %}
+</div>
+</section>
 {% endblock %}

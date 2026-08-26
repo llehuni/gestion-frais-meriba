@@ -1,0 +1,68 @@
+{% extends "base.html" %}
+{% block title %}Paiement {{ paiement.pk }} — Meriba{% endblock %}
+{% block content %}
+<section class="page active">
+<div class="page-header">
+<div>
+<h1 class="page-title">Paiement #{{ paiement.pk }}</h1>
+<p class="page-desc">{{ paiement.eleve.matricule }} — {{ paiement.eleve.nom_complet }} · {{ paiement.type_frais.libelle }} · {{ paiement.date_paiement|date:"d/m/Y" }}</p>
+</div>
+<div class="page-actions">
+{% if paiement.recu_associe %}
+<a class="btn" href="{% url 'payments:recu_detail' paiement.recu_associe.pk %}"><i class="fas fa-receipt"></i> Reçu {{ paiement.recu_associe.numero }}</a>
+<a class="btn btn-primary" href="{% url 'payments:recu_pdf' paiement.recu_associe.pk %}"><i class="fas fa-file-pdf"></i> PDF</a>
+{% endif %}
+<a class="btn" href="{% url 'payments:paiement_list' %}">Retour</a>
+</div>
+</div>
+<div style="display:grid; grid-template-columns:1fr 1fr; gap:16px;">
+<div class="card">
+<div class="card-header"><div class="card-title">Détail</div></div>
+<div class="card-body" style="line-height:1.8;">
+<p><strong>Élève:</strong> {{ paiement.eleve.nom_complet }} ({{ paiement.eleve.matricule }}) — {{ paiement.eleve.classe.nom }}</p>
+<p><strong>Année:</strong> {{ paiement.annee_scolaire }}</p>
+<p><strong>Type:</strong> <span class="label label-accent">{{ paiement.type_frais.libelle }}</span></p>
+<p><strong>Montant payé:</strong> <span class="fw-600" style="color:var(--success);">{{ paiement.montant_paye }} CDF</span></p>
+<p><strong>Total dû:</strong> {{ paiement.montant_total_du }} CDF</p>
+<p><strong>Solde:</strong> <span class="fw-600" {% if paiement.solde == 0 %}style="color:var(--success);"{% else %}style="color:var(--danger);"{% endif %}>{{ paiement.solde }} CDF</span></p>
+<p><strong>Arriérés:</strong> {{ paiement.arrieres }} CDF</p>
+<p><strong>Mode:</strong> {{ paiement.get_mode_paiement_display }}</p>
+<p><strong>Agent:</strong> {{ paiement.agent.login }} ({{ paiement.agent.get_full_name }})</p>
+<p><strong>Observation:</strong> {{ paiement.observation|default:"—" }}</p>
+<p class="text-sm text-muted">Créé le {{ paiement.date_creation|date:"d/m/Y H:i" }}</p>
+</div>
+</div>
+<div class="card">
+<div class="card-header"><div class="card-title">Reçu</div></div>
+<div class="card-body">
+{% if paiement.recu_associe %}
+{% with recu=paiement.recu_associe %}
+<div class="receipt">
+<div class="receipt-head">
+<h2>COMPLEXE SCOLAIRE MERIBA</h2>
+<p>REÇU N° {{ recu.numero }}</p>
+</div>
+<div class="receipt-row"><span class="k">Élève</span><span class="v">{{ recu.eleve.nom_complet }}</span></div>
+<div class="receipt-row"><span class="k">Matricule</span><span class="v mono">{{ recu.eleve.matricule }}</span></div>
+<div class="receipt-row"><span class="k">Classe</span><span class="v">{{ recu.eleve.classe.nom }}</span></div>
+<div class="receipt-row"><span class="k">Motif</span><span class="v">{{ paiement.type_frais.libelle }}</span></div>
+<div class="receipt-row"><span class="k">Date</span><span class="v">{{ paiement.date_paiement|date:"d/m/Y" }}</span></div>
+<div class="receipt-row"><span class="k">Agent</span><span class="v">{{ recu.agent.login }}</span></div>
+<div class="receipt-total"><span>MONTANT PAYÉ</span><span>{{ recu.montant }} CDF</span></div>
+</div>
+<div style="margin-top:12px; display:flex; gap:8px;">
+<a class="btn" href="{% url 'payments:recu_print' recu.pk %}" target="_blank"><i class="fas fa-print"></i> Imprimer</a>
+<a class="btn btn-primary" href="{% url 'payments:recu_pdf' recu.pk %}"><i class="fas fa-file-pdf"></i> PDF</a>
+</div>
+{% endwith %}
+{% else %}
+<p class="text-muted">Aucun reçu associé.</p>
+{% endif %}
+</div>
+</div>
+</div>
+<div style="margin-top:16px;">
+<a class="btn" href="{% url 'payments:situation' paiement.eleve.pk %}"><i class="fas fa-coins"></i> Voir situation financière</a>
+</div>
+</section>
+{% endblock %}

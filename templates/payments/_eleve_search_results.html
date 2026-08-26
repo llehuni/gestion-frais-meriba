@@ -1,0 +1,12 @@
+{% if eleves %}
+<div style="border:1px solid var(--border); border-radius:6px; overflow:hidden;">
+{% for e in eleves %}
+<div style="padding:8px 12px; display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid var(--border-muted); cursor:pointer;" onclick="document.getElementById('id_eleve').value='{{ e.pk }}'; document.getElementById('id_eleve').dispatchEvent(new Event('change'));">
+<div><strong>{{ e.nom_complet }}</strong> <span class="mono" style="color:var(--fg-muted); font-size:12px;">{{ e.matricule }}</span> — <span class="label label-accent">{{ e.classe.nom }}</span></div>
+<span class="text-sm text-muted">Sélectionner</span>
+</div>
+{% endfor %}
+</div>
+{% elif q %}
+<div style="padding:8px; color:var(--fg-muted); font-size:13px;">Aucun élève trouvé pour « {{ q }} »</div>
+{% endif %}

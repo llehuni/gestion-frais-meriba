@@ -1,0 +1,65 @@
+<div id="paiement-table">
+<div class="table-wrap">
+<table>
+<thead>
+<tr>
+<th>N° Reçu</th>
+<th>Élève</th>
+<th>Type</th>
+<th>Montant</th>
+<th>Mode</th>
+<th>Date</th>
+<th>Agent</th>
+<th style="width:40px;"></th>
+</tr>
+</thead>
+<tbody>
+{% for p in paiements %}
+<tr>
+<td class="mono">{% if p.recu_associe %}{{ p.recu_associe.numero }}{% else %}—{% endif %}</td>
+<td>
+<div class="cell-main">
+<div class="avatar">{{ p.eleve.prenom|slice:":1"|upper }}{{ p.eleve.nom|slice:":1"|upper }}</div>
+<div>
+<div class="cell-title">{{ p.eleve.nom }} {{ p.eleve.prenom }}</div>
+<div class="cell-sub mono">{{ p.eleve.matricule }}</div>
+</div>
+</div>
+</td>
+<td><span class="label label-accent">{{ p.type_frais.libelle }}</span></td>
+<td class="fw-500">{{ p.montant_paye }} CDF</td>
+<td class="text-muted">{{ p.get_mode_paiement_display }}</td>
+<td class="text-muted">{{ p.date_paiement|date:"d/m/Y" }}</td>
+<td class="text-muted">{{ p.agent.login }}</td>
+<td>
+<div class="dropdown">
+<button class="dropdown-toggle" onclick="toggleDropdown(event, this)"><i class="fas fa-ellipsis-vertical"></i></button>
+<div class="dropdown-menu">
+<a class="dropdown-item" href="{% url 'payments:paiement_detail' p.pk %}"><span class="ico"><i class="fas fa-eye"></i></span> Voir détail</a>
+{% if p.recu_associe %}
+<a class="dropdown-item" href="{% url 'payments:recu_detail' p.recu_associe.pk %}"><span class="ico"><i class="fas fa-receipt"></i></span> Voir reçu</a>
+<a class="dropdown-item" href="{% url 'payments:recu_print' p.recu_associe.pk %}" target="_blank"><span class="ico"><i class="fas fa-print"></i></span> Imprimer</a>
+<a class="dropdown-item" href="{% url 'payments:recu_pdf' p.recu_associe.pk %}"><span class="ico"><i class="fas fa-file-pdf"></i></span> PDF</a>
+{% endif %}
+<a class="dropdown-item" href="{% url 'payments:situation' p.eleve.pk %}"><span class="ico"><i class="fas fa-coins"></i></span> Situation</a>
+</div>
+</div>
+</td>
+</tr>
+{% empty %}
+<tr><td colspan="8" style="text-align:center; padding:32px; color:var(--fg-muted);">Aucun paiement enregistré</td></tr>
+{% endfor %}
+</tbody>
+</table>
+</div>
+{% if is_paginated %}
+<div class="pagination">
+<div>Affichage de {{ page_obj.start_index }}-{{ page_obj.end_index }} sur {{ page_obj.paginator.count }}</div>
+<div class="page-btns">
+{% if page_obj.has_previous %}<a class="page-btn" href="?page={{ page_obj.previous_page_number }}&q={{ request.GET.q }}&type={{ request.GET.type }}&mode={{ request.GET.mode }}"><i class="fas fa-chevron-left"></i></a>{% endif %}
+<span class="page-btn active">{{ page_obj.number }}</span>
+{% if page_obj.has_next %}<a class="page-btn" href="?page={{ page_obj.next_page_number }}&q={{ request.GET.q }}&type={{ request.GET.type }}&mode={{ request.GET.mode }}"><i class="fas fa-chevron-right"></i></a>{% endif %}
+</div>
+</div>
+{% endif %}
+</div>

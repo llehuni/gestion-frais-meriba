@@ -2,5 +2,5 @@ Django==5.1.*
 mysqlclient==2.2.*
 Jinja2==3.1.*
 python-dotenv==1.2.*
-# Jinja2 (stack de référence)
-# Jinja2==3.1.*
+openpyxl==3.1.*
+reportlab==4.*

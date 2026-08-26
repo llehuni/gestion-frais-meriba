@@ -8,6 +8,8 @@
             <p class="page-desc">{{ eleve.matricule }} — {{ eleve.classe.nom }} · {{ eleve.annee_scolaire }} · {{ eleve.get_sexe_display }}</p>
         </div>
         <div class="page-actions">
+            <a class="btn btn-primary" href="{% url 'payments:situation' eleve.pk %}"><i class="fas fa-coins"></i> Situation financière</a>
+            <a class="btn btn-primary" href="{% url 'payments:paiement_create' %}?eleve={{ eleve.pk }}"><i class="fas fa-money-bill"></i> Encaisser</a>
             <a class="btn" href="{% url 'students:eleve_edit' eleve.pk %}"><i class="fas fa-pen"></i> Modifier</a>
             <a class="btn" href="{% url 'students:eleve_list' %}"><i class="fas fa-arrow-left"></i> Retour</a>
         </div>

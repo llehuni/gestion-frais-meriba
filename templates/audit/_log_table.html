@@ -1,0 +1,28 @@
+<div id="audit-table">
+<div class="card-body" style="padding:0;">
+{% for log in logs %}
+<div class="audit-item" style="padding:12px 16px;">
+<div class="audit-ico" style="{% if log.action == 'CREATE' %}background:var(--success-subtle);color:var(--success);{% elif log.action == 'LOGIN' %}background:var(--success-subtle);color:var(--success);{% elif log.action == 'DELETE' %}background:var(--danger-subtle);color:var(--danger);{% elif log.action == 'LOGIN_FAILED' %}background:var(--danger-subtle);color:var(--danger);{% elif log.action == 'BLOCK' %}background:var(--danger-subtle);color:var(--danger);{% elif log.action == 'EXPORT' %}background:var(--warning-subtle);color:var(--warning);{% else %}background:var(--bg-muted);color:var(--fg-muted);{% endif %}">
+{% if log.action == 'CREATE' %}<i class="fas fa-plus"></i>{% elif log.action == 'LOGIN' %}<i class="fas fa-right-to-bracket"></i>{% elif log.action == 'LOGOUT' %}<i class="fas fa-right-from-bracket"></i>{% elif log.action == 'DELETE' %}<i class="fas fa-trash"></i>{% elif log.action == 'EXPORT' %}<i class="fas fa-download"></i>{% elif log.action == 'PRINT' %}<i class="fas fa-print"></i>{% else %}<i class="fas fa-shield-halved"></i>{% endif %}
+</div>
+<div class="audit-body">
+<div class="audit-action">{{ log.get_action_display }} — {{ log.model_name }} {% if log.object_id %}#{{ log.object_id }}{% endif %}</div>
+<div class="audit-detail">{{ log.object_repr }} {% if log.user %}par <strong>{{ log.user.login }}</strong>{% else %}— système{% endif %} {% if log.ip_address %}— IP: {{ log.ip_address }}{% endif %}</div>
+<div class="audit-time"><i class="fas fa-clock"></i> {{ log.timestamp|date:"d/m/Y H:i:s" }} {% if log.changes %}— {{ log.changes }}{% endif %}</div>
+</div>
+</div>
+{% empty %}
+<div style="text-align:center; padding:32px; color:var(--fg-muted);">Aucune entrée d'audit</div>
+{% endfor %}
+</div>
+{% if is_paginated %}
+<div class="pagination">
+<div>Affichage de {{ page_obj.start_index }}-{{ page_obj.end_index }} sur {{ page_obj.paginator.count }}</div>
+<div class="page-btns">
+{% if page_obj.has_previous %}<a class="page-btn" href="?page={{ page_obj.previous_page_number }}&q={{ request.GET.q }}&action={{ request.GET.action }}"><i class="fas fa-chevron-left"></i></a>{% endif %}
+<span class="page-btn active">{{ page_obj.number }}</span>
+{% if page_obj.has_next %}<a class="page-btn" href="?page={{ page_obj.next_page_number }}&q={{ request.GET.q }}&action={{ request.GET.action }}"><i class="fas fa-chevron-right"></i></a>{% endif %}
+</div>
+</div>
+{% endif %}
+</div>
