@@ -25,60 +25,71 @@ def _get_user_agent(request):
 
 @receiver(user_logged_in)
 def log_user_login(sender, request, user, **kwargs):
-    AuditLog.objects.create(
-        user=user,
-        action="LOGIN",
-        model_name="User",
-        object_id=str(user.pk),
-        object_repr=f"Connexion de {user.login}",
-        ip_address=_get_client_ip(request),
-        user_agent=_get_user_agent(request),
-    )
+    try:
+        AuditLog.objects.create(
+            user=user,
+            action="LOGIN",
+            model_name="User",
+            object_id=str(user.pk),
+            object_repr=f"Connexion de {user.login}",
+            ip_address=_get_client_ip(request),
+            user_agent=_get_user_agent(request),
+        )
+    except Exception:
+        logger.exception("AuditLog LOGIN failed - table possibly not migrated yet")
 
 
 @receiver(user_logged_out)
 def log_user_logout(sender, request, user, **kwargs):
     if user:
-        AuditLog.objects.create(
-            user=user,
-            action="LOGOUT",
-            model_name="User",
-            object_id=str(user.pk),
-            object_repr=f"Déconnexion de {user.login}",
-            ip_address=_get_client_ip(request),
-            user_agent=_get_user_agent(request),
-        )
+        try:
+            AuditLog.objects.create(
+                user=user,
+                action="LOGOUT",
+                model_name="User",
+                object_id=str(user.pk),
+                object_repr=f"Déconnexion de {user.login}",
+                ip_address=_get_client_ip(request),
+                user_agent=_get_user_agent(request),
+            )
+        except Exception:
+            logger.exception("AuditLog LOGOUT failed")
 
 
 @receiver(user_login_failed)
 def log_user_login_failed(sender, credentials, request, **kwargs):
     login = credentials.get("username", "inconnu")
-    AuditLog.objects.create(
-        user=None,
-        action="LOGIN_FAILED",
-        model_name="User",
-        object_id=login,
-        object_repr=f"Échec connexion pour {login}",
-        ip_address=_get_client_ip(request),
-        user_agent=_get_user_agent(request),
-    )
+    try:
+        AuditLog.objects.create(
+            user=None,
+            action="LOGIN_FAILED",
+            model_name="User",
+            object_id=login,
+            object_repr=f"Échec connexion pour {login}",
+            ip_address=_get_client_ip(request),
+            user_agent=_get_user_agent(request),
+        )
+    except Exception:
+        logger.exception("AuditLog LOGIN_FAILED failed")
 
 
 # Signals génériques pour modèles principaux
 def _create_audit_log(request, instance, action, changes=None):
     if not request or not hasattr(request, "user") or not request.user.is_authenticated:
         return
-
-    AuditLog.objects.create(
-        user=request.user,
-        action=action,
-        model_name=instance.__class__.__name__,
-        object_id=str(instance.pk),
-        object_repr=str(instance),
-        changes=changes,
-        ip_address=_get_client_ip(request),
-        user_agent=_get_user_agent(request),
-    )
+    try:
+        AuditLog.objects.create(
+            user=request.user,
+            action=action,
+            model_name=instance.__class__.__name__,
+            object_id=str(instance.pk),
+            object_repr=str(instance),
+            changes=changes,
+            ip_address=_get_client_ip(request),
+            user_agent=_get_user_agent(request),
+        )
+    except Exception:
+        logger.exception("AuditLog _create_audit_log failed")
 
 
 # Utilisation dans les views via middleware ou appel manuel
