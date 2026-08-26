@@ -12,13 +12,14 @@
 <div id="eleve-search-wrapper" {% if form.eleve.value or eleve_selected %}style="display:none; position:relative;"{% else %}style="position:relative;"{% endif %}>
 <div class="search google-search" style="position:relative; max-width:none;">
 <i class="fas fa-search" style="position:absolute; left:14px; top:50%; transform:translateY(-50%); color:var(--fg-muted); font-size:13px;"></i>
-<input type="text" id="id_eleve_search" name="eleve_search" value="{{ form.eleve_search.value|default:'' }}" class="input" placeholder="Rechercher un élève — nom, post-nom ou matricule…" autocomplete="off"
+<input type="text" id="id_eleve_search" name="q" value="" class="input" placeholder="Rechercher un élève — nom, post-nom ou matricule…" autocomplete="off"
        style="padding-left:36px; padding-right:36px; height:40px; border-radius:20px; background:var(--bg); border:1px solid var(--border); box-shadow:0 1px 3px rgba(0,0,0,0.06); transition:box-shadow 0.15s, border-color 0.15s;"
        onfocus="this.style.boxShadow='0 2px 8px rgba(9,105,218,0.18)'; this.style.borderColor='var(--accent)'"
        onblur="this.style.boxShadow='0 1px 3px rgba(0,0,0,0.06)'; this.style.borderColor='var(--border)'"
        hx-get="{% url 'payments:eleve_search' %}"
        hx-trigger="keyup changed delay:300ms"
        hx-target="#eleve-search-results"
+       hx-indicator="#eleve-search-indicator"
        hx-include="this">
 <button type="button" id="eleve-search-clear" onclick="clearEleveSearch()" style="display:none; position:absolute; right:10px; top:50%; transform:translateY(-50%); width:24px; height:24px; border:none; background:var(--bg-inset); color:var(--fg-muted); border-radius:50%; cursor:pointer;"><i class="fas fa-xmark" style="font-size:11px;"></i></button>
 <span id="eleve-search-indicator" class="htmx-indicator" style="position:absolute; right:38px; top:50%; transform:translateY(-50%); color:var(--accent);"><i class="fas fa-spinner fa-spin"></i></span>

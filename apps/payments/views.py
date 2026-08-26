@@ -233,10 +233,13 @@ class SituationFinanciereView(LoginRequiredMixin, DetailView):
 
 class EleveSearchHTMXView(LoginRequiredMixin, View):
     def get(self, request):
-        q = request.GET.get("q", "").strip()
-        qs = Eleve.objects.select_related("classe")
-        if q:
-            from django.db.models import Q
-            qs = qs.filter(Q(matricule__icontains=q) | Q(nom__icontains=q) | Q(prenom__icontains=q) | Q(post_nom__icontains=q))
-        qs = qs[:10]
+        # Gère tous les états : vide, recherche, résultats, aucun résultat
+        q = (request.GET.get("q") or request.GET.get("eleve_search") or "").strip()
+        if not q:
+            # État initial / vide → aucun dropdown (évite de retourner les 10 premiers par défaut)
+            return render(request, "payments/_eleve_search_results.html", {"eleves": [], "q": ""})
+        from django.db.models import Q
+        qs = Eleve.objects.select_related("classe").filter(
+            Q(matricule__icontains=q) | Q(nom__icontains=q) | Q(prenom__icontains=q) | Q(post_nom__icontains=q)
+        ).order_by("nom", "prenom")[:10]
         return render(request, "payments/_eleve_search_results.html", {"eleves": qs, "q": q})
