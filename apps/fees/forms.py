@@ -25,10 +25,11 @@ class FraisForm(forms.ModelForm):
 
     class Meta:
         model = Frais
-        fields = ["type_frais", "montant", "classes"]
+        fields = ["type_frais", "montant", "devise", "classes"]
         widgets = {
             "type_frais": forms.Select(attrs={"class": "input"}),
             "montant": forms.NumberInput(attrs={"class": "input", "min": "1", "step": "0.01", "placeholder": "Ex: 75000"}),
+            "devise": forms.Select(attrs={"class": "input"}),
         }
 
     def __init__(self, *args, **kwargs):

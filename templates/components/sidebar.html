@@ -32,13 +32,8 @@
                 </a>
                 {% endif %}
                 {% if user.is_administrateur or user.is_caissier %}
-                <a class="nav-item {% if 'paiement' in request.resolver_match.url_name or 'recu' in request.resolver_match.url_name %}active{% endif %}" href="{% url 'payments:paiement_list' %}" data-page="payments">
+                <a class="nav-item {% if 'paiement' in request.resolver_match.url_name or 'recu' in request.resolver_match.url_name or 'situation' in request.resolver_match.url_name %}active{% endif %}" href="{% url 'payments:paiement_list' %}" data-page="payments">
                     <span class="ico"><i class="fas fa-money-bill"></i></span> Paiements
-                </a>
-                {% endif %}
-                {% if user.is_administrateur or user.is_secretaire %}
-                <a class="nav-item {% if 'situation' in request.resolver_match.url_name %}active{% endif %}" href="{% url 'payments:paiement_list' %}" data-page="receipts">
-                    <span class="ico"><i class="fas fa-receipt"></i></span> Situations / Reçus
                 </a>
                 {% endif %}
 

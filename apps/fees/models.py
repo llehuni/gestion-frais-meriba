@@ -32,6 +32,11 @@ class TypeFrais(models.Model):
         return self.frais_set.all()
 
 
+class Devise(models.TextChoices):
+    CDF = "CDF", "CDF"
+    USD = "USD", "USD"
+
+
 class Frais(models.Model):
     """
     Frais — montant d'un type pour une ou plusieurs classes.
@@ -40,6 +45,7 @@ class Frais(models.Model):
     """
     type_frais = models.ForeignKey(TypeFrais, on_delete=models.PROTECT, verbose_name=_("type de frais"), related_name="frais_set")
     montant = models.DecimalField(_("montant"), max_digits=10, decimal_places=2, validators=[MinValueValidator(1, message=_("Le montant doit être strictement positif."))])
+    devise = models.CharField(_("devise"), max_length=3, choices=Devise.choices, default=Devise.CDF, db_index=True)
     date_creation = models.DateTimeField(_("date de création"), default=timezone.now, editable=False)
     classes = models.ManyToManyField("classes.Classe", verbose_name=_("classes"), related_name="frais", blank=True)
 
@@ -53,7 +59,7 @@ class Frais(models.Model):
 
     def __str__(self):
         classes = ", ".join(c.nom for c in self.classes.all()) if self.pk else "—"
-        return f"{self.type_frais.libelle} — {self.montant} CDF ({classes})"
+        return f"{self.type_frais.libelle} — {self.montant} {self.devise} ({classes})"
 
     def get_type(self):
         return self.type_frais

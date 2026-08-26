@@ -30,7 +30,7 @@
         body {
             height: 100%;
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Inter", Noto Sans, Liberation Sans, sans-serif;
-            font-size: 14px;
+            font-size: 15px;
             line-height: 1.5;
             color: var(--fg);
             background: var(--bg);
@@ -48,7 +48,7 @@
 
         button {
             font-family: inherit;
-            font-size: 14px;
+            font-size: 15px;
             cursor: pointer;
         }
 
@@ -80,12 +80,12 @@
             align-items: center;
             justify-content: center;
             color: white;
-            font-size: 20px;
+            font-size: 21px;
             margin: 0 auto 16px;
         }
 
         .login-title {
-            font-size: 22px;
+            font-size: 24px;
             font-weight: 600;
             text-align: center;
             margin-bottom: 4px;
@@ -94,7 +94,7 @@
         .login-sub {
             text-align: center;
             color: var(--fg-muted);
-            font-size: 13px;
+            font-size: 14px;
             margin-bottom: 24px;
         }
 
@@ -104,7 +104,7 @@
 
         .field label {
             display: block;
-            font-size: 13px;
+            font-size: 14px;
             font-weight: 600;
             margin-bottom: 4px;
         }
@@ -114,7 +114,7 @@
         textarea {
             width: 100%;
             padding: 6px 10px;
-            font-size: 14px;
+            font-size: 15px;
             font-family: inherit;
             color: var(--fg);
             background: var(--bg);
@@ -136,7 +136,7 @@
             align-items: center;
             gap: 6px;
             padding: 5px 12px;
-            font-size: 14px;
+            font-size: 15px;
             font-weight: 500;
             line-height: 20px;
             border: 1px solid var(--border);
@@ -191,7 +191,7 @@
         .login-foot {
             margin-top: 16px;
             text-align: center;
-            font-size: 12px;
+            font-size: 13px;
             color: var(--fg-muted);
         }
 
@@ -234,19 +234,19 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 14px;
+            font-size: 15px;
         }
 
         .sidebar-brand .name {
             font-weight: 600;
-            font-size: 14px;
+            font-size: 15px;
         }
 
         .sidebar-brand .name small {
             display: block;
             font-weight: 400;
             color: var(--fg-muted);
-            font-size: 12px;
+            font-size: 13px;
         }
 
         .sidebar-nav {
@@ -255,7 +255,7 @@
 
         .nav-section {
             padding: 12px 20px 4px;
-            font-size: 11px;
+            font-size: 12px;
             font-weight: 600;
             color: var(--fg-muted);
             text-transform: uppercase;
@@ -268,7 +268,7 @@
             gap: 10px;
             padding: 6px 20px;
             color: var(--fg);
-            font-size: 14px;
+            font-size: 15px;
             cursor: pointer;
             border-left: 2px solid transparent;
             transition: background 0.1s;
@@ -289,7 +289,7 @@
             width: 16px;
             color: var(--fg-muted);
             text-align: center;
-            font-size: 13px;
+            font-size: 14px;
         }
 
         .nav-item.active .ico {
@@ -298,7 +298,7 @@
 
         .nav-item .count {
             margin-left: auto;
-            font-size: 12px;
+            font-size: 13px;
             font-weight: 500;
             color: var(--fg-muted);
             background: var(--bg-inset);
@@ -339,7 +339,7 @@
             display: flex;
             align-items: center;
             gap: 6px;
-            font-size: 14px;
+            font-size: 15px;
             color: var(--fg-muted);
         }
 
@@ -375,7 +375,7 @@
             display: inline-flex;
             align-items: center;
             gap: 6px;
-            font-size: 13px;
+            font-size: 14px;
             font-weight: 600;
             letter-spacing: 0.15px;
             color: var(--fg);
@@ -384,13 +384,13 @@
         }
 
         .topbar-time i {
-            font-size: 11px;
+            font-size: 12px;
             color: var(--fg-muted);
             opacity: 0.9;
         }
 
         .topbar-date {
-            font-size: 11px;
+            font-size: 12px;
             font-weight: 500;
             color: var(--fg-muted);
             letter-spacing: 0.2px;
@@ -451,7 +451,7 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 11px;
+            font-size: 12px;
             font-weight: 600;
             flex-shrink: 0;
         }
@@ -459,11 +459,11 @@
         .avatar.lg {
             width: 32px;
             height: 32px;
-            font-size: 13px;
+            font-size: 14px;
         }
 
         .user-chip .uname {
-            font-size: 13px;
+            font-size: 14px;
             font-weight: 500;
         }
 
@@ -504,14 +504,14 @@
         }
 
         .page-title {
-            font-size: 22px;
+            font-size: 24px;
             font-weight: 600;
             margin-bottom: 4px;
         }
 
         .page-desc {
             color: var(--fg-muted);
-            font-size: 14px;
+            font-size: 15px;
         }
 
         .page-actions {
@@ -540,7 +540,7 @@
         }
 
         .card-title {
-            font-size: 14px;
+            font-size: 15px;
             font-weight: 600;
         }
 
@@ -564,7 +564,7 @@
         }
 
         .stat-label {
-            font-size: 12px;
+            font-size: 13px;
             color: var(--fg-muted);
             font-weight: 500;
             margin-bottom: 6px;
@@ -574,14 +574,14 @@
         }
 
         .stat-value {
-            font-size: 24px;
+            font-size: 26px;
             font-weight: 600;
             letter-spacing: -0.5px;
         }
 
         .stat-meta {
             margin-top: 4px;
-            font-size: 12px;
+            font-size: 13px;
             color: var(--fg-muted);
             display: flex;
             align-items: center;
@@ -604,13 +604,13 @@
         table {
             width: 100%;
             border-collapse: collapse;
-            font-size: 14px;
+            font-size: 15px;
         }
 
         thead th {
             text-align: left;
             padding: 10px 16px;
-            font-size: 12px;
+            font-size: 13px;
             font-weight: 600;
             color: var(--fg-muted);
             background: var(--bg-muted);
@@ -644,7 +644,7 @@
         }
 
         .cell-sub {
-            font-size: 12px;
+            font-size: 13px;
             color: var(--fg-muted);
         }
 
@@ -654,7 +654,7 @@
             align-items: center;
             gap: 4px;
             padding: 2px 8px;
-            font-size: 12px;
+            font-size: 13px;
             font-weight: 500;
             border-radius: 12px;
             border: 1px solid transparent;
@@ -704,7 +704,7 @@
             display: flex;
             align-items: center;
             justify-content: space-between;
-            font-size: 13px;
+            font-size: 14px;
             color: var(--fg-muted);
         }
 
@@ -720,7 +720,7 @@
             border: 1px solid var(--border);
             background: var(--bg);
             border-radius: 6px;
-            font-size: 13px;
+            font-size: 14px;
             color: var(--accent);
             display: flex;
             align-items: center;
@@ -756,7 +756,7 @@
             top: 50%;
             transform: translateY(-50%);
             color: var(--fg-muted);
-            font-size: 12px;
+            font-size: 13px;
         }
 
         .search input {
@@ -774,7 +774,7 @@
 
         .tab {
             padding: 8px 14px;
-            font-size: 14px;
+            font-size: 15px;
             color: var(--fg);
             background: transparent;
             border: none;
@@ -800,7 +800,7 @@
             background: var(--bg-inset);
             padding: 0 6px;
             border-radius: 10px;
-            font-size: 12px;
+            font-size: 13px;
             color: var(--fg-muted);
             font-weight: 500;
         }
@@ -852,7 +852,7 @@
         }
 
         .bar-val {
-            font-size: 11px;
+            font-size: 12px;
             color: var(--fg-muted);
             font-weight: 500;
         }
@@ -870,7 +870,7 @@
         }
 
         .bar-lbl {
-            font-size: 12px;
+            font-size: 13px;
             color: var(--fg-muted);
         }
 
@@ -891,7 +891,7 @@
             align-items: center;
             justify-content: center;
             cursor: pointer;
-            font-size: 14px;
+            font-size: 15px;
             transition: all 0.1s;
         }
 
@@ -943,7 +943,7 @@
             align-items: center;
             gap: 8px;
             padding: 6px 12px;
-            font-size: 13px;
+            font-size: 14px;
             color: var(--fg);
             cursor: pointer;
             width: 100%;
@@ -961,7 +961,7 @@
             width: 16px;
             color: var(--fg-muted);
             text-align: center;
-            font-size: 12px;
+            font-size: 13px;
         }
 
         .dropdown-item.danger {
@@ -1035,7 +1035,7 @@
         }
 
         .modal-head h3 {
-            font-size: 16px;
+            font-size: 17px;
             font-weight: 600;
         }
 
@@ -1076,12 +1076,12 @@
         }
 
         .receipt-head h2 {
-            font-size: 16px;
+            font-size: 17px;
             font-weight: 600;
         }
 
         .receipt-head p {
-            font-size: 12px;
+            font-size: 13px;
             color: var(--fg-muted);
         }
 
@@ -1089,7 +1089,7 @@
             display: flex;
             justify-content: space-between;
             padding: 6px 0;
-            font-size: 13px;
+            font-size: 14px;
             border-bottom: 1px dashed var(--border-muted);
         }
 
@@ -1111,7 +1111,7 @@
             border-top: 2px solid var(--fg);
             display: flex;
             justify-content: space-between;
-            font-size: 15px;
+            font-size: 16px;
             font-weight: 600;
         }
 
@@ -1137,7 +1137,7 @@
             justify-content: center;
             color: var(--fg-muted);
             flex-shrink: 0;
-            font-size: 13px;
+            font-size: 14px;
         }
 
         .audit-body {
@@ -1146,18 +1146,18 @@
         }
 
         .audit-action {
-            font-size: 14px;
+            font-size: 15px;
             font-weight: 500;
         }
 
         .audit-detail {
-            font-size: 13px;
+            font-size: 14px;
             color: var(--fg-muted);
             margin-top: 2px;
         }
 
         .audit-time {
-            font-size: 12px;
+            font-size: 13px;
             color: var(--fg-subtle);
             margin-top: 2px;
         }
@@ -1192,17 +1192,17 @@
             align-items: center;
             justify-content: center;
             margin-bottom: 12px;
-            font-size: 15px;
+            font-size: 16px;
         }
 
         .report-card h4 {
-            font-size: 14px;
+            font-size: 15px;
             font-weight: 600;
             margin-bottom: 4px;
         }
 
         .report-card p {
-            font-size: 13px;
+            font-size: 14px;
             color: var(--fg-muted);
             line-height: 1.4;
         }
@@ -1229,7 +1229,7 @@
             display: flex;
             align-items: center;
             gap: 10px;
-            font-size: 13px;
+            font-size: 14px;
             animation: slide 0.2s ease;
         }
 
@@ -1315,7 +1315,7 @@
         }
 
         .text-sm {
-            font-size: 12px;
+            font-size: 13px;
         }
 
         .fw-500 {
@@ -1328,7 +1328,7 @@
 
         .mono {
             font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
-            font-size: 12px;
+            font-size: 13px;
         }
 
 /* ===== HTMX ===== */

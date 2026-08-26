@@ -41,6 +41,6 @@
                         <span class="uname">{{ user.login }}</span>
                         <span style="font-size:11px; color:var(--fg-muted); font-weight:400;">{{ user.get_role_display }}</span>
                     </div>
-                    <a class="icon-btn" title="Déconnexion" href="{% url 'accounts:logout' %}"><i class="fas fa-right-from-bracket"></i></a>
+                    <a class="icon-btn" title="Déconnexion" href="{% url 'accounts:logout' %}" onclick="event.preventDefault(); if(typeof showConfirm==='function'){ showConfirm('Déconnexion ?', 'Voulez-vous vraiment vous déconnecter ?', function(){ window.location.href='{% url 'accounts:logout' %}'; }, 'Se déconnecter', false); } else { if(confirm('Voulez-vous vraiment vous déconnecter ?')) window.location.href=this.href; }"><i class="fas fa-right-from-bracket"></i></a>
                 </div>
             </header>

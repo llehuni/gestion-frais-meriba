@@ -139,7 +139,7 @@ class RecuPrintView(CashierOrAdminMixin, DetailView):
 
 class RecuPDFView(CashierOrAdminMixin, View):
     def get(self, request, pk):
-        recu = get_object_or_404(Recu.objects.select_related("eleve", "eleve__classe", "paiement", "agent"), pk=pk)
+        recu = get_object_or_404(Recu.objects.select_related("eleve", "eleve__classe", "paiement", "paiement__type_frais", "agent"), pk=pk)
         # Audit print
         from apps.audit.models import AuditLog
         AuditLog.objects.create(
@@ -150,9 +150,20 @@ class RecuPDFView(CashierOrAdminMixin, View):
             object_repr=f"Impression Reçu {recu.numero}",
             ip_address=request.META.get("REMOTE_ADDR"),
         )
+        # 1) Tentative WeasyPrint (demandé)
+        try:
+            from weasyprint import HTML
+            from django.template.loader import render_to_string
+            html_string = render_to_string("payments/recu_weasy.html", {"recu": recu, "request": request})
+            pdf_bytes = HTML(string=html_string, base_url=request.build_absolute_uri("/")).write_pdf()
+            response = HttpResponse(pdf_bytes, content_type="application/pdf")
+            response["Content-Disposition"] = f'inline; filename="{recu.numero}.pdf"'
+            return response
+        except Exception as e:
+            logger.warning("WeasyPrint échec (%s), fallback ReportLab", e)
+        # 2) Fallback ReportLab (PDF)
         try:
             from reportlab.lib.pagesizes import A4
-            from reportlab.lib.units import mm
             from reportlab.pdfgen import canvas
             from io import BytesIO
             buffer = BytesIO()
@@ -193,8 +204,7 @@ class RecuPDFView(CashierOrAdminMixin, View):
             response = HttpResponse(buffer.getvalue(), content_type="application/pdf")
             response["Content-Disposition"] = f'inline; filename="{recu.numero}.pdf"'
             return response
-        except ImportError:
-            # Fallback HTML print
+        except Exception:
             return render(request, "payments/recu_print.html", {"recu": recu})
 
 

@@ -14,7 +14,7 @@
                 {% for f in frais_list %}
                 <tr id="frais-row-{{ f.pk }}">
                     <td><span class="label label-accent">{{ f.type_frais.libelle }}</span></td>
-                    <td class="fw-500">{{ f.montant }} CDF</td>
+                    <td class="fw-500">{{ f.montant }} {{ f.devise }}</td>
                     <td class="text-muted">{% for c in f.classes.all %}<span class="label label-default">{{ c.nom }}</span> {% empty %}—{% endfor %}</td>
                     <td class="text-muted" style="font-size:12px;">{{ f.date_creation|date:"d/m/Y" }}</td>
                     <td>

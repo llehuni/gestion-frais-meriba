@@ -16,7 +16,10 @@
                 {% csrf_token %}
                 {% if form.non_field_errors %}<div style="background:var(--danger-subtle); border:1px solid #ff818266; color:var(--danger); padding:8px 12px; border-radius:6px; font-size:13px; margin-bottom:12px;">{{ form.non_field_errors }}</div>{% endif %}
                 <div class="field"><label>Type de frais *</label>{{ form.type_frais }}{% if form.type_frais.errors %}<p style="color:var(--danger); font-size:12px;">{{ form.type_frais.errors.0 }}</p>{% endif %}</div>
-                <div class="field"><label>Montant (CDF) *</label>{{ form.montant }}{% if form.montant.errors %}<p style="color:var(--danger); font-size:12px;">{{ form.montant.errors.0 }}</p>{% endif %}</div>
+                <div class="form-row">
+                    <div class="field"><label>Montant *</label>{{ form.montant }}{% if form.montant.errors %}<p style="color:var(--danger); font-size:12px;">{{ form.montant.errors.0 }}</p>{% endif %}</div>
+                    <div class="field"><label>Devise *</label>{{ form.devise }}{% if form.devise.errors %}<p style="color:var(--danger); font-size:12px;">{{ form.devise.errors.0 }}</p>{% endif %}</div>
+                </div>
                 <div class="field"><label>Classes concernées</label><div style="border:1px solid var(--border); border-radius:6px; padding:12px; max-height:200px; overflow-y:auto;">{{ form.classes }}{% if form.classes.errors %}<p style="color:var(--danger); font-size:12px;">{{ form.classes.errors.0 }}</p>{% endif %}</div></div>
                 <div style="display:flex; gap:8px; justify-content:flex-end; margin-top:20px; padding-top:16px; border-top:1px solid var(--border);">
                     <a class="btn" href="{% url 'fees:frais_list' %}">Annuler</a>
