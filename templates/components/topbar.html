@@ -8,6 +8,34 @@
                     </div>
                 </div>
                 <div class="topbar-right">
+                    <div id="topbar-datetime" class="topbar-datetime" title="Heure locale Africa/Kinshasa">
+                        <span class="topbar-time" id="topbar-time">{% now "H:i" %}</span>
+                        <span class="topbar-date" id="topbar-date">{% now "d/m/Y" %}</span>
+                    </div>
+                    <script>
+                    (function(){
+                        function pad(n){return n<10?'0'+n:n;}
+                        function updateTopbarDateTime(){
+                            try{
+                                var now=new Date();
+                                // Africa/Kinshasa UTC+1 sans DST
+                                var time=now.toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit',hour12:false,timeZone:'Africa/Kinshasa'});
+                                var date=now.toLocaleDateString('fr-FR',{day:'2-digit',month:'2-digit',year:'numeric',timeZone:'Africa/Kinshasa'});
+                                // Fallback si toLocaleTimeString échoue
+                                if(!time || time.indexOf(':')===-1){ time=pad(now.getHours())+':'+pad(now.getMinutes()); }
+                                if(!date || date.indexOf('/')===-1){ date=pad(now.getDate())+'/'+pad(now.getMonth()+1)+'/'+now.getFullYear(); }
+                                var tEl=document.getElementById('topbar-time');
+                                var dEl=document.getElementById('topbar-date');
+                                if(tEl) tEl.textContent=time;
+                                if(dEl) dEl.textContent=date;
+                            }catch(e){}
+                        }
+                        updateTopbarDateTime();
+                        // synchro au prochain changement de minute puis chaque minute
+                        var now=new Date(); var msToNextMin=(60-now.getSeconds())*1000 - now.getMilliseconds();
+                        setTimeout(function(){ updateTopbarDateTime(); setInterval(updateTopbarDateTime, 60000); }, msToNextMin);
+                    })();
+                    </script>
                     <div class="user-chip" title="{{ user.get_full_name|default:user.login }} — {{ user.get_role_display }}">
                         <div class="avatar">{{ user.login|slice:":2"|upper }}</div>
                         <span class="uname">{{ user.login }}</span>

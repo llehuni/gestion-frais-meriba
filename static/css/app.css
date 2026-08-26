@@ -358,6 +358,35 @@
             gap: 12px;
         }
 
+        .topbar-datetime {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-width: 72px;
+            padding: 4px 10px;
+            border-left: 1px solid var(--border);
+            border-right: 1px solid var(--border);
+            line-height: 1.15;
+            text-align: center;
+        }
+
+        .topbar-time {
+            font-size: 15px;
+            font-weight: 700;
+            letter-spacing: 0.2px;
+            color: var(--fg);
+            font-variant-numeric: tabular-nums;
+        }
+
+        .topbar-date {
+            font-size: 11px;
+            font-weight: 500;
+            color: var(--fg-muted);
+            letter-spacing: 0.2px;
+            font-variant-numeric: tabular-nums;
+        }
+
         .icon-btn {
             width: 32px;
             height: 32px;
