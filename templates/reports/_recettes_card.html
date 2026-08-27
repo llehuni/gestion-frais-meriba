@@ -4,7 +4,7 @@
 <a class="btn {% if period == 'semaine' %}btn-accent{% endif %}" hx-get="{% url 'reports:recettes' %}?period=semaine" hx-target="#recettes-card" hx-swap="outerHTML" hx-push-url="true">Semaine</a>
 <a class="btn {% if period == 'mois' %}btn-accent{% endif %}" hx-get="{% url 'reports:recettes' %}?period=mois" hx-target="#recettes-card" hx-swap="outerHTML" hx-push-url="true">Mois</a>
 <a class="btn {% if period == 'annee' %}btn-accent{% endif %}" hx-get="{% url 'reports:recettes' %}?period=annee" hx-target="#recettes-card" hx-swap="outerHTML" hx-push-url="true">Année</a>
-<span class="text-sm text-muted" style="margin-left:auto;">Total : <strong>{{ total }} CDF</strong> — {{ paiements|length }} paiement(s)</span>
+<span class="text-sm text-muted" style="margin-left:auto;">Total : <strong>{{ total }} CDF</strong> — {% if paginator %}{{ paginator.count }}{% else %}{{ paiements|length }}{% endif %} paiement(s)</span>
 </div>
 <div class="table-wrap">
 <table>
@@ -16,4 +16,29 @@
 </tbody>
 </table>
 </div>
+{% if is_paginated %}
+<div class="pagination" style="justify-content:center;">
+<div style="display:flex; align-items:center; gap:8px;">
+{% if page_obj.has_previous %}
+<a class="page-btn" href="?period={{ period }}&page={{ page_obj.previous_page_number }}"><span>&lt; précédent</span></a>
+{% else %}
+<button class="page-btn" disabled><span>&lt; précédent</span></button>
+{% endif %}
+<span style="font-size:13px; color:var(--fg); font-weight:500;"> : {{ page_obj.number }} sur {{ page_obj.paginator.num_pages }} </span>
+{% if page_obj.has_next %}
+<a class="page-btn" href="?period={{ period }}&page={{ page_obj.next_page_number }}"><span>suivante &gt;</span></a>
+{% else %}
+<button class="page-btn" disabled><span>suivante &gt;</span></button>
+{% endif %}
+</div>
+</div>
+{% else %}
+<div class="pagination" style="justify-content:center;">
+<div style="display:flex; align-items:center; gap:8px;">
+<button class="page-btn" disabled><span>&lt; précédent</span></button>
+<span style="font-size:13px; color:var(--fg); font-weight:500;"> : 1 sur 1 </span>
+<button class="page-btn" disabled><span>suivante &gt;</span></button>
+</div>
+</div>
+{% endif %}
 </div>

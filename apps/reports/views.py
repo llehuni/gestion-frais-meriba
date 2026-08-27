@@ -101,7 +101,11 @@ class ReportRecettesView(ReportMixin, View):
         elif period == "annee":
             qs = qs.filter(date_paiement__year=today.year)
         total = qs.aggregate(t=Sum("montant_paye"))["t"] or Decimal("0")
-        ctx = {"paiements": qs[:100], "total": total, "period": period}
+        from django.core.paginator import Paginator
+        paginator = Paginator(qs, 12)
+        page_number = request.GET.get("page")
+        page_obj = paginator.get_page(page_number)
+        ctx = {"paiements": page_obj.object_list, "page_obj": page_obj, "paginator": paginator, "is_paginated": page_obj.has_other_pages(), "total": total, "period": period}
         if request.headers.get("HX-Request") == "true" or request.META.get("HTTP_HX_REQUEST") == "true":
             return render(request, "reports/_recettes_card.html", ctx)
         return render(request, "reports/recettes.html", ctx)
@@ -116,7 +120,11 @@ class ReportDebiteursView(ReportMixin, View):
             if sit["solde"] > 0:
                 debiteurs.append(sit)
         debiteurs.sort(key=lambda x: x["solde"], reverse=True)
-        return render(request, "reports/debiteurs.html", {"debiteurs": debiteurs})
+        from django.core.paginator import Paginator
+        paginator = Paginator(debiteurs, 12)
+        page_number = request.GET.get("page")
+        page_obj = paginator.get_page(page_number)
+        return render(request, "reports/debiteurs.html", {"debiteurs": page_obj.object_list, "page_obj": page_obj, "paginator": paginator, "is_paginated": page_obj.has_other_pages()})
 
 
 class ReportAjourView(ReportMixin, View):
@@ -127,12 +135,17 @@ class ReportAjourView(ReportMixin, View):
             sit = get_situation_financiere(e)
             if sit["solde"] == 0 and sit["total_du"] > 0:
                 a_jour.append(sit)
-        return render(request, "reports/a_jour.html", {"a_jour": a_jour})
+        from django.core.paginator import Paginator
+        paginator = Paginator(a_jour, 12)
+        page_number = request.GET.get("page")
+        page_obj = paginator.get_page(page_number)
+        return render(request, "reports/a_jour.html", {"a_jour": page_obj.object_list, "page_obj": page_obj, "paginator": paginator, "is_paginated": page_obj.has_other_pages()})
 
 
 class ReportStatsClasseView(ReportMixin, View):
     def get(self, request):
         from apps.classes.models import Classe
+        from django.core.paginator import Paginator
         stats = []
         for cl in Classe.objects.all().order_by("niveau", "section"):
             eleves_cl = Eleve.objects.filter(classe=cl)
@@ -158,7 +171,10 @@ class ReportStatsClasseView(ReportMixin, View):
                 "debiteurs": debiteurs,
                 "taux": round(taux, 1),
             })
-        return render(request, "reports/stats_classe.html", {"stats": stats})
+        paginator = Paginator(stats, 12)
+        page_number = request.GET.get("page")
+        page_obj = paginator.get_page(page_number)
+        return render(request, "reports/stats_classe.html", {"stats": page_obj.object_list, "page_obj": page_obj, "paginator": paginator, "is_paginated": page_obj.has_other_pages()})
 
 
 class ExportMixin:

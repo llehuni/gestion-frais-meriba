@@ -29,6 +29,31 @@
 </tbody>
 </table>
 </div>
+{% if is_paginated %}
+<div class="pagination" style="justify-content:center;">
+<div style="display:flex; align-items:center; gap:8px;">
+{% if page_obj.has_previous %}
+<a class="page-btn" href="?page={{ page_obj.previous_page_number }}"><span>&lt; précédent</span></a>
+{% else %}
+<button class="page-btn" disabled><span>&lt; précédent</span></button>
+{% endif %}
+<span style="font-size:13px; color:var(--fg); font-weight:500;"> : {{ page_obj.number }} sur {{ page_obj.paginator.num_pages }} </span>
+{% if page_obj.has_next %}
+<a class="page-btn" href="?page={{ page_obj.next_page_number }}"><span>suivante &gt;</span></a>
+{% else %}
+<button class="page-btn" disabled><span>suivante &gt;</span></button>
+{% endif %}
+</div>
+</div>
+{% else %}
+<div class="pagination" style="justify-content:center;">
+<div style="display:flex; align-items:center; gap:8px;">
+<button class="page-btn" disabled><span>&lt; précédent</span></button>
+<span style="font-size:13px; color:var(--fg); font-weight:500;"> : 1 sur 1 </span>
+<button class="page-btn" disabled><span>suivante &gt;</span></button>
+</div>
+</div>
+{% endif %}
 </div>
 </section>
 {% endblock %}
