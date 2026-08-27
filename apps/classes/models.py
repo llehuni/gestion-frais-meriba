@@ -16,6 +16,7 @@ class Section(models.TextChoices):
     A = "A", "A"
     B = "B", "B"
     C = "C", "C"
+    D = "D", "D"
 
 
 def _format_niveau(niveau: int) -> str:
