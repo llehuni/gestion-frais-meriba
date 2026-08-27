@@ -21,7 +21,7 @@ class PaiementListView(CashierOrAdminMixin, ListView):
     model = Paiement
     template_name = "payments/paiement_list.html"
     context_object_name = "paiements"
-    paginate_by = 15
+    paginate_by = 12
 
     def get_queryset(self):
         qs = super().get_queryset().select_related("eleve", "eleve__classe", "type_frais", "agent", "recu_associe")

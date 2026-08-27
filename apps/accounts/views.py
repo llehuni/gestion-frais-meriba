@@ -119,7 +119,7 @@ class UserListView(AdminRequiredMixin, ListView):
     model = User
     template_name = "accounts/user_list.html"
     context_object_name = "users"
-    paginate_by = 15
+    paginate_by = 12
 
     def get_queryset(self):
         qs = super().get_queryset().order_by("login")

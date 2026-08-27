@@ -11,7 +11,7 @@ class AuditLogListView(LoginRequiredMixin, ListView):
     model = AuditLog
     template_name = "audit/log_list.html"
     context_object_name = "logs"
-    paginate_by = 30
+    paginate_by = 12
 
     def dispatch(self, request, *args, **kwargs):
         if not request.user.is_authenticated:

@@ -18,7 +18,7 @@ class TypeFraisListView(AdminRequiredMixin, ListView):
     model = TypeFrais
     template_name = "fees/type_list.html"
     context_object_name = "types"
-    paginate_by = 15
+    paginate_by = 12
 
     def get_queryset(self):
         qs = super().get_queryset()
@@ -82,7 +82,7 @@ class FraisListView(AdminRequiredMixin, ListView):
     model = Frais
     template_name = "fees/frais_list.html"
     context_object_name = "frais_list"
-    paginate_by = 15
+    paginate_by = 12
 
     def get_queryset(self):
         qs = super().get_queryset().select_related("type_frais").prefetch_related("classes")

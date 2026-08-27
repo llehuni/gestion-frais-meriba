@@ -21,7 +21,7 @@ class EleveListView(EleveReadMixin, ListView):
     model = Eleve
     template_name = "students/eleve_list.html"
     context_object_name = "eleves"
-    paginate_by = 15
+    paginate_by = 12
 
     def get_queryset(self):
         qs = super().get_queryset().select_related("classe")

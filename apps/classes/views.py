@@ -18,7 +18,7 @@ class ClasseListView(SecretaryOrAdminMixin, ListView):
     model = Classe
     template_name = "classes/classe_list.html"
     context_object_name = "classes"
-    paginate_by = 15
+    paginate_by = 12
 
     def get_queryset(self):
         qs = super().get_queryset()
