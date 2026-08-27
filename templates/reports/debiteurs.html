@@ -3,7 +3,7 @@
 {% block content %}
 <section class="page active">
 <div class="page-header">
-<div><h1 class="page-title">Élèves débiteurs</h1><p class="page-desc">{{ debiteurs|length }} élève(s) avec arriérés</p></div>
+<div><h1 class="page-title">Élèves débiteurs</h1><p class="page-desc">{% if paginator %}{{ paginator.count }}{% else %}{{ debiteurs|length }}{% endif %} élève(s) avec arriérés — 12 par page</p></div>
 <div class="page-actions">
 <a class="btn" href="{% url 'reports:dashboard' %}">Rapports</a>
 <a class="btn" href="{% url 'reports:export_excel' %}?report=debiteurs"><i class="fas fa-file-excel"></i> Excel</a>
