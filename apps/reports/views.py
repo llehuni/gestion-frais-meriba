@@ -211,6 +211,14 @@ class ExportExcelView(ReportMixin, ExportMixin, View):
                 sit = get_situation_financiere(e)
                 if sit["solde"] > 0:
                     ws.append([e.matricule, e.nom_complet, e.classe.nom, float(sit["total_du"]), float(sit["total_paye"]), float(sit["solde"])])
+        elif report == "a_jour":
+            ws.append(["Matricule", "Nom complet", "Classe", "Total dû", "Total payé", "Statut"])
+            for cell in ws[1]:
+                cell.font = Font(bold=True)
+            for e in Eleve.objects.select_related("classe").all():
+                sit = get_situation_financiere(e)
+                if sit["solde"] == 0 and sit["total_du"] > 0:
+                    ws.append([e.matricule, e.nom_complet, e.classe.nom, float(sit["total_du"]), float(sit["total_paye"]), "À jour"])
         elif report == "recettes":
             ws.append(["Date", "Reçu", "Élève", "Type", "Montant", "Agent"])
             for cell in ws[1]:
@@ -222,7 +230,7 @@ class ExportExcelView(ReportMixin, ExportMixin, View):
             for cell in ws[1]:
                 cell.font = Font(bold=True)
             from apps.classes.models import Classe
-            for cl in Classe.objects.all():
+            for cl in Classe.objects.all().order_by("niveau", "section"):
                 eleves_cl = Eleve.objects.filter(classe=cl)
                 total_du = sum((get_situation_financiere(e)["total_du"] for e in eleves_cl), Decimal("0"))
                 total_paye = sum((get_situation_financiere(e)["total_paye"] for e in eleves_cl), Decimal("0"))
@@ -230,6 +238,7 @@ class ExportExcelView(ReportMixin, ExportMixin, View):
                 ws.append([cl.nom, eleves_cl.count(), float(total_du), float(total_paye), float(max(total_du-total_paye, Decimal("0"))), round(taux,1)])
         else:
             ws.append(["Rapport", report])
+            ws.append([report, "—"])
 
         from io import BytesIO
         buf = BytesIO()
@@ -276,10 +285,6 @@ class ExportPDFView(ReportMixin, ExportMixin, View):
                     data.append([e.matricule, e.nom_complet, e.classe.nom, str(sit["solde"])])
             if len(data) == 1:
                 data.append(["—", "Aucun débiteur", "—", "0"])
-        elif report == "recettes":
-            data = [["Date", "Reçu", "Élève", "Type", "Montant"]]
-            for p in Paiement.objects.select_related("eleve", "type_frais", "recu_associe").order_by("-date_paiement")[:100]:
-                data.append([p.date_paiement.isoformat(), getattr(p.recu_associe, "numero", "—"), p.eleve.matricule, p.type_frais.libelle, str(p.montant_paye)])
         elif report == "a_jour":
             data = [["Matricule", "Nom", "Classe", "Total payé"]]
             for e in Eleve.objects.select_related("classe").all():
@@ -288,6 +293,21 @@ class ExportPDFView(ReportMixin, ExportMixin, View):
                     data.append([e.matricule, e.nom_complet, e.classe.nom, str(sit["total_paye"])])
             if len(data) == 1:
                 data.append(["—", "Aucun élève à jour", "—", "0"])
+        elif report == "recettes":
+            data = [["Date", "Reçu", "Élève", "Type", "Montant"]]
+            for p in Paiement.objects.select_related("eleve", "type_frais", "recu_associe").order_by("-date_paiement")[:100]:
+                data.append([p.date_paiement.isoformat(), getattr(p.recu_associe, "numero", "—"), p.eleve.matricule, p.type_frais.libelle, str(p.montant_paye)])
+        elif report == "stats_classe":
+            data = [["Classe", "Effectif", "Total dû", "Total payé", "Solde", "Taux %"]]
+            from apps.classes.models import Classe
+            for cl in Classe.objects.all().order_by("niveau", "section"):
+                eleves_cl = Eleve.objects.filter(classe=cl)
+                total_du = sum((get_situation_financiere(e)["total_du"] for e in eleves_cl), Decimal("0"))
+                total_paye = sum((get_situation_financiere(e)["total_paye"] for e in eleves_cl), Decimal("0"))
+                taux = float(total_paye / total_du * 100) if total_du else 0
+                data.append([cl.nom, str(eleves_cl.count()), str(total_du), str(total_paye), str(max(total_du-total_paye, Decimal("0"))), f"{round(taux,1)}%"])
+            if len(data) == 1:
+                data.append(["—", "Aucune classe", "—", "—", "—", "—"])
         else:
             data = [["Rapport", report], [report, "—"]]
 

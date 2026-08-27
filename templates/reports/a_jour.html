@@ -6,7 +6,8 @@
 <div><h1 class="page-title">Élèves à jour</h1><p class="page-desc">{% if paginator %}{{ paginator.count }}{% else %}{{ a_jour|length }}{% endif %} élève(s) soldé(s) — 12 par page</p></div>
 <div class="page-actions">
 <a class="btn" href="{% url 'reports:dashboard' %}">Rapports</a>
-<a class="btn" href="{% url 'reports:export_pdf' %}?report=a_jour"><i class="fas fa-file-pdf"></i> PDF</a>
+<a class="btn" href="{% url 'reports:export_excel' %}?report=a_jour"><i class="fas fa-file-excel"></i> Excel</a>
+<a class="btn btn-primary" href="{% url 'reports:export_pdf' %}?report=a_jour"><i class="fas fa-file-pdf"></i> PDF</a>
 </div>
 </div>
 <div class="card">
