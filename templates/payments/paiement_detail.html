@@ -15,21 +15,28 @@
 <a class="btn" href="{% url 'payments:paiement_list' %}">Retour</a>
 </div>
 </div>
+<style>
+.detail-row{display:flex;justify-content:space-between;align-items:center;padding:8px 0;font-size:13px;border-bottom:1px solid var(--border-muted);}
+.detail-row:last-child{border-bottom:none;}
+.detail-row .k{color:var(--fg-muted);font-weight:500;font-size:12px;}
+.detail-row .v{font-weight:500;color:var(--fg);text-align:right;max-width:62%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.detail-row .v.mono{font-family:ui-monospace,SFMono-Regular,monospace;font-size:12px;}
+</style>
 <div style="display:grid; grid-template-columns:1fr 1fr; gap:16px;">
 <div class="card">
 <div class="card-header"><div class="card-title">Détail</div></div>
-<div class="card-body" style="line-height:1.8;">
-<p><strong>Élève:</strong> {{ paiement.eleve.nom_complet }} ({{ paiement.eleve.matricule }}) — {{ paiement.eleve.classe.nom }}</p>
-<p><strong>Année:</strong> {{ paiement.annee_scolaire }}</p>
-<p><strong>Type:</strong> <span class="label label-accent">{{ paiement.type_frais.libelle }}</span></p>
-<p><strong>Montant payé:</strong> <span class="fw-600" style="color:var(--success);">{{ paiement.montant_paye }} CDF</span></p>
-<p><strong>Total dû:</strong> {{ paiement.montant_total_du }} CDF</p>
-<p><strong>Solde:</strong> <span class="fw-600" {% if paiement.solde == 0 %}style="color:var(--success);"{% else %}style="color:var(--danger);"{% endif %}>{{ paiement.solde }} CDF</span></p>
-<p><strong>Arriérés:</strong> {{ paiement.arrieres }} CDF</p>
-<p><strong>Mode:</strong> {{ paiement.get_mode_paiement_display }}</p>
-<p><strong>Agent:</strong> {{ paiement.agent.login }} ({{ paiement.agent.get_full_name }})</p>
-<p><strong>Observation:</strong> {{ paiement.observation|default:"—" }}</p>
-<p class="text-sm text-muted">Créé le {{ paiement.date_creation|date:"d/m/Y H:i" }}</p>
+<div class="card-body" style="padding-top:6px;padding-bottom:6px;">
+<div class="detail-row"><span class="k">Élève</span><span class="v">{{ paiement.eleve.nom_complet }} <span class="mono" style="color:var(--fg-muted);">({{ paiement.eleve.matricule }})</span> · {{ paiement.eleve.classe.nom }}</span></div>
+<div class="detail-row"><span class="k">Année</span><span class="v">{{ paiement.annee_scolaire }}</span></div>
+<div class="detail-row"><span class="k">Type</span><span class="v"><span class="label label-accent">{{ paiement.type_frais.libelle }}</span></span></div>
+<div class="detail-row"><span class="k">Montant payé</span><span class="v" style="color:var(--success);font-weight:600;">{{ paiement.montant_paye }} CDF</span></div>
+<div class="detail-row"><span class="k">Total dû</span><span class="v">{{ paiement.montant_total_du }} CDF</span></div>
+<div class="detail-row"><span class="k">Solde</span><span class="v" style="font-weight:600; {% if paiement.solde == 0 %}color:var(--success);{% else %}color:var(--danger);{% endif %}">{{ paiement.solde }} CDF</span></div>
+<div class="detail-row"><span class="k">Arriérés</span><span class="v">{{ paiement.arrieres }} CDF</span></div>
+<div class="detail-row"><span class="k">Mode</span><span class="v">{{ paiement.get_mode_paiement_display }}</span></div>
+<div class="detail-row"><span class="k">Agent</span><span class="v">{{ paiement.agent.login }} {% if paiement.agent.get_full_name %}({{ paiement.agent.get_full_name }}){% endif %}</span></div>
+<div class="detail-row"><span class="k">Observation</span><span class="v" style="white-space:normal;text-align:right;max-width:60%;">{{ paiement.observation|default:"—" }}</span></div>
+<div class="detail-row" style="border-bottom:none;justify-content:center;padding-top:10px;"><span class="text-muted" style="font-size:11px;"><i class="fas fa-clock"></i> Créé le {{ paiement.date_creation|date:"d/m/Y H:i" }}</span></div>
 </div>
 </div>
 <div class="card">
