@@ -11,7 +11,7 @@ from django.views.generic import View
 
 from apps.accounts.permissions import DirectorOrAdminMixin
 from apps.students.models import Eleve
-from apps.payments.models import Paiement
+from apps.payments.models import Paiement, TypeFrais
 from apps.payments.services import get_situation_financiere
 
 
@@ -34,20 +34,29 @@ class ReportsDashboardView(ReportMixin, View):
         recettes_mois = qs.filter(date_paiement__year=today.year, date_paiement__month=today.month).aggregate(t=Sum("montant_paye"))["t"] or Decimal("0")
         recettes_annee = qs.filter(date_paiement__year=today.year).aggregate(t=Sum("montant_paye"))["t"] or Decimal("0")
 
-        # Eleves à jour / débiteurs via situation pour chaque élève
+        # Eleves à jour / débiteurs : sans dette paramétrée, on définit
+        # à jour = ayant au moins un paiement sur l'année
+        # débiteur = aucun paiement
         eleves = Eleve.objects.select_related("classe").all()
         a_jour_list = []
         debiteurs_list = []
         for e in eleves:
             sit = get_situation_financiere(e)
-            if sit["solde"] == 0 and sit["total_du"] > 0:
+            if sit["total_paye"] > 0:
                 a_jour_list.append((e, sit))
-            elif sit["solde"] > 0:
+            else:
                 debiteurs_list.append((e, sit))
 
-        # Recettes par type
-        from apps.fees.models import TypeFrais
-        recettes_par_type = Paiement.objects.values("type_frais__libelle").annotate(total=Sum("montant_paye"), count=Count("id")).order_by("-total")
+        # Recettes par type (type_frais est CharField)
+        recettes_par_type_qs = Paiement.objects.values("type_frais").annotate(total=Sum("montant_paye"), count=Count("id")).order_by("-total")
+        # ajouter label
+        label_map = dict(TypeFrais.choices)
+        recettes_par_type = []
+        for r in recettes_par_type_qs:
+            r["type_frais_label"] = label_map.get(r["type_frais"], r["type_frais"])
+            # compat ancien template qui attend type_frais__libelle
+            r["type_frais__libelle"] = r["type_frais_label"]
+            recettes_par_type.append(r)
 
         # Stats par classe
         from apps.classes.models import Classe
@@ -61,13 +70,19 @@ class ReportsDashboardView(ReportMixin, View):
                 total_du_cl += sit["total_du"]
                 total_paye_cl += sit["total_paye"]
             effectif = eleves_cl.count()
-            taux = (float(total_paye_cl / total_du_cl * 100) if total_du_cl else 0)
+            # sans dette, taux = 100 si total_paye>0 sinon 0 (ou ratio à jour)
+            if total_paye_cl > 0:
+                taux = 100.0 if effectif else 0
+                # plus fin : taux = % d'élèves ayant payé
+                # calcul alternative si besoin
+            else:
+                taux = 0
             stats_classe.append({
                 "classe": cl,
                 "effectif": effectif,
                 "total_du": total_du_cl,
                 "total_paye": total_paye_cl,
-                "solde": max(total_du_cl - total_paye_cl, Decimal("0")),
+                "solde": Decimal("0"),
                 "taux": round(taux, 1),
             })
 
@@ -91,7 +106,7 @@ class ReportRecettesView(ReportMixin, View):
     def get(self, request):
         period = request.GET.get("period", "jour")  # jour, semaine, mois, annee
         today = timezone.now().date()
-        qs = Paiement.objects.select_related("eleve", "type_frais", "agent", "recu_associe").order_by("-date_paiement")
+        qs = Paiement.objects.select_related("eleve", "agent", "recu_associe").order_by("-date_paiement")
         if period == "jour":
             qs = qs.filter(date_paiement=today)
         elif period == "semaine":
@@ -117,9 +132,10 @@ class ReportDebiteursView(ReportMixin, View):
         debiteurs = []
         for e in eleves:
             sit = get_situation_financiere(e)
-            if sit["solde"] > 0:
+            if sit["total_paye"] == 0:
                 debiteurs.append(sit)
-        debiteurs.sort(key=lambda x: x["solde"], reverse=True)
+        # tri par nom
+        debiteurs.sort(key=lambda x: x["eleve"].nom)
         from django.core.paginator import Paginator
         paginator = Paginator(debiteurs, 12)
         page_number = request.GET.get("page")
@@ -133,7 +149,7 @@ class ReportAjourView(ReportMixin, View):
         a_jour = []
         for e in eleves:
             sit = get_situation_financiere(e)
-            if sit["solde"] == 0 and sit["total_du"] > 0:
+            if sit["total_paye"] > 0:
                 a_jour.append(sit)
         from django.core.paginator import Paginator
         paginator = Paginator(a_jour, 12)
@@ -157,11 +173,11 @@ class ReportStatsClasseView(ReportMixin, View):
                 sit = get_situation_financiere(e)
                 total_du += sit["total_du"]
                 total_paye += sit["total_paye"]
-                if sit["solde"] == 0 and sit["total_du"] > 0:
+                if sit["total_paye"] > 0:
                     a_jour += 1
-                elif sit["solde"] > 0:
+                else:
                     debiteurs += 1
-            taux = (float(total_paye / total_du * 100) if total_du else 0)
+            taux = 100.0 if total_paye > 0 else 0
             stats.append({
                 "classe": cl,
                 "effectif": eleves_cl.count(),
@@ -203,42 +219,57 @@ class ExportExcelView(ReportMixin, ExportMixin, View):
         ws = wb.active
         ws.title = report
 
+        label_map = dict(TypeFrais.choices)
+
         if report == "debiteurs":
-            ws.append(["Matricule", "Nom complet", "Classe", "Total dû", "Total payé", "Solde"])
+            ws.append(["Matricule", "Nom complet", "Classe", "Total payé"])
             for cell in ws[1]:
                 cell.font = Font(bold=True)
             for e in Eleve.objects.select_related("classe").all():
                 sit = get_situation_financiere(e)
-                if sit["solde"] > 0:
-                    ws.append([e.matricule, e.nom_complet, e.classe.nom, float(sit["total_du"]), float(sit["total_paye"]), float(sit["solde"])])
+                if sit["total_paye"] == 0:
+                    ws.append([e.matricule, e.nom_complet, e.classe.nom, float(sit["total_paye"])])
         elif report == "a_jour":
-            ws.append(["Matricule", "Nom complet", "Classe", "Total dû", "Total payé", "Statut"])
+            ws.append(["Matricule", "Nom complet", "Classe", "Total payé"])
             for cell in ws[1]:
                 cell.font = Font(bold=True)
             for e in Eleve.objects.select_related("classe").all():
                 sit = get_situation_financiere(e)
-                if sit["solde"] == 0 and sit["total_du"] > 0:
-                    ws.append([e.matricule, e.nom_complet, e.classe.nom, float(sit["total_du"]), float(sit["total_paye"]), "À jour"])
+                if sit["total_paye"] > 0:
+                    ws.append([e.matricule, e.nom_complet, e.classe.nom, float(sit["total_paye"])])
         elif report == "recettes":
-            ws.append(["Date", "Reçu", "Élève", "Type", "Montant", "Agent"])
+            ws.append(["Date", "Reçu", "Élève", "Type", "Montant", "Devise", "Agent"])
             for cell in ws[1]:
                 cell.font = Font(bold=True)
-            for p in Paiement.objects.select_related("eleve", "type_frais", "agent", "recu_associe").order_by("-date_paiement")[:500]:
-                ws.append([p.date_paiement.isoformat(), getattr(p.recu_associe, "numero", "—"), p.eleve.matricule, p.type_frais.libelle, float(p.montant_paye), p.agent.login])
+            period = request.GET.get("period")
+            qs = Paiement.objects.select_related("eleve", "agent", "recu_associe").order_by("-date_paiement")
+            if period == "jour":
+                qs = qs.filter(date_paiement=timezone.now().date())
+            elif period == "semaine":
+                qs = qs.filter(date_paiement__gte=timezone.now().date() - timedelta(days=7))
+            elif period == "mois":
+                qs = qs.filter(date_paiement__year=timezone.now().date().year, date_paiement__month=timezone.now().date().month)
+            elif period == "annee":
+                qs = qs.filter(date_paiement__year=timezone.now().date().year)
+            for p in qs[:2000]:
+                ws.append([p.date_paiement.isoformat(), getattr(p.recu_associe, "numero", "—"), p.eleve.matricule, str(label_map.get(p.type_frais, p.type_frais)), float(p.montant_paye), p.devise, p.agent.login])
         elif report == "stats_classe":
-            ws.append(["Classe", "Effectif", "Total dû", "Total payé", "Solde", "Taux %"])
+            ws.append(["Classe", "Effectif", "Total payé", "Taux %"])
             for cell in ws[1]:
                 cell.font = Font(bold=True)
             from apps.classes.models import Classe
             for cl in Classe.objects.all().order_by("niveau", "section"):
                 eleves_cl = Eleve.objects.filter(classe=cl)
-                total_du = sum((get_situation_financiere(e)["total_du"] for e in eleves_cl), Decimal("0"))
                 total_paye = sum((get_situation_financiere(e)["total_paye"] for e in eleves_cl), Decimal("0"))
-                taux = float(total_paye / total_du * 100) if total_du else 0
-                ws.append([cl.nom, eleves_cl.count(), float(total_du), float(total_paye), float(max(total_du-total_paye, Decimal("0"))), round(taux,1)])
+                taux = 100.0 if total_paye > 0 else 0
+                ws.append([cl.nom, eleves_cl.count(), float(total_paye), round(taux,1)])
         else:
-            ws.append(["Rapport", report])
-            ws.append([report, "—"])
+            ws.append(["Matricule", "Nom complet", "Classe", "Total payé"])
+            for cell in ws[1]:
+                cell.font = Font(bold=True)
+            for e in Eleve.objects.select_related("classe").all()[:100]:
+                sit = get_situation_financiere(e)
+                ws.append([e.matricule, e.nom_complet, e.classe.nom, float(sit["total_paye"])])
 
         from io import BytesIO
         buf = BytesIO()
@@ -277,39 +308,52 @@ class ExportPDFView(ReportMixin, ExportMixin, View):
         story.append(Paragraph(f"Généré le {timezone.now().strftime('%d/%m/%Y %H:%M')} par {request.user.login}", styles["Normal"]))
         story.append(Spacer(1, 12))
 
+        label_map = dict(TypeFrais.choices)
+
         if report == "debiteurs":
-            data = [["Matricule", "Nom", "Classe", "Solde (CDF)"]]
+            data = [["Matricule", "Nom", "Classe", "Total paye"]]
             for e in Eleve.objects.select_related("classe").all():
                 sit = get_situation_financiere(e)
-                if sit["solde"] > 0:
-                    data.append([e.matricule, e.nom_complet, e.classe.nom, str(sit["solde"])])
+                if sit["total_paye"] == 0:
+                    data.append([e.matricule, e.nom_complet, e.classe.nom, str(sit["total_paye"])])
             if len(data) == 1:
                 data.append(["—", "Aucun débiteur", "—", "0"])
         elif report == "a_jour":
-            data = [["Matricule", "Nom", "Classe", "Total payé"]]
+            data = [["Matricule", "Nom", "Classe", "Total paye"]]
             for e in Eleve.objects.select_related("classe").all():
                 sit = get_situation_financiere(e)
-                if sit["solde"] == 0 and sit["total_du"] > 0:
+                if sit["total_paye"] > 0:
                     data.append([e.matricule, e.nom_complet, e.classe.nom, str(sit["total_paye"])])
             if len(data) == 1:
                 data.append(["—", "Aucun élève à jour", "—", "0"])
         elif report == "recettes":
-            data = [["Date", "Reçu", "Élève", "Type", "Montant"]]
-            for p in Paiement.objects.select_related("eleve", "type_frais", "recu_associe").order_by("-date_paiement")[:100]:
-                data.append([p.date_paiement.isoformat(), getattr(p.recu_associe, "numero", "—"), p.eleve.matricule, p.type_frais.libelle, str(p.montant_paye)])
+            data = [["Date", "Reçu", "Élève", "Type", "Montant", "Devise"]]
+            qs = Paiement.objects.select_related("eleve", "recu_associe").order_by("-date_paiement")
+            period = request.GET.get("period")
+            if period == "jour":
+                qs = qs.filter(date_paiement=timezone.now().date())
+            elif period == "semaine":
+                qs = qs.filter(date_paiement__gte=timezone.now().date() - timedelta(days=7))
+            elif period == "mois":
+                qs = qs.filter(date_paiement__year=timezone.now().date().year, date_paiement__month=timezone.now().date().month)
+            elif period == "annee":
+                qs = qs.filter(date_paiement__year=timezone.now().date().year)
+            for p in qs[:2000]:
+                data.append([p.date_paiement.isoformat(), getattr(p.recu_associe, "numero", "—"), p.eleve.matricule, str(label_map.get(p.type_frais, p.type_frais)), str(p.montant_paye), p.devise])
+            if len(data) == 1:
+                data.append(["—", "—", "—", "—", "0", "—"])
         elif report == "stats_classe":
-            data = [["Classe", "Effectif", "Total dû", "Total payé", "Solde", "Taux %"]]
+            data = [["Classe", "Effectif", "Total paye", "Taux %"]]
             from apps.classes.models import Classe
             for cl in Classe.objects.all().order_by("niveau", "section"):
                 eleves_cl = Eleve.objects.filter(classe=cl)
-                total_du = sum((get_situation_financiere(e)["total_du"] for e in eleves_cl), Decimal("0"))
                 total_paye = sum((get_situation_financiere(e)["total_paye"] for e in eleves_cl), Decimal("0"))
-                taux = float(total_paye / total_du * 100) if total_du else 0
-                data.append([cl.nom, str(eleves_cl.count()), str(total_du), str(total_paye), str(max(total_du-total_paye, Decimal("0"))), f"{round(taux,1)}%"])
-            if len(data) == 1:
-                data.append(["—", "Aucune classe", "—", "—", "—", "—"])
+                data.append([cl.nom, str(eleves_cl.count()), str(total_paye), str(round(100.0 if total_paye>0 else 0,1))])
         else:
-            data = [["Rapport", report], [report, "—"]]
+            data = [["Matricule", "Nom", "Classe", "Total paye"]]
+            for e in Eleve.objects.select_related("classe").all()[:100]:
+                sit = get_situation_financiere(e)
+                data.append([e.matricule, e.nom_complet, e.classe.nom, str(sit["total_paye"])])
 
         t = Table(data, repeatRows=1)
         t.setStyle(TableStyle([

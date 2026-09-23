@@ -26,20 +26,20 @@
 </div>
 {% endif %}
 <div class="stat">
-<div class="stat-label"><i class="fas fa-check-circle"></i> À jour</div>
+<div class="stat-label"><i class="fas fa-check-circle"></i> Avec paiement</div>
 <div class="stat-value">{{ a_jour }}</div>
-<div class="stat-meta">{{ a_jour }} sur {{ total_eleves }} soldés</div>
+<div class="stat-meta">{{ a_jour }} sur {{ total_eleves }} élèves</div>
 </div>
 {% if user.is_administrateur or user.is_caissier or user.is_directeur %}
 <div class="stat">
-<div class="stat-label"><i class="fas fa-coins"></i> Recettes (CDF)</div>
+<div class="stat-label"><i class="fas fa-coins"></i> Recettes</div>
 <div class="stat-value">{{ total_encaisse|floatformat:0 }}</div>
-<div class="stat-meta">Total encaissé</div>
+<div class="stat-meta">Total encaissé (USD par défaut)</div>
 </div>
 <div class="stat">
-<div class="stat-label"><i class="fas fa-triangle-exclamation"></i> Débiteurs</div>
+<div class="stat-label"><i class="fas fa-triangle-exclamation"></i> Sans paiement</div>
 <div class="stat-value" style="color:{% if debiteurs %}var(--danger){% else %}var(--success){% endif %};">{{ debiteurs }}</div>
-<div class="stat-meta">Avec arriérés</div>
+<div class="stat-meta">Aucun paiement</div>
 </div>
 {% endif %}
 </div>
@@ -47,13 +47,11 @@
 {% if user.is_administrateur or user.is_caissier or user.is_directeur %}
 <div style="display:grid;grid-template-columns:2fr 1fr;gap:16px;margin-bottom:16px;" class="dash-row">
 <div class="card">
-<div class="card-header"><div class="card-title">Recettes — Jour: {{ recettes_jour|floatformat:0 }} CDF • Mois: {{ recettes_mois|floatformat:0 }} CDF</div></div>
+<div class="card-header"><div class="card-title">Recettes — Jour: {{ recettes_jour|floatformat:0 }} • Mois: {{ recettes_mois|floatformat:0 }}</div><div class="text-sm text-muted">USD par défaut</div></div>
 <div class="card-body">
 {% if recettes_par_type %}
-<div class="bars">
-{% for r in recettes_par_type %}
-<div class="bar-col"><div class="bar-val">{{ r.total|floatformat:0 }}</div><div class="bar" style="height:{% widthratio r.total total_encaisse 100 %}%"></div><div class="bar-lbl">{{ r.type_frais__libelle|slice:":3" }}</div></div>
-{% endfor %}
+<div style="position:relative; height:220px;">
+<canvas id="chartRecettesBar"></canvas>
 </div>
 {% else %}
 <p style="text-align:center; padding:24px; color:var(--fg-muted);">Aucune recette — enregistrez un paiement.</p>
@@ -65,14 +63,14 @@
 <div class="card-header"><div class="card-title">Répartition des recettes</div></div>
 <div class="card-body">
 {% if recettes_par_type %}
-<div style="display:flex;flex-direction:column;gap:10px;">
-{% for r in recettes_par_type %}
-<div>
-<div class="flex items-center" style="justify-content:space-between;margin-bottom:4px;">
-<span class="text-sm fw-500">{{ r.type_frais__libelle }}</span>
-<span class="text-sm text-muted">{{ r.pct }}%</span>
+<div style="position:relative; height:220px;">
+<canvas id="chartRecettesDoughnut"></canvas>
 </div>
-<div class="progress"><span style="width:{{ r.pct }}%"></span></div>
+<div style="margin-top:12px; display:flex; flex-direction:column; gap:6px;">
+{% for r in recettes_par_type %}
+<div class="flex items-center" style="justify-content:space-between;">
+<span class="text-sm fw-500"><span class="dot" style="display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--accent);margin-right:6px;"></span>{{ r.type_frais__libelle }}</span>
+<span class="text-sm text-muted">{{ r.total|floatformat:0 }} ({{ r.pct }}%)</span>
 </div>
 {% endfor %}
 </div>
@@ -98,10 +96,10 @@
 <tr>
 <td class="mono">{% if p.recu_associe %}{{ p.recu_associe.numero }}{% else %}—{% endif %}</td>
 <td><div class="cell-main"><div class="avatar">{{ p.eleve.prenom|slice:":1"|upper }}</div><div><div class="cell-title">{{ p.eleve.nom }} {{ p.eleve.prenom }}</div><div class="cell-sub mono">{{ p.eleve.matricule }}</div></div></div></td>
-<td><span class="label label-accent">{{ p.type_frais.libelle }}</span></td>
-<td class="fw-500">{{ p.montant_paye }} CDF</td>
+<td><span class="label label-accent">{{ p.get_type_frais_display }}</span></td>
+<td class="fw-500">{{ p.montant_paye }} {{ p.devise }}</td>
 <td class="text-muted">{{ p.date_paiement|date:"d/m/Y" }}</td>
-<td>{% if p.solde == 0 %}<span class="label label-success"><i class="fas fa-check"></i> Complet</span>{% elif p.solde < p.montant_total_du %}<span class="label label-warning"><i class="fas fa-hourglass-half"></i> Partiel</span>{% else %}<span class="label label-danger"><i class="fas fa-xmark"></i> Impayé</span>{% endif %}</td>
+<td><span class="label label-success"><i class="fas fa-check"></i> Payé</span></td>
 <td><a class="btn" href="{% url 'payments:paiement_detail' p.pk %}"><i class="fas fa-eye"></i></a></td>
 </tr>
 {% endfor %}
@@ -116,4 +114,45 @@
 {% endif %}
 </div>
 </section>
+
+{% if recettes_par_type %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.9/dist/chart.umd.min.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function(){
+  const labels = [{% for r in recettes_par_type %}"{{ r.type_frais__libelle|escapejs }}"{% if not forloop.last %},{% endif %}{% endfor %}];
+  const amounts = [{% for r in recettes_par_type %}{{ r.total|floatformat:0 }}{% if not forloop.last %},{% endif %}{% endfor %}];
+  const pcts = [{% for r in recettes_par_type %}{{ r.pct }}{% if not forloop.last %},{% endif %}{% endfor %}];
+  const palette = ["#0969da","#1a7f37","#8250df","#cf222e","#9a6700","#0550ae","#116329","#6639ba","#d4a72c","#1f2328"];
+  const bg = labels.map((_,i)=>palette[i%palette.length]);
+  const bgSoft = labels.map((_,i)=>palette[i%palette.length]+"26");
+
+  const barEl = document.getElementById('chartRecettesBar');
+  if(barEl){
+    new Chart(barEl, {
+      type: 'bar',
+      data: { labels: labels, datasets: [{ label: 'Recettes', data: amounts, backgroundColor: bg, borderColor: bg, borderWidth: 1, borderRadius: 6, maxBarThickness: 42 }] },
+      options: {
+        responsive: true, maintainAspectRatio: false,
+        plugins: { legend:{display:false}, tooltip:{ callbacks:{ label:(ctx)=> ctx.parsed.y.toLocaleString('fr-FR') } } },
+        scales: {
+          x:{ grid:{display:false}, ticks:{ color:'#656d76', font:{size:11}} },
+          y:{ beginAtZero:true, grid:{ color:'#f6f8fa'}, ticks:{ color:'#656d76', font:{size:11}, callback:(v)=> v.toLocaleString('fr-FR') } }
+        }
+      }
+    });
+  }
+  const doughEl = document.getElementById('chartRecettesDoughnut');
+  if(doughEl){
+    new Chart(doughEl, {
+      type: 'doughnut',
+      data: { labels: labels, datasets: [{ data: pcts.length? pcts: amounts, backgroundColor: bg, borderWidth: 2, borderColor: '#fff', hoverOffset: 6 }] },
+      options: {
+        responsive: true, maintainAspectRatio: false, cutout: '58%',
+        plugins: { legend:{ position:'bottom', labels:{ boxWidth:12, padding:14, color:'#1f2328', font:{size:11}} }, tooltip:{ callbacks:{ label:(ctx)=> ' '+ctx.label+': '+ctx.parsed+'%' } } }
+      }
+    });
+  }
+});
+</script>
+{% endif %}
 {% endblock %}

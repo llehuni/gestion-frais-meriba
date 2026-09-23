@@ -54,7 +54,7 @@
                 <select class="input" name="type" style="width:auto; min-width:160px;"
                         hx-get="{% url 'payments:paiement_list' %}" hx-trigger="change" hx-target="#paiement-table" hx-swap="outerHTML" hx-push-url="true" hx-include="#search-form-paiement">
                     <option value="">Tous les types</option>
-                    {% for t in types %}<option value="{{ t.pk }}" {% if request.GET.type == t.pk|stringformat:"s" %}selected{% endif %}>{{ t.libelle }}</option>{% endfor %}
+                    {% for value, label in types %}<option value="{{ value }}" {% if request.GET.type == value %}selected{% endif %}>{{ label }}</option>{% endfor %}
                 </select>
                 <span id="paiement-indicator" class="htmx-indicator" style="color:var(--fg-muted); font-size:12px;"><i class="fas fa-spinner fa-spin"></i></span>
                 <a class="btn" href="{% url 'payments:paiement_list' %}">Réinitialiser</a>

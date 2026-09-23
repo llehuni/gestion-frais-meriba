@@ -5,12 +5,12 @@
 <div class="page-header">
 <div>
 <h1 class="page-title">Recettes — {{ period }}</h1>
-<p class="page-desc">Total : <strong>{{ total }} CDF</strong> — {{ paiements|length }} paiement(s)</p>
+<p class="page-desc">Total : <strong>{{ total }} CDF</strong> — {% if paginator %}{{ paginator.count }}{% else %}{{ paiements|length }}{% endif %} paiement(s) — 12 par page</p>
 </div>
 <div class="page-actions">
 <a class="btn" href="{% url 'reports:dashboard' %}"><i class="fas fa-arrow-left"></i> Rapports</a>
-<a class="btn" href="{% url 'reports:export_excel' %}?report=recettes"><i class="fas fa-file-excel"></i> Excel</a>
-<a class="btn btn-primary" href="{% url 'reports:export_pdf' %}?report=recettes"><i class="fas fa-file-pdf"></i> PDF</a>
+<a class="btn" href="{% url 'reports:export_excel' %}?report=recettes&period={{ period }}" download hx-boost="false"><i class="fas fa-file-excel"></i> Excel</a>
+<a class="btn btn-primary" href="{% url 'reports:export_pdf' %}?report=recettes&period={{ period }}" download hx-boost="false"><i class="fas fa-file-pdf"></i> PDF</a>
 </div>
 </div>
 {% include "reports/_recettes_card.html" %}

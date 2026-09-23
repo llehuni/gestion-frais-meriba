@@ -23,11 +23,11 @@
 <div class="receipt-row"><span class="k">Matricule</span><span class="v mono">{{ recu.eleve.matricule }}</span></div>
 <div class="receipt-row"><span class="k">Classe</span><span class="v">{{ recu.eleve.classe.nom }}</span></div>
 <div class="receipt-row"><span class="k">Année</span><span class="v">{{ recu.paiement.annee_scolaire }}</span></div>
-<div class="receipt-row"><span class="k">Motif</span><span class="v">{{ recu.paiement.type_frais.libelle }}</span></div>
+<div class="receipt-row"><span class="k">Motif</span><span class="v">{{ recu.paiement.get_type_frais_display }}</span></div>
 <div class="receipt-row"><span class="k">Mode</span><span class="v">{{ recu.paiement.get_mode_paiement_display }}</span></div>
 <div class="receipt-row"><span class="k">Date</span><span class="v">{{ recu.paiement.date_paiement|date:"d/m/Y" }}</span></div>
 <div class="receipt-row"><span class="k">Agent</span><span class="v">{{ recu.agent.login }}</span></div>
-<div class="receipt-total"><span>MONTANT PAYÉ</span><span>{{ recu.montant }} CDF</span></div>
+<div class="receipt-total"><span>MONTANT PAYÉ</span><span>{{ recu.montant }} {{ recu.devise }}</span></div>
 </div>
 </section>
 {% endblock %}

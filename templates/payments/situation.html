@@ -15,24 +15,24 @@
 
 <div class="stats-grid">
 <div class="stat">
-<div class="stat-label">Total dû</div>
-<div class="stat-value">{{ total_du }} CDF</div>
-<div class="stat-meta">Somme des frais dus (classe)</div>
+<div class="stat-label">Total payé (global)</div>
+<div class="stat-value" style="color:var(--success);">{{ total_du }}</div>
+<div class="stat-meta">Cumul tous types (USD par défaut)</div>
 </div>
 <div class="stat">
 <div class="stat-label">Total payé</div>
-<div class="stat-value" style="color:var(--success);">{{ total_paye }} CDF</div>
+<div class="stat-value" style="color:var(--success);">{{ total_paye }}</div>
 <div class="stat-meta">Cumul paiements {{ annee }}</div>
 </div>
 <div class="stat">
-<div class="stat-label">Solde</div>
-<div class="stat-value" {% if solde == 0 %}style="color:var(--success);"{% else %}style="color:var(--danger);"{% endif %}>{{ solde }} CDF</div>
-<div class="stat-meta">Restant à payer</div>
+<div class="stat-label">Statut</div>
+<div class="stat-value" {% if statut == 'complet' %}style="color:var(--success);"{% else %}style="color:var(--danger);"{% endif %}>{{ statut|capfirst }}</div>
+<div class="stat-meta">{% if statut == 'complet' %}<span class="label label-success">Au moins un paiement</span>{% else %}<span class="label label-danger">Aucun paiement</span>{% endif %}</div>
 </div>
 <div class="stat">
-<div class="stat-label">Arriérés</div>
-<div class="stat-value" {% if arrieres == 0 %}style="color:var(--success);"{% else %}style="color:var(--danger);"{% endif %}>{{ arrieres }} CDF</div>
-<div class="stat-meta">Statut : {% if statut == 'complet' %}<span class="label label-success">À jour</span>{% elif statut == 'partiel' %}<span class="label label-warning">Partiel</span>{% else %}<span class="label label-danger">Impayé</span>{% endif %}</div>
+<div class="stat-label">Paiements</div>
+<div class="stat-value">{{ paiements|length }}</div>
+<div class="stat-meta">Nombre sur {{ annee }}</div>
 </div>
 </div>
 
@@ -40,20 +40,18 @@
 <div class="card-header"><div class="card-title">Détail par type de frais</div></div>
 <div class="table-wrap">
 <table>
-<thead><tr><th>Type</th><th>Dû</th><th>Payé</th><th>Solde</th><th>Statut</th></tr></thead>
+<thead><tr><th>Type</th><th>Payé</th><th>Statut</th></tr></thead>
 <tbody>
 {% for d in details %}
 <tr>
-<td class="fw-500">{{ d.type_frais.libelle }}</td>
-<td>{{ d.total_du }} CDF</td>
-<td style="color:var(--success);">{{ d.total_paye }} CDF</td>
-<td class="fw-600" {% if d.solde == 0 %}style="color:var(--success);"{% else %}style="color:var(--danger);"{% endif %}>{{ d.solde }} CDF</td>
+<td class="fw-500">{{ d.type_frais_label }}</td>
+<td style="color:var(--success);">{{ d.total_paye }}</td>
 <td>
-{% if d.statut == 'complet' %}<span class="label label-success"><i class="fas fa-check"></i> Complet</span>{% elif d.statut == 'partiel' %}<span class="label label-warning"><i class="fas fa-hourglass-half"></i> Partiel</span>{% else %}<span class="label label-danger"><i class="fas fa-xmark"></i> Impayé</span>{% endif %}
+{% if d.statut == 'complet' %}<span class="label label-success"><i class="fas fa-check"></i> Payé</span>{% else %}<span class="label label-danger"><i class="fas fa-xmark"></i> Aucun paiement</span>{% endif %}
 </td>
 </tr>
 {% empty %}
-<tr><td colspan="5" style="text-align:center; padding:24px; color:var(--fg-muted);">Aucun frais défini pour cette classe — paramétrez les frais.</td></tr>
+<tr><td colspan="3" style="text-align:center; padding:24px; color:var(--fg-muted);">Aucun paiement enregistré.</td></tr>
 {% endfor %}
 </tbody>
 </table>
@@ -69,8 +67,8 @@
 {% for p in paiements %}
 <tr>
 <td class="mono">{% if p.recu_associe %}{{ p.recu_associe.numero }}{% else %}—{% endif %}</td>
-<td><span class="label label-accent">{{ p.type_frais.libelle }}</span></td>
-<td class="fw-500">{{ p.montant_paye }} CDF</td>
+<td><span class="label label-accent">{{ p.get_type_frais_display }}</span></td>
+<td class="fw-500">{{ p.montant_paye }} {{ p.devise }}</td>
 <td class="text-muted">{{ p.date_paiement|date:"d/m/Y" }}</td>
 <td class="text-muted">{{ p.agent.login }}</td>
 <td>

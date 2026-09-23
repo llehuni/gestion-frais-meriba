@@ -22,9 +22,9 @@
 
 <div class="stats-grid">
 <div class="stat"><div class="stat-label">Élèves</div><div class="stat-value">{{ total_eleves }}</div><div class="stat-meta">Inscrits</div></div>
-<div class="stat"><div class="stat-label">À jour</div><div class="stat-value" style="color:var(--success);">{{ a_jour_count }}</div><div class="stat-meta">Soldé</div></div>
-<div class="stat"><div class="stat-label">Débiteurs</div><div class="stat-value" style="color:var(--danger);">{{ debiteurs_count }}</div><div class="stat-meta">Avec arriérés</div></div>
-<div class="stat"><div class="stat-label">Taux recouvrement</div><div class="stat-value">{% if total_eleves %}{{ a_jour_count }}/{{ total_eleves }}{% else %}—{% endif %}</div><div class="stat-meta">{{ a_jour_count }} à jour</div></div>
+<div class="stat"><div class="stat-label">Avec paiement</div><div class="stat-value" style="color:var(--success);">{{ a_jour_count }}</div><div class="stat-meta">Au moins 1 paiement</div></div>
+<div class="stat"><div class="stat-label">Sans paiement</div><div class="stat-value" style="color:var(--danger);">{{ debiteurs_count }}</div><div class="stat-meta">Aucun paiement</div></div>
+<div class="stat"><div class="stat-label">Taux paiement</div><div class="stat-value">{% if total_eleves %}{{ a_jour_count }}/{{ total_eleves }}{% else %}—{% endif %}</div><div class="stat-meta">{{ a_jour_count }} payeurs</div></div>
 </div>
 
 <div class="reports-grid">
@@ -41,10 +41,10 @@
 <div class="ico"><i class="fas fa-calendar-days"></i></div><h4>Recettes annuelles</h4><p>Bilan année scolaire.</p>
 </a>
 <a class="report-card" href="{% url 'reports:a_jour' %}">
-<div class="ico"><i class="fas fa-user-check"></i></div><h4>Élèves à jour ({{ a_jour_count }})</h4><p>Soldés.</p>
+<div class="ico"><i class="fas fa-user-check"></i></div><h4>Élèves avec paiement ({{ a_jour_count }})</h4><p>Au moins un paiement.</p>
 </a>
 <a class="report-card" href="{% url 'reports:debiteurs' %}">
-<div class="ico"><i class="fas fa-user-xmark"></i></div><h4>Élèves débiteurs ({{ debiteurs_count }})</h4><p>Avec arriérés.</p>
+<div class="ico"><i class="fas fa-user-xmark"></i></div><h4>Élèves sans paiement ({{ debiteurs_count }})</h4><p>Aucun paiement.</p>
 </a>
 <a class="report-card" href="{% url 'reports:stats_classe' %}">
 <div class="ico"><i class="fas fa-chart-pie"></i></div><h4>Statistiques par classe</h4><p>Recouvrement.</p>
@@ -58,12 +58,12 @@
 <div class="card" style="margin-top:16px;">
 <div class="card-header"><div class="card-title">Exports</div></div>
 <div class="card-body" style="display:flex; gap:8px; flex-wrap:wrap;">
-<a class="btn" href="{% url 'reports:export_excel' %}?report=recettes"><i class="fas fa-file-excel"></i> Excel recettes</a>
-<a class="btn" href="{% url 'reports:export_pdf' %}?report=recettes"><i class="fas fa-file-pdf"></i> PDF recettes</a>
-<a class="btn" href="{% url 'reports:export_excel' %}?report=stats_classe"><i class="fas fa-file-excel"></i> Excel classes</a>
-<a class="btn" href="{% url 'reports:export_pdf' %}?report=stats_classe"><i class="fas fa-file-pdf"></i> PDF classes</a>
-<a class="btn" href="{% url 'reports:export_excel' %}?report=debiteurs"><i class="fas fa-file-excel"></i> Excel débiteurs</a>
-<a class="btn btn-primary" href="{% url 'reports:export_pdf' %}?report=debiteurs"><i class="fas fa-file-pdf"></i> PDF débiteurs</a>
+<a class="btn" href="{% url 'reports:export_excel' %}?report=recettes" download hx-boost="false"><i class="fas fa-file-excel"></i> Excel recettes</a>
+<a class="btn" href="{% url 'reports:export_pdf' %}?report=recettes" download hx-boost="false"><i class="fas fa-file-pdf"></i> PDF recettes</a>
+<a class="btn" href="{% url 'reports:export_excel' %}?report=stats_classe" download hx-boost="false"><i class="fas fa-file-excel"></i> Excel classes</a>
+<a class="btn" href="{% url 'reports:export_pdf' %}?report=stats_classe" download hx-boost="false"><i class="fas fa-file-pdf"></i> PDF classes</a>
+<a class="btn" href="{% url 'reports:export_excel' %}?report=debiteurs" download hx-boost="false"><i class="fas fa-file-excel"></i> Excel débiteurs</a>
+<a class="btn btn-primary" href="{% url 'reports:export_pdf' %}?report=debiteurs" download hx-boost="false"><i class="fas fa-file-pdf"></i> PDF débiteurs</a>
 </div>
 </div>
 

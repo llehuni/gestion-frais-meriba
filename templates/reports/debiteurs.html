@@ -3,29 +3,27 @@
 {% block content %}
 <section class="page active">
 <div class="page-header">
-<div><h1 class="page-title">Élèves débiteurs</h1><p class="page-desc">{% if paginator %}{{ paginator.count }}{% else %}{{ debiteurs|length }}{% endif %} élève(s) avec arriérés — 12 par page</p></div>
+<div><h1 class="page-title">Élèves sans paiement</h1><p class="page-desc">{% if paginator %}{{ paginator.count }}{% else %}{{ debiteurs|length }}{% endif %} élève(s) sans paiement — 12 par page</p></div>
 <div class="page-actions">
 <a class="btn" href="{% url 'reports:dashboard' %}">Rapports</a>
-<a class="btn" href="{% url 'reports:export_excel' %}?report=debiteurs"><i class="fas fa-file-excel"></i> Excel</a>
-<a class="btn btn-primary" href="{% url 'reports:export_pdf' %}?report=debiteurs"><i class="fas fa-file-pdf"></i> PDF</a>
+<a class="btn" href="{% url 'reports:export_excel' %}?report=debiteurs" download hx-boost="false"><i class="fas fa-file-excel"></i> Excel</a>
+<a class="btn btn-primary" href="{% url 'reports:export_pdf' %}?report=debiteurs" download hx-boost="false"><i class="fas fa-file-pdf"></i> PDF</a>
 </div>
 </div>
 <div class="card">
 <div class="table-wrap">
 <table>
-<thead><tr><th>Élève</th><th>Classe</th><th>Total dû</th><th>Payé</th><th>Solde</th><th>Statut</th><th></th></tr></thead>
+<thead><tr><th>Élève</th><th>Classe</th><th>Total payé</th><th>Statut</th><th></th></tr></thead>
 <tbody>
 {% for sit in debiteurs %}
 <tr>
 <td><div class="cell-main"><div class="avatar">{{ sit.eleve.prenom|slice:":1"|upper }}{{ sit.eleve.nom|slice:":1"|upper }}</div><div><div class="cell-title">{{ sit.eleve.nom_complet }}</div><div class="cell-sub mono">{{ sit.eleve.matricule }}</div></div></div></td>
 <td><span class="label label-accent">{{ sit.eleve.classe.nom }}</span></td>
-<td>{{ sit.total_du }} CDF</td>
-<td style="color:var(--success);">{{ sit.total_paye }} CDF</td>
-<td class="fw-600" style="color:var(--danger);">{{ sit.solde }} CDF</td>
-<td><span class="label label-danger">Débiteur</span></td>
+<td style="color:var(--fg-muted);">{{ sit.total_paye }} CDF</td>
+<td><span class="label label-danger">Sans paiement</span></td>
 <td><a class="btn" href="{% url 'payments:situation' sit.eleve.pk %}"><i class="fas fa-eye"></i> Détail</a></td>
 </tr>
-{% empty %}<tr><td colspan="7" style="text-align:center; padding:24px; color:var(--success);"><i class="fas fa-check-circle"></i> Aucun débiteur — tous à jour</td></tr>{% endfor %}
+{% empty %}<tr><td colspan="5" style="text-align:center; padding:24px; color:var(--success);"><i class="fas fa-check-circle"></i> Aucun élève sans paiement — tous ont payé</td></tr>{% endfor %}
 </tbody>
 </table>
 </div>

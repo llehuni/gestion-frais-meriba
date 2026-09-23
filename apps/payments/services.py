@@ -1,6 +1,7 @@
 """
 Service paiement — RG-03/04/05/07
-Transaction atomique : paiement + solde/arrieres + reçu + audit
+Transaction atomique : paiement + reçu + audit
+Plus de paramétrage Frais : type_frais est un attribut CharField.
 """
 from decimal import Decimal
 from django.core.exceptions import ValidationError
@@ -30,86 +31,68 @@ def get_annee_scolaire_courante():
 
 
 def get_total_du_for_eleve_type(eleve, type_frais):
-    """Retourne le montant dû pour ce type selon la classe de l'élève (Frais)."""
-    from apps.fees.models import Frais
-    frais = Frais.objects.filter(type_frais=type_frais, classes=eleve.classe).first()
-    if frais:
-        return frais.montant
-    # fallback : frais sans classe spécifique mais même type
-    frais = Frais.objects.filter(type_frais=type_frais, classes__isnull=True).first()
-    if frais:
-        return frais.montant
-    # sinon premier frais du type
-    frais = Frais.objects.filter(type_frais=type_frais).first()
-    return frais.montant if frais else Decimal("0")
+    """
+    Historique: retournait montant dû via Frais par classe.
+    Désormais sans paramétrage : retourne 0 (pas de dette prédéfinie).
+    Gardé pour compatibilité d'appel — renvoie 0.
+    """
+    return Decimal("0")
 
 
 def get_situation_financiere(eleve, annee_scolaire=None):
     """
-    Retourne détail financier pour un élève / année :
-    - par type : {type, total_du, total_paye, solde, statut}
-    - totaux globaux
+    Retourne détail financier pour un élève / année.
+    Sans table Frais : on groupe par type_frais (attribut) des Paiements existants
+    et on expose aussi les types sans paiement (pour affichage complet).
+    - par type : {type_frais (value), type_frais_label, total_du, total_paye, solde, statut}
+    - totaux globaux: total_du = total_paye (soldé), solde=0, arrieres=0
     """
-    from apps.fees.models import Frais, TypeFrais
-    from apps.payments.models import Paiement
+    from apps.payments.models import Paiement, TypeFrais
 
     if annee_scolaire is None:
         annee_scolaire = eleve.annee_scolaire or get_annee_scolaire_courante()
 
-    # Tous les types qui ont un Frais lié à la classe
-    frais_qs = Frais.objects.filter(classes=eleve.classe).select_related("type_frais")
-    if not frais_qs.exists():
-        # fallback global
-        frais_qs = Frais.objects.all().select_related("type_frais")
-
-    # Dédupliquer par type_frais (prendre montant max si doublon)
-    type_map = {}
-    for f in frais_qs:
-        tid = f.type_frais_id
-        if tid not in type_map or f.montant > type_map[tid].montant:
-            type_map[tid] = f
-
     details = []
-    total_du_global = Decimal("0")
     total_paye_global = Decimal("0")
 
-    for frais in type_map.values():
-        total_du = frais.montant
+    # Pour chaque choix de type, calculer total payé
+    for value, label in TypeFrais.choices:
         total_paye = Paiement.objects.filter(
-            eleve=eleve, type_frais=frais.type_frais, annee_scolaire=annee_scolaire
+            eleve=eleve, type_frais=value, annee_scolaire=annee_scolaire
         ).aggregate(t=Sum("montant_paye"))["t"] or Decimal("0")
-        solde = max(total_du - total_paye, Decimal("0"))
+        # Sans dette prédéfinie : total_du = total_paye (soldé)
+        total_du = total_paye
+        solde = Decimal("0")
         if total_paye == 0:
             statut = "impaye"
-        elif solde == 0:
-            statut = "complet"
         else:
-            statut = "partiel"
+            statut = "complet"
         details.append({
-            "type_frais": frais.type_frais,
-            "frais": frais,
+            "type_frais": value,
+            "type_frais_label": label,
+            "type_frais_display": label,
+            # Compat template ancien: objet factice avec .libelle
+            "type_frais_obj": type("Obj", (), {"libelle": label, "value": value})(),
+            "frais": None,
             "total_du": total_du,
             "total_paye": total_paye,
             "solde": solde,
             "statut": statut,
         })
-        total_du_global += total_du
         total_paye_global += total_paye
 
-    solde_global = max(total_du_global - total_paye_global, Decimal("0"))
-    arrieres = solde_global
+    total_du_global = total_paye_global
+    solde_global = Decimal("0")
+    arrieres = Decimal("0")
 
-    # Détermination statut global
-    if total_paye_global == 0 and total_du_global > 0:
+    if total_paye_global == 0:
         statut_global = "impaye"
-    elif solde_global == 0:
-        statut_global = "complet"
     else:
-        statut_global = "partiel"
+        statut_global = "complet"
 
     paiements = Paiement.objects.filter(
         eleve=eleve, annee_scolaire=annee_scolaire
-    ).select_related("type_frais", "agent").order_by("-date_paiement", "-date_creation")
+    ).select_related("agent").order_by("-date_paiement", "-date_creation")
 
     return {
         "eleve": eleve,
@@ -125,15 +108,16 @@ def get_situation_financiere(eleve, annee_scolaire=None):
 
 
 @transaction.atomic
-def enregistrer_paiement(*, eleve, type_frais, montant_paye, date_paiement, mode_paiement, agent, annee_scolaire=None, observation="", request=None):
+def enregistrer_paiement(*, eleve, type_frais, montant_paye, date_paiement, mode_paiement, agent, annee_scolaire=None, observation="", devise="USD", request=None):
     """
-    Enregistre un paiement, met à jour solde/arrieres, génère reçu.
+    Enregistre un paiement, génère reçu.
     RG-03: montant strictement positif
     RG-04: reçu numéroté auto
-    RG-05: solde mis à jour en temps réel
     RG-07: journalisation
+    type_frais : str value parmi TypeFrais.choices (ex: 'inscription')
+    devise : USD (défaut) ou CDF
     """
-    from apps.payments.models import Paiement, Recu
+    from apps.payments.models import Devise, Paiement, Recu, TypeFrais
     from apps.audit.models import AuditLog
 
     if montant_paye is None or Decimal(str(montant_paye)) <= 0:
@@ -141,49 +125,39 @@ def enregistrer_paiement(*, eleve, type_frais, montant_paye, date_paiement, mode
 
     montant_paye = Decimal(str(montant_paye))
 
+    # Validation type_frais
+    valid_types = {c[0] for c in TypeFrais.choices}
+    if type_frais not in valid_types:
+        # accepter label casse différente ? normaliser
+        # tenter mapping insensible à la casse
+        lowered = str(type_frais).lower().strip()
+        mapped = None
+        for v, _label in TypeFrais.choices:
+            if v.lower() == lowered:
+                mapped = v
+                break
+        if mapped:
+            type_frais = mapped
+        else:
+            raise ValidationError({"type_frais": f"Type de frais invalide: {type_frais}"})
+
     if annee_scolaire is None:
         annee_scolaire = eleve.annee_scolaire or get_annee_scolaire_courante()
 
-    # Calcul total dû AVANT création
-    total_du = get_total_du_for_eleve_type(eleve, type_frais)
-
-    # Calcul total déjà payé pour ce type/année
-    total_paye_avant = Paiement.objects.filter(
-        eleve=eleve, type_frais=type_frais, annee_scolaire=annee_scolaire
-    ).aggregate(t=Sum("montant_paye"))["t"] or Decimal("0")
-
-    # Nouveau total payé
-    nouveau_total_paye = total_paye_avant + montant_paye
-    solde = max(total_du - nouveau_total_paye, Decimal("0"))
-
-    # Calcul arrieres global avant : somme des soldes existants + solde courant si >0; on calcule via situation
-    # Simplifié : arrieres = somme des soldes positifs pour élève/année après paiement
-    # On doit calculer somme des soldes par type après paiement
-    # Pour éviter N+1, on calcule via get_situation_financiere logique inline
-    # temporairement créer paiement puis recalculer arrieres = total_du_global - total_paye_global
-    # On calcule total_du_global
-    from apps.fees.models import Frais
-    frais_qs = Frais.objects.filter(classes=eleve.classe)
-    if not frais_qs.exists():
-        frais_qs = Frais.objects.all()
-    type_map = {}
-    for f in frais_qs.select_related("type_frais"):
-        tid = f.type_frais_id
-        if tid not in type_map or f.montant > type_map[tid].montant:
-            type_map[tid] = f
-    total_du_global = sum((f.montant for f in type_map.values()), Decimal("0"))
-    total_paye_global_avant = Paiement.objects.filter(eleve=eleve, annee_scolaire=annee_scolaire).aggregate(t=Sum("montant_paye"))["t"] or Decimal("0")
-    total_paye_global_apres = total_paye_global_avant + montant_paye
-    arrieres = max(total_du_global - total_paye_global_apres, Decimal("0"))
-
-    # Bonus : vérifier dépassement ? On autorise mais solde reste 0 si trop-payé (pas de remboursement auto)
-    # On garde logique solde = 0 si trop-payé
+    # Validation devise
+    if devise not in dict(Devise.choices):
+        devise = Devise.USD
+    # Sans dette paramétrée: total_du = montant_paye, solde/arrieres =0
+    total_du = montant_paye
+    solde = Decimal("0")
+    arrieres = Decimal("0")
 
     paiement = Paiement(
         eleve=eleve,
         type_frais=type_frais,
         annee_scolaire=annee_scolaire,
         montant_paye=montant_paye,
+        devise=devise,
         date_paiement=date_paiement or timezone.now().date(),
         mode_paiement=mode_paiement,
         montant_total_du=total_du,
@@ -192,58 +166,49 @@ def enregistrer_paiement(*, eleve, type_frais, montant_paye, date_paiement, mode
         agent=agent,
         observation=observation,
     )
-    # contourner save() qui recalcule : on set puis save, mais save recalculera solde correctement en incluant exclude pk -> idem
-    # On force en désactivant recalcul via override : on appelle super save via model
-    # Plus simple : laisser save faire son calcul mais après on corrige arrieres
-    # On va sauvegarder avec nos valeurs puis le save interne recalculera ; pour éviter double, on fait paiement.save en bypassant recalcul si on pose un flag
-    # Solution : appeler directement Paiement.objects.create avec nos valeurs via super().save sans recalcul
-    # Or subclass : on va sauvegarder via Paiement.save qui recalculera : testons
-    # Pour garantir atomicité, on passe par save normal
     paiement.save()
-
-    # Mettre à jour arrieres si différent du calcul save (save calcule sur base des paiements existants sans inclure global)
-    # On corrige si besoin
-    if paiement.arrieres != arrieres:
-        Paiement.objects.filter(pk=paiement.pk).update(arrieres=arrieres)
-        paiement.arrieres = arrieres
 
     # Créer reçu numéroté
     recu = Recu.objects.create(
         paiement=paiement,
         eleve=eleve,
         montant=montant_paye,
+        devise=devise,
         agent=agent,
     )
 
-    # Journalisation RG-07
+    # Journalisation RG-07 — isolée en savepoint pour ne pas rollback paiement si audit échoue
     try:
-        AuditLog.objects.create(
-            user=agent,
-            action="CREATE",
-            model_name="Paiement",
-            object_id=str(paiement.pk),
-            object_repr=str(paiement),
-            changes={
-                "eleve": eleve.matricule,
-                "type_frais": type_frais.libelle,
-                "montant_paye": str(montant_paye),
-                "recu": recu.numero,
-            },
-            ip_address=_get_client_ip(request),
-            user_agent=_get_user_agent(request),
-        )
-        AuditLog.objects.create(
-            user=agent,
-            action="CREATE",
-            model_name="Recu",
-            object_id=str(recu.pk),
-            object_repr=f"Reçu {recu.numero}",
-            changes={"numero": recu.numero, "montant": str(montant_paye)},
-            ip_address=_get_client_ip(request),
-            user_agent=_get_user_agent(request),
-        )
+        with transaction.atomic():
+            label = str(dict(TypeFrais.choices).get(type_frais, type_frais))
+            AuditLog.objects.create(
+                user=agent,
+                action="CREATE",
+                model_name="Paiement",
+                object_id=str(paiement.pk),
+                object_repr=str(paiement),
+                changes={
+                    "eleve": eleve.matricule,
+                    "type_frais": label,
+                    "montant_paye": str(montant_paye),
+                    "devise": devise,
+                    "recu": recu.numero,
+                },
+                ip_address=_get_client_ip(request),
+                user_agent=_get_user_agent(request),
+            )
+            AuditLog.objects.create(
+                user=agent,
+                action="CREATE",
+                model_name="Recu",
+                object_id=str(recu.pk),
+                object_repr=f"Reçu {recu.numero}",
+                changes={"numero": recu.numero, "montant": str(montant_paye), "devise": devise},
+                ip_address=_get_client_ip(request),
+                user_agent=_get_user_agent(request),
+            )
     except Exception:
-        # Ne pas bloquer paiement si audit échoue
+        # Audit ne doit jamais bloquer le paiement ; l'exception est déjà isolée dans savepoint
         pass
 
     return paiement, recu

@@ -22,9 +22,7 @@ from .permissions import AdminRequiredMixin
 
 logger = logging.getLogger(__name__)
 
-
 # --- Authentification ---
-
 
 def login_view(request: HttpRequest) -> HttpResponse:
     if request.user.is_authenticated:
@@ -35,7 +33,7 @@ def login_view(request: HttpRequest) -> HttpResponse:
         login(request, user)
         logger.info("Connexion réussie login=%s ip=%s", user.login, request.META.get("REMOTE_ADDR"))
         messages.success(request, f"Bienvenue {user.get_full_name() or user.login}.")
-        # RG-09 : journalisation connexion
+        
         nxt = request.GET.get("next") or "accounts:dashboard"
         try:
             return redirect(nxt)
@@ -71,27 +69,30 @@ def dashboard_view(request: HttpRequest) -> HttpResponse:
         total_encaisse = Paiement.objects.aggregate(t=Sum("montant_paye"))["t"] or 0
     except Exception:
         recettes_jour = recettes_mois = total_encaisse = 0
-    # À jour / débiteurs via situation
+    # À jour / débiteurs : sans paramétrage, à jour = au moins un paiement
     a_jour = debiteurs = 0
     try:
         for e in Eleve.objects.select_related("classe").all():
             sit = get_situation_financiere(e)
-            if sit["solde"] == 0 and sit["total_du"] > 0:
+            if sit["total_paye"] > 0:
                 a_jour += 1
-            elif sit["solde"] > 0:
+            else:
                 debiteurs += 1
     except Exception:
         pass
     # Derniers paiements
     try:
-        derniers = Paiement.objects.select_related("eleve", "eleve__classe", "type_frais", "recu_associe").order_by("-date_creation")[:5]
+        derniers = Paiement.objects.select_related("eleve", "eleve__classe", "agent", "recu_associe").order_by("-date_creation")[:5]
     except Exception:
         derniers = []
-    # Recettes par type pour graph
+    # Recettes par type pour graph (type_frais est CharField)
     try:
-        recettes_par_type = Paiement.objects.values("type_frais__libelle").annotate(total=Sum("montant_paye")).order_by("-total")
+        from apps.payments.models import TypeFrais as TF
+        recettes_par_type = Paiement.objects.values("type_frais").annotate(total=Sum("montant_paye")).order_by("-total")
         total_recettes = sum((r["total"] for r in recettes_par_type), 0) or 1
+        label_map = dict(TF.choices)
         for r in recettes_par_type:
+            r["type_frais__libelle"] = label_map.get(r["type_frais"], r["type_frais"])
             r["pct"] = round(float(r["total"] / total_recettes * 100), 1)
     except Exception:
         recettes_par_type = []

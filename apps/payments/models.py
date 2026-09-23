@@ -19,6 +19,24 @@ class StatutPaiement(models.TextChoices):
     IMPAYE = "impaye", _("Impayé")
 
 
+class Devise(models.TextChoices):
+    USD = "USD", "USD"
+    CDF = "CDF", "CDF"
+
+
+class TypeFrais(models.TextChoices):
+    """
+    Type de frais — désormais attribut simple dans Paiement.
+    L'admin ne paramètre plus (fees/TypeFrais/Frais supprimés).
+    Valeurs de référence: inscription, scolarité, examens, bulletin, autres
+    """
+    INSCRIPTION = "inscription", _("Inscription")
+    SCOLARITE = "scolarite", _("Scolarité")
+    EXAMENS = "examens", _("Examens")
+    BULLETIN = "bulletin", _("Bulletin")
+    AUTRES = "autres", _("Autres contributions")
+
+
 class Paiement(models.Model):
     """
     Paiement — entité pivot des opérations financières.
@@ -36,11 +54,12 @@ class Paiement(models.Model):
         verbose_name=_("élève"),
         related_name="paiements",
     )
-    type_frais = models.ForeignKey(
-        "fees.TypeFrais",
-        on_delete=models.PROTECT,
-        verbose_name=_("type de frais"),
-        related_name="paiements",
+    type_frais = models.CharField(
+        _("type de frais"),
+        max_length=30,
+        choices=TypeFrais.choices,
+        default=TypeFrais.SCOLARITE,
+        db_index=True,
     )
     annee_scolaire = models.CharField(_("année scolaire"), max_length=9, db_index=True)
 
@@ -49,6 +68,13 @@ class Paiement(models.Model):
         max_digits=10,
         decimal_places=2,
         validators=[MinValueValidator(1, message=_("Le montant doit être strictement positif."))],
+    )
+    devise = models.CharField(
+        _("devise"),
+        max_length=3,
+        choices=Devise.choices,
+        default=Devise.USD,
+        db_index=True,
     )
     date_paiement = models.DateField(_("date de paiement"), default=timezone.now)
     mode_paiement = models.CharField(
@@ -82,52 +108,45 @@ class Paiement(models.Model):
         ]
 
     def __str__(self):
-        return f"Paiement {self.eleve.matricule} — {self.type_frais.libelle} — {self.montant_paye} CDF"
+        return f"Paiement {self.eleve.matricule} — {self.get_type_frais_display()} — {self.montant_paye} {self.devise}"
 
     def clean(self):
         if self.montant_paye is not None and self.montant_paye <= 0:
             raise ValidationError({"montant_paye": _("Le montant doit être strictement positif.")})
 
     def calculer_montant_total_du(self):
-        """Calcule le total dû pour ce type de frais selon la classe de l'élève."""
-        from apps.fees.models import Frais
+        """
+        Sans paramétrage Frais : plus de montant dû prédéfini par classe.
+        On considère le paiement comme soldé à hauteur du montant payé.
+        Retourne montant_paye (compat historique) afin que solde = 0.
+        """
+        from decimal import Decimal
 
-        frais = Frais.objects.filter(type_frais=self.type_frais, classes=self.eleve.classe).first()
-        return frais.montant if frais else 0
+        if self.montant_paye:
+            return self.montant_paye
+        return Decimal("0")
 
     def calculer_solde(self):
-        """Calcule le solde restant = total dû - total payé (tous paiements pour ce type/année)."""
+        """Sans dette paramétrée, solde toujours 0 (paiement = dette)."""
         from decimal import Decimal
 
-        total_paye = (
-            Paiement.objects.filter(eleve=self.eleve, type_frais=self.type_frais, annee_scolaire=self.annee_scolaire)
-            .exclude(pk=self.pk)
-            .aggregate(total=models.Sum("montant_paye"))["total"]
-            or Decimal("0")
-        )
-        total_paye += self.montant_paye
-        return max(self.montant_total_du - total_paye, Decimal("0"))
+        return Decimal("0")
 
     def calculer_arrieres(self):
-        """Calcule les arriérés = somme des soldes positifs sur tous types de frais pour l'élève/année."""
+        """Sans dette paramétrée, arriérés toujours 0."""
         from decimal import Decimal
 
-        arrieres = (
-            Paiement.objects.filter(eleve=self.eleve, annee_scolaire=self.annee_scolaire, solde__gt=0)
-            .aggregate(total=models.Sum("solde"))["total"]
-            or Decimal("0")
-        )
-        return arrieres
+        return Decimal("0")
 
     def save(self, *args, **kwargs):
-        # Calculer montant_total_du si pas déjà défini (nouveau paiement)
-        if not self.montant_total_du:
+        # Historique : montant_total_du = montant payé, solde/arriérés = 0
+        # (conserve colonnes pour compat, mais sans calcul via Frais)
+        if self.montant_paye:
             self.montant_total_du = self.calculer_montant_total_du()
-
-        # Calculer solde et arrières
+        else:
+            self.montant_total_du = self.montant_total_du or 0
         self.solde = self.calculer_solde()
         self.arrieres = self.calculer_arrieres()
-
         super().save(*args, **kwargs)
 
 
@@ -152,6 +171,7 @@ class Recu(models.Model):
         "students.Eleve", on_delete=models.PROTECT, verbose_name=_("élève"), related_name="recus"
     )
     montant = models.DecimalField(_("montant"), max_digits=10, decimal_places=2)
+    devise = models.CharField(_("devise"), max_length=3, choices=Devise.choices, default=Devise.USD)
     date_emission = models.DateTimeField(_("date d'émission"), default=timezone.now, editable=False)
     agent = models.ForeignKey(
         settings.AUTH_USER_MODEL, on_delete=models.PROTECT, verbose_name=_("agent émetteur"), related_name="recus_emmis"
@@ -164,7 +184,7 @@ class Recu(models.Model):
         ordering = ["-date_emission"]
 
     def __str__(self):
-        return f"Reçu {self.numero} — {self.eleve.nom_complet} — {self.montant} CDF"
+        return f"Reçu {self.numero} — {self.eleve.nom_complet} — {self.montant} {self.devise}"
 
     def save(self, *args, **kwargs):
         if not self.numero:

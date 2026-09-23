@@ -59,10 +59,17 @@
 </div>
 </div>
 
+<div class="form-row">
 <div class="field">
-<label for="id_montant_paye">Montant (CDF) *</label>
+<label for="id_montant_paye">Montant *</label>
 {{ form.montant_paye }}
 {% if form.montant_paye.errors %}<div style="color:var(--danger); font-size:12px;">{{ form.montant_paye.errors }}</div>{% endif %}
+</div>
+<div class="field">
+<label for="id_devise">Devise *</label>
+{{ form.devise }}
+{% if form.devise.errors %}<div style="color:var(--danger); font-size:12px;">{{ form.devise.errors }}</div>{% endif %}
+</div>
 </div>
 
 <div class="modal-foot" style="margin:16px -16px -16px; border-top:1px solid var(--border);">

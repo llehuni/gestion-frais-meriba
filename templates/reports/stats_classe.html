@@ -6,20 +6,19 @@
 <div><h1 class="page-title">Statistiques par classe</h1><p class="page-desc">Répartition et taux de recouvrement</p></div>
 <div class="page-actions">
 <a class="btn" href="{% url 'reports:dashboard' %}">Rapports</a>
-<a class="btn" href="{% url 'reports:export_excel' %}?report=stats_classe"><i class="fas fa-file-excel"></i> Excel</a>
-<a class="btn btn-primary" href="{% url 'reports:export_pdf' %}?report=stats_classe"><i class="fas fa-file-pdf"></i> PDF</a>
+<a class="btn" href="{% url 'reports:export_excel' %}?report=stats_classe" download hx-boost="false"><i class="fas fa-file-excel"></i> Excel</a>
+<a class="btn btn-primary" href="{% url 'reports:export_pdf' %}?report=stats_classe" download hx-boost="false"><i class="fas fa-file-pdf"></i> PDF</a>
 </div>
 </div>
 <div class="card">
 <div class="table-wrap">
 <table>
-<thead><tr><th>Classe</th><th>Effectif</th><th>Total dû</th><th>Total payé</th><th>À jour</th><th>Débiteurs</th><th>Taux</th></tr></thead>
+<thead><tr><th>Classe</th><th>Effectif</th><th>Total payé</th><th>Avec paiement</th><th>Sans paiement</th><th>Taux</th></tr></thead>
 <tbody>
 {% for s in stats %}
 <tr>
 <td class="fw-500">{{ s.classe.nom }}</td>
 <td>{{ s.effectif }}</td>
-<td>{{ s.total_du }} CDF</td>
 <td style="color:var(--success);">{{ s.total_paye }} CDF</td>
 <td><span class="label label-success">{{ s.a_jour }}</span></td>
 <td><span class="label label-danger">{{ s.debiteurs }}</span></td>

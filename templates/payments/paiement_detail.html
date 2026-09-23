@@ -5,7 +5,7 @@
 <div class="page-header">
 <div>
 <h1 class="page-title">Paiement #{{ paiement.pk }}</h1>
-<p class="page-desc">{{ paiement.eleve.matricule }} — {{ paiement.eleve.nom_complet }} · {{ paiement.type_frais.libelle }} · {{ paiement.date_paiement|date:"d/m/Y" }}</p>
+<p class="page-desc">{{ paiement.eleve.matricule }} — {{ paiement.eleve.nom_complet }} · {{ paiement.get_type_frais_display }} · {{ paiement.date_paiement|date:"d/m/Y" }}</p>
 </div>
 <div class="page-actions">
 {% if paiement.recu_associe %}
@@ -28,11 +28,12 @@
 <div class="card-body" style="padding-top:6px;padding-bottom:6px;">
 <div class="detail-row"><span class="k">Élève</span><span class="v">{{ paiement.eleve.nom_complet }} <span class="mono" style="color:var(--fg-muted);">({{ paiement.eleve.matricule }})</span> · {{ paiement.eleve.classe.nom }}</span></div>
 <div class="detail-row"><span class="k">Année</span><span class="v">{{ paiement.annee_scolaire }}</span></div>
-<div class="detail-row"><span class="k">Type</span><span class="v"><span class="label label-accent">{{ paiement.type_frais.libelle }}</span></span></div>
-<div class="detail-row"><span class="k">Montant payé</span><span class="v" style="color:var(--success);font-weight:600;">{{ paiement.montant_paye }} CDF</span></div>
-<div class="detail-row"><span class="k">Total dû</span><span class="v">{{ paiement.montant_total_du }} CDF</span></div>
-<div class="detail-row"><span class="k">Solde</span><span class="v" style="font-weight:600; {% if paiement.solde == 0 %}color:var(--success);{% else %}color:var(--danger);{% endif %}">{{ paiement.solde }} CDF</span></div>
-<div class="detail-row"><span class="k">Arriérés</span><span class="v">{{ paiement.arrieres }} CDF</span></div>
+<div class="detail-row"><span class="k">Type</span><span class="v"><span class="label label-accent">{{ paiement.get_type_frais_display }}</span></span></div>
+<div class="detail-row"><span class="k">Montant payé</span><span class="v" style="color:var(--success);font-weight:600;">{{ paiement.montant_paye }} {{ paiement.devise }}</span></div>
+<div class="detail-row"><span class="k">Devise</span><span class="v"><span class="label label-default">{{ paiement.devise }}</span></span></div>
+<div class="detail-row"><span class="k">Total dû</span><span class="v">{{ paiement.montant_total_du }} {{ paiement.devise }}</span></div>
+<div class="detail-row"><span class="k">Solde</span><span class="v" style="font-weight:600; {% if paiement.solde == 0 %}color:var(--success);{% else %}color:var(--danger);{% endif %}">{{ paiement.solde }} {{ paiement.devise }}</span></div>
+<div class="detail-row"><span class="k">Arriérés</span><span class="v">{{ paiement.arrieres }} {{ paiement.devise }}</span></div>
 <div class="detail-row"><span class="k">Mode</span><span class="v">{{ paiement.get_mode_paiement_display }}</span></div>
 <div class="detail-row"><span class="k">Agent</span><span class="v">{{ paiement.agent.login }} {% if paiement.agent.get_full_name %}({{ paiement.agent.get_full_name }}){% endif %}</span></div>
 <div class="detail-row"><span class="k">Observation</span><span class="v" style="white-space:normal;text-align:right;max-width:60%;">{{ paiement.observation|default:"—" }}</span></div>
@@ -52,10 +53,10 @@
 <div class="receipt-row"><span class="k">Élève</span><span class="v">{{ recu.eleve.nom_complet }}</span></div>
 <div class="receipt-row"><span class="k">Matricule</span><span class="v mono">{{ recu.eleve.matricule }}</span></div>
 <div class="receipt-row"><span class="k">Classe</span><span class="v">{{ recu.eleve.classe.nom }}</span></div>
-<div class="receipt-row"><span class="k">Motif</span><span class="v">{{ paiement.type_frais.libelle }}</span></div>
+<div class="receipt-row"><span class="k">Motif</span><span class="v">{{ paiement.get_type_frais_display }}</span></div>
 <div class="receipt-row"><span class="k">Date</span><span class="v">{{ paiement.date_paiement|date:"d/m/Y" }}</span></div>
 <div class="receipt-row"><span class="k">Agent</span><span class="v">{{ recu.agent.login }}</span></div>
-<div class="receipt-total"><span>MONTANT PAYÉ</span><span>{{ recu.montant }} CDF</span></div>
+<div class="receipt-total"><span>MONTANT PAYÉ</span><span>{{ recu.montant }} {{ recu.devise }}</span></div>
 </div>
 <div style="margin-top:12px; display:flex; gap:8px;">
 <a class="btn" href="{% url 'payments:recu_print' recu.pk %}" target="_blank"><i class="fas fa-print"></i> Imprimer</a>

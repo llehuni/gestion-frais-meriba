@@ -2,19 +2,19 @@
 {% block title %}Nouveau paiement — Meriba{% endblock %}
 {% block content %}
 <section class="page active">
-<div class="page-header">
-<div>
-<h1 class="page-title">Nouveau paiement</h1>
-<p class="page-desc">Enregistrez le paiement et générez instantanément le reçu numéroté.</p>
-</div>
-<div class="page-actions">
-<a class="btn" href="{% url 'payments:paiement_list' %}"><i class="fas fa-arrow-left"></i> Retour</a>
-</div>
-</div>
-<div class="card" style="width:50%; max-width:720px;">
-<div class="card-body">
-{% include "payments/_paiement_form_inner.html" %}
-</div>
-</div>
+    <div class="page-header">
+        <div>
+            <h1 class="page-title">Nouveau paiement</h1>
+            <p class="page-desc">Enregistrez le paiement et générez instantanément le reçu numéroté.</p>
+        </div>
+        <div class="page-actions">
+            <a class="btn" href="{% url 'payments:paiement_list' %}"><i class="fas fa-arrow-left"></i> Retour</a>
+        </div>
+    </div>
+    <div class="card" style="width:50%; max-width:720px;">
+        <div class="card-body">
+            {% include "payments/_paiement_form_inner.html" %}
+        </div>
+    </div>
 </section>
 {% endblock %}

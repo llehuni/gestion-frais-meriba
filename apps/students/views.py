@@ -32,7 +32,9 @@ class EleveListView(EleveReadMixin, ListView):
             qs = qs.distinct()
         if classe.isdigit():
             qs = qs.filter(classe_id=int(classe))
-        return qs
+        # Tri par défaut : du plus récent au plus ancien (le nouvel élève apparaît en premier).
+        # Les filtres q / classe ci-dessus sont conservés.
+        return qs.order_by("-date_inscription", "-id")
 
     def get_context_data(self, **kwargs):
         ctx = super().get_context_data(**kwargs)

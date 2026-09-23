@@ -3,27 +3,25 @@
 {% block content %}
 <section class="page active">
 <div class="page-header">
-<div><h1 class="page-title">Élèves à jour</h1><p class="page-desc">{% if paginator %}{{ paginator.count }}{% else %}{{ a_jour|length }}{% endif %} élève(s) soldé(s) — 12 par page</p></div>
+<div><h1 class="page-title">Élèves avec paiement</h1><p class="page-desc">{% if paginator %}{{ paginator.count }}{% else %}{{ a_jour|length }}{% endif %} élève(s) avec au moins un paiement — 12 par page</p></div>
 <div class="page-actions">
 <a class="btn" href="{% url 'reports:dashboard' %}">Rapports</a>
-<a class="btn" href="{% url 'reports:export_excel' %}?report=a_jour"><i class="fas fa-file-excel"></i> Excel</a>
-<a class="btn btn-primary" href="{% url 'reports:export_pdf' %}?report=a_jour"><i class="fas fa-file-pdf"></i> PDF</a>
+<a class="btn" href="{% url 'reports:export_pdf' %}?report=a_jour" download hx-boost="false"><i class="fas fa-file-pdf"></i> PDF</a>
 </div>
 </div>
 <div class="card">
 <div class="table-wrap">
 <table>
-<thead><tr><th>Élève</th><th>Classe</th><th>Total dû</th><th>Payé</th><th>Statut</th></tr></thead>
+<thead><tr><th>Élève</th><th>Classe</th><th>Total payé</th><th>Statut</th></tr></thead>
 <tbody>
 {% for sit in a_jour %}
 <tr>
 <td>{{ sit.eleve.nom_complet }} <span class="mono" style="font-size:11px; color:var(--fg-muted);">{{ sit.eleve.matricule }}</span></td>
 <td><span class="label label-accent">{{ sit.eleve.classe.nom }}</span></td>
-<td>{{ sit.total_du }} CDF</td>
 <td style="color:var(--success);">{{ sit.total_paye }} CDF</td>
-<td><span class="label label-success"><i class="fas fa-check"></i> À jour</span></td>
+<td><span class="label label-success"><i class="fas fa-check"></i> Payé</span></td>
 </tr>
-{% empty %}<tr><td colspan="5" style="text-align:center; padding:24px; color:var(--fg-muted);">Aucun élève à jour</td></tr>{% endfor %}
+{% empty %}<tr><td colspan="4" style="text-align:center; padding:24px; color:var(--fg-muted);">Aucun élève avec paiement</td></tr>{% endfor %}
 </tbody>
 </table>
 </div>

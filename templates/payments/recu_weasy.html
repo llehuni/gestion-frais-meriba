@@ -32,13 +32,13 @@ body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Inter, Helvet
 <tr><td class="k">Matricule</td><td class="v" style="font-family:ui-monospace,monospace; font-size:9pt;">{{ recu.eleve.matricule }}</td></tr>
 <tr><td class="k">Classe</td><td class="v">{{ recu.eleve.classe.nom }}</td></tr>
 <tr><td class="k">Année scolaire</td><td class="v">{{ recu.paiement.annee_scolaire }}</td></tr>
-<tr><td class="k">Motif</td><td class="v">{{ recu.paiement.type_frais.libelle }}</td></tr>
+<tr><td class="k">Motif</td><td class="v">{{ recu.paiement.get_type_frais_display }}</td></tr>
 <tr><td class="k">Mode</td><td class="v">{{ recu.paiement.get_mode_paiement_display }}</td></tr>
 <tr><td class="k">Date de paiement</td><td class="v">{{ recu.paiement.date_paiement|date:"d/m/Y" }}</td></tr>
 <tr><td class="k">Agent</td><td class="v">{{ recu.agent.get_full_name|default:recu.agent.login }}</td></tr>
 </table>
 
-<div class="total"><span>MONTANT PAYÉ</span><span>{{ recu.montant }} CDF</span></div>
+<div class="total"><span>MONTANT PAYÉ</span><span>{{ recu.montant }} {{ recu.devise }}</span></div>
 
 <div class="footer">
 <p>Merci pour votre paiement</p>

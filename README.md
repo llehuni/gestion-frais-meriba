@@ -1,71 +1,110 @@
 # Gestion des frais scolaires — Complexe Scolaire Meriba
 
-Système informatisé de gestion des frais scolaires du cycle primaire (1ʳᵉ à 6ᵉ). Projet Django monolithique.
+Application web de gestion des frais scolaires du Complexe Scolaire Meriba, destinée au cycle primaire (1ʳᵉ à 6ᵉ).
+Elle centralise la gestion des élèves, des classes, des frais, des paiements, des reçus et des rapports financiers pour le secrétariat, la caisse et la direction.
 
-> Source de vérité : `AGENT.md` + `BASE_CONNAISSANCE_IA_MERIBA_V2.md`. Aucune fonctionnalité hors périmètre sans validation.
+## Guide d'installation
 
-## Stack (AGENT.md §5)
+### 1. Prérequis
 
-- **Backend** : Python 3.14 + Django 6.1 (MVT monolithique)
-- **Templates** : Jinja2 (moteur principal) + DTL admin
-- **CSS** : Bulma CSS
-- **Interactions** : HTMX
-- **DB** : MySQL en production, SQLite en développement
-- **VCS** : Git
+- Python 3.10 ou supérieur (`python --version`)
+- Git
+- MySQL 8 pour un usage en production, mais le projet prend automatiquement le mode SQLite en fallback si MySQL n'est pas disponible ou si `mysqlclient` n'est pas installé
 
-## Architecture
+### 2. Récupérer le projet
 
-Client-Serveur 3 couches : Présentation (Bulma + HTMX) / Applicative-Métier (Django ORM + services) / Données (MySQL).
-
-## Structure
-
-```
-.
-├── config/           # configuration Django (settings, urls, wsgi, asgi)
-├── apps/             # apps métier (accounts, students, classes, fees, payments, reports, audit)
-├── templates/        # templates globaux
-├── static/           # assets statiques
-├── media/            # uploads (ignoré par git, .gitkeep présent)
-├── docs/             # documentation
-├── requirements/     # dépendances (base.txt, dev.txt)
-├── manage.py
-├── .env.example
-├── AGENT.md
-└── BASE_CONNAISSANCE_IA_MERIBA_V2.md
+```bash
+git clone <url-du-depot>
+cd gestion-frais-meriba
 ```
 
-Squelette initial uniquement : aucune logique métier implémentée.
-
-## Installation (dev)
+### 3. Créer l'environnement virtuel et installer les dépendances
 
 ```bash
 python -m venv .venv
-# Windows: .venv\Scripts\activate | Linux/macOS: source .venv/bin/activate
+
+# Windows
+.venv\Scripts\activate
+
+# Linux/macOS
+source .venv/bin/activate
+
 pip install -r requirements.txt
-cp .env.example .env  # renseigner SECRET_KEY
+```
+
+### 4. Configurer les variables d'environnement
+
+Copiez le fichier d'exemple puis renseignez les valeurs adaptées à votre environnement :
+
+```bash
+# Windows
+copy .env.example .env
+
+# Linux/macOS
+cp .env.example .env
+```
+
+Le projet charge automatiquement les variables depuis `.env` via `python-dotenv`.
+
+#### Option A — MySQL
+
+```ini
+DJANGO_SECRET_KEY=change-me
+DJANGO_DEBUG=True
+DB_ENGINE=django.db.backends.mysql
+DB_NAME=gestion_frais_meriba
+DB_USER=root
+DB_PASSWORD=your_password
+DB_HOST=127.0.0.1
+DB_PORT=3306
+```
+
+Créer la base avant migration :
+
+```sql
+CREATE DATABASE gestion_frais_meriba CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+```
+
+#### Option B — SQLite (pratique pour le développement)
+
+```ini
+DB_ENGINE=django.db.backends.sqlite3
+DB_NAME_SQLITE=db.sqlite3
+```
+
+Si MySQL est demandé mais que `mysqlclient` n'est pas installé, l'application bascule automatiquement sur SQLite pour continuer à fonctionner en développement.
+
+### 5. Appliquer les migrations
+
+```bash
 python manage.py migrate
+```
+
+### 6. Charger les données de démonstration (facultatif)
+
+```bash
+python manage.py loaddata fixtures/seed_meriba.json
+```
+
+### 7. Lancer le serveur
+
+```bash
 python manage.py runserver
 ```
 
-Vérifications :
+Puis ouvrez :
+
+```text
+http://127.0.0.1:8000
+```
+
+### 8. Vérifications
 
 ```bash
 python manage.py check
 python manage.py test
 ```
 
-## Rôles (AGENT.md §4)
-
-Administrateur, Secrétaire, Caissier, Direction, Tuteur (externe non connecté).
-
-## Règles métier critiques
-
-RG-01 matricule unique, RG-03 paiement >0, RG-04 reçu numéroté, RG-05 solde temps réel, RG-06 droits par rôle, RG-07 traçabilité, RG-08 suppression protégée.
-
-## Sécurité
-
-Auth par Django, permissions serveur, CSRF, validation serveur, mots de passe hachés, pas de secrets en git, HTTPS en prod.
-
 ## Licence
 
-Interne - Complexe Scolaire Meriba.
+Interne — Complexe Scolaire Meriba.

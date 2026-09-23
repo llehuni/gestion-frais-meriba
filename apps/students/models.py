@@ -33,10 +33,6 @@ def get_annee_scolaire_courante():
 
 
 class Eleve(models.Model):
-    """
-    Élève — UML: id, nom, prenom, dateNaissance, sexe, adresse, matricule, getMatricule()
-    Étendu: post_nom, classe, annee_scolaire (colonne auto), tuteur
-    """
     matricule = models.CharField(_("matricule"), max_length=20, unique=True, validators=[matricule_validator], db_index=True, blank=True, editable=False, help_text=_("Généré automatiquement, ex: MER-2025-001"))
     nom = models.CharField(_("nom"), max_length=100, db_index=True)
     post_nom = models.CharField(_("post-nom"), max_length=100, blank=True)
@@ -58,7 +54,7 @@ class Eleve(models.Model):
     class Meta:
         verbose_name = "élève"
         verbose_name_plural = "élèves"
-        ordering = ["nom", "post_nom", "prenom"]
+        ordering = ["-date_inscription", "-id"]
         indexes = [
             models.Index(fields=["matricule"]),
             models.Index(fields=["nom", "prenom"]),

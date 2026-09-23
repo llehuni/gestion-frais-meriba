@@ -1,8 +1,7 @@
 from django import forms
 from django.utils import timezone
 from apps.students.models import Eleve
-from apps.fees.models import TypeFrais
-from .models import ModePaiement
+from .models import Devise, ModePaiement, TypeFrais
 
 
 class PaiementForm(forms.Form):
@@ -19,17 +18,23 @@ class PaiementForm(forms.Form):
         required=False,
         widget=forms.TextInput(attrs={"class": "input", "placeholder": "Tapez nom, post-nom ou matricule...", "autocomplete": "off"}),
     )
-    type_frais = forms.ModelChoiceField(
-        queryset=TypeFrais.objects.all(),
+    type_frais = forms.ChoiceField(
+        choices=TypeFrais.choices,
         label="Type de frais",
         widget=forms.Select(attrs={"class": "input"}),
     )
     montant_paye = forms.DecimalField(
-        label="Montant (CDF)",
+        label="Montant",
         min_value=1,
         max_digits=10,
         decimal_places=2,
         widget=forms.NumberInput(attrs={"class": "input", "min": "1", "step": "0.01", "placeholder": "Ex: 150000"}),
+    )
+    devise = forms.ChoiceField(
+        choices=Devise.choices,
+        label="Devise",
+        initial=Devise.USD,
+        widget=forms.Select(attrs={"class": "input"}),
     )
     date_paiement = forms.DateField(
         label="Date",

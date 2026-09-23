@@ -1,6 +1,6 @@
 <div id="eleve-table">
     <div class="table-wrap">
-        <table>
+        <table class="table-compact">
             <thead>
                 <tr>
                     <th>Élève</th>
@@ -8,7 +8,6 @@
                     <th>Classe</th>
                     <th>Année</th>
                     <th>Tuteur</th>
-                    <th>Statut</th>
                     <th style="width:40px;"></th>
                 </tr>
             </thead>
@@ -28,7 +27,6 @@
                     <td><span class="label label-accent">{{ e.classe.nom }}</span></td>
                     <td><span class="label label-default">{{ e.annee_scolaire }}</span></td>
                     <td class="text-muted">{{ e.tuteur_nom }}</td>
-                    <td><span class="label label-success"><i class="fas fa-check"></i> Inscrit</span></td>
                     <td>
                         <div class="dropdown">
                             <button class="dropdown-toggle" onclick="toggleDropdown(event, this)"><i class="fas fa-ellipsis-vertical"></i></button>
@@ -52,7 +50,7 @@
                     </td>
                 </tr>
                 {% empty %}
-                <tr><td colspan="7" style="text-align:center; padding:32px; color:var(--fg-muted);">Aucun élève. <a href="{% url 'students:eleve_create' %}" style="color:var(--accent);">Créer</a></td></tr>
+                <tr><td colspan="6" style="text-align:center; padding:32px; color:var(--fg-muted);">Aucun élève. <a href="{% url 'students:eleve_create' %}" style="color:var(--accent);">Créer</a></td></tr>
                 {% endfor %}
             </tbody>
         </table>

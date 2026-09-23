@@ -24,9 +24,9 @@ class PaiementListView(CashierOrAdminMixin, ListView):
     paginate_by = 12
 
     def get_queryset(self):
-        qs = super().get_queryset().select_related("eleve", "eleve__classe", "type_frais", "agent", "recu_associe")
+        qs = super().get_queryset().select_related("eleve", "eleve__classe", "agent", "recu_associe")
         q = self.request.GET.get("q", "").strip()
-        type_id = self.request.GET.get("type", "").strip()
+        type_frais = self.request.GET.get("type", "").strip()
         if q:
             qs = qs.filter(
                 Q(eleve__matricule__icontains=q) |
@@ -34,16 +34,16 @@ class PaiementListView(CashierOrAdminMixin, ListView):
                 Q(eleve__prenom__icontains=q) |
                 Q(recu_associe__numero__icontains=q)
             )
-        if type_id.isdigit():
-            qs = qs.filter(type_frais_id=int(type_id))
+        if type_frais:
+            qs = qs.filter(type_frais=type_frais)
         return qs
 
     def get_context_data(self, **kwargs):
         ctx = super().get_context_data(**kwargs)
-        from apps.fees.models import TypeFrais
+        from .models import TypeFrais
         from django.db.models import Sum
         from django.utils import timezone
-        ctx["types"] = TypeFrais.objects.all()
+        ctx["types"] = TypeFrais.choices
         # Stats RG-05/06 : recettes jour/mois/total/arrieres
         today = timezone.now().date()
         qs_all = Paiement.objects.all()
@@ -92,6 +92,7 @@ class PaiementCreateView(CashierOrAdminMixin, View):
                     eleve=eleve,
                     type_frais=form.cleaned_data["type_frais"],
                     montant_paye=form.cleaned_data["montant_paye"],
+                    devise=form.cleaned_data["devise"],
                     date_paiement=form.cleaned_data["date_paiement"],
                     mode_paiement="especes",
                     agent=request.user,
@@ -119,7 +120,7 @@ class PaiementDetailView(CashierOrAdminMixin, DetailView):
     context_object_name = "paiement"
 
     def get_queryset(self):
-        return super().get_queryset().select_related("eleve", "eleve__classe", "type_frais", "agent", "recu_associe")
+        return super().get_queryset().select_related("eleve", "eleve__classe", "agent", "recu_associe")
 
 
 class RecuDetailView(CashierOrAdminMixin, DetailView):
@@ -139,7 +140,7 @@ class RecuPrintView(CashierOrAdminMixin, DetailView):
 
 class RecuPDFView(CashierOrAdminMixin, View):
     def get(self, request, pk):
-        recu = get_object_or_404(Recu.objects.select_related("eleve", "eleve__classe", "paiement", "paiement__type_frais", "agent"), pk=pk)
+        recu = get_object_or_404(Recu.objects.select_related("eleve", "eleve__classe", "paiement", "agent"), pk=pk)
         # Audit print
         from apps.audit.models import AuditLog
         AuditLog.objects.create(
@@ -186,14 +187,14 @@ class RecuPDFView(CashierOrAdminMixin, View):
             row("Élève:", f"{recu.eleve.nom_complet} ({recu.eleve.matricule})")
             row("Classe:", str(recu.eleve.classe.nom))
             row("Année scolaire:", recu.paiement.annee_scolaire)
-            row("Motif:", recu.paiement.type_frais.libelle)
+            row("Motif:", recu.paiement.get_type_frais_display())
             row("Mode:", recu.paiement.get_mode_paiement_display())
             row("Date:", recu.paiement.date_paiement.strftime("%d/%m/%Y"))
             row("Agent:", recu.agent.get_full_name() or recu.agent.login)
             y -= 8
             c.setFont("Helvetica-Bold", 12)
             c.drawString(50, y, "MONTANT PAYÉ :")
-            c.drawRightString(w-50, y, f"{recu.montant} CDF")
+            c.drawRightString(w-50, y, f"{recu.montant} {recu.devise}")
             c.setFont("Helvetica", 8)
             c.drawCentredString(w/2, y-30, "Merci pour votre paiement")
             c.setFont("Helvetica", 7)

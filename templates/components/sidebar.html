@@ -26,11 +26,7 @@
                 {% endif %}
 
                 <div class="nav-section">Finances</div>
-                {% if user.is_administrateur %}
-                <a class="nav-item {% if 'type_' in request.resolver_match.url_name or 'frais_' in request.resolver_match.url_name %}active{% endif %}" href="{% url 'fees:frais_list' %}" data-page="fees">
-                    <span class="ico"><i class="fas fa-file-invoice-dollar"></i></span> Frais scolaires
-                </a>
-                {% endif %}
+                {# Paramétrage frais supprimé — type_frais est désormais attribut Paiement, admin ne paramètre plus #}
                 {% if user.is_administrateur or user.is_caissier %}
                 <a class="nav-item {% if 'paiement' in request.resolver_match.url_name or 'recu' in request.resolver_match.url_name or 'situation' in request.resolver_match.url_name %}active{% endif %}" href="{% url 'payments:paiement_list' %}" data-page="payments">
                     <span class="ico"><i class="fas fa-money-bill"></i></span> Paiements

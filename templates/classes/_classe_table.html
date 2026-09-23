@@ -1,13 +1,12 @@
 <div id="classe-table">
     <div class="table-wrap">
-        <table>
+        <table class="table-compact">
             <thead>
                 <tr>
                     <th>Classe</th>
                     <th>Niveau</th>
                     <th>Section</th>
                     <th>Effectif</th>
-                    <th>Statut</th>
                     <th style="width:40px;"></th>
                 </tr>
             </thead>
@@ -18,7 +17,6 @@
                     <td><span class="label label-accent">{{ c.get_niveau_display }}</span></td>
                     <td>{{ c.section }}</td>
                     <td>{{ c.effectif }} élèves</td>
-                    <td><span class="label label-default">Active</span></td>
                     <td>
                         <div class="dropdown">
                             <button class="dropdown-toggle" onclick="toggleDropdown(event, this)"><i class="fas fa-ellipsis-vertical"></i></button>
@@ -39,7 +37,7 @@
                     </td>
                 </tr>
                 {% empty %}
-                <tr><td colspan="6" style="text-align:center; padding:32px; color:var(--fg-muted);">Aucune classe. <a href="{% url 'classes:classe_create' %}" style="color:var(--accent);">Créer une classe</a></td></tr>
+                <tr><td colspan="5" style="text-align:center; padding:32px; color:var(--fg-muted);">Aucune classe. <a href="{% url 'classes:classe_create' %}" style="color:var(--accent);">Créer une classe</a></td></tr>
                 {% endfor %}
             </tbody>
         </table>

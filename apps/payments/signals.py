@@ -21,13 +21,18 @@ def log_paiement_save(sender, instance, created, request=None, **kwargs):
         return
     try:
         action = "CREATE" if created else "UPDATE"
+        # type_frais désormais CharField -> display (convertir proxy lazy en str pour JSON)
+        try:
+            tf_label = str(instance.get_type_frais_display())
+        except Exception:
+            tf_label = str(instance.type_frais)
         AuditLog.objects.create(
             user=request.user,
             action=action,
             model_name="Paiement",
             object_id=str(instance.pk),
             object_repr=str(instance),
-            changes={"montant_paye": str(instance.montant_paye), "type_frais": instance.type_frais.libelle, "eleve": instance.eleve.matricule} if not created else None,
+            changes={"montant_paye": str(instance.montant_paye), "type_frais": str(tf_label), "eleve": instance.eleve.matricule} if not created else None,
             ip_address=_get_client_ip(request),
         )
     except Exception:
