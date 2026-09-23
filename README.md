@@ -86,6 +86,15 @@ python manage.py migrate
 python manage.py loaddata fixtures/seed_meriba.json
 ```
 
+#### Comptes de démonstration inclus dans le seed
+
+| Rôle | Login | Mot de passe |
+| --- | --- | --- |
+| Administrateur | `aphia` | `Aphia123!` |
+| Secrétaire | `secretaire` | `Secretaire123!` |
+| Caissier | `caissier` | `Caissier123!` |
+| Direction | `direction` | `Direction123!` |
+
 ### 7. Lancer le serveur
 
 ```bash
